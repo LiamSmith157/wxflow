@@ -115,13 +115,24 @@ describe('bindChatflowsApi', () => {
     })
 
     describe('getChatModels', () => {
-        it('should call GET /assistants/chatmodels', async () => {
+        it('should call GET /nodes/category/Chat Models', async () => {
             const mockModels = [{ name: 'gpt-4', label: 'GPT-4' }]
             ;(mockClient.get as jest.Mock).mockResolvedValue({ data: mockModels })
 
             const result = await api.getChatModels()
-            expect(mockClient.get).toHaveBeenCalledWith('/assistants/chatmodels')
+            expect(mockClient.get).toHaveBeenCalledWith('/nodes/category/Chat Models')
             expect(result).toEqual(mockModels)
+        })
+
+        it('should exclude LlamaIndex chat models', async () => {
+            const mockModels = [
+                { name: 'chatOpenAI', label: 'ChatOpenAI', tags: [] },
+                { name: 'chatOpenAI_LlamaIndex', label: 'ChatOpenAI', tags: ['LlamaIndex'] }
+            ]
+            ;(mockClient.get as jest.Mock).mockResolvedValue({ data: mockModels })
+
+            const result = await api.getChatModels()
+            expect(result).toEqual([mockModels[0]])
         })
     })
 })

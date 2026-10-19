@@ -1,4 +1,4 @@
-export const ASSISTANT_PROMPT_GENERATOR = `Given a task description, produce a detailed system prompt to guide a language model in completing the task effectively.
+export const INSTRUCTION_PROMPT_GENERATOR = `Given a task description, produce a detailed system prompt to guide a language model in completing the task effectively.
 
 <task_description>
 {{task}}

@@ -4,12 +4,13 @@ import { getErrorMessage } from '../../errors/utils'
 import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
 import path from 'path'
 import * as fs from 'fs'
-import { generateAgentflowv2 as generateAgentflowv2_json } from 'flowise-components'
+import { generateAgentflowv2 as generateAgentflowv2_json, extractResponseContent, ICommonObject } from 'flowise-components'
 import { z } from 'zod/v3'
 import { sysPrompt } from './prompt'
 import { databaseEntities } from '../../utils'
 import logger from '../../utils/logger'
 import { MODE } from '../../Interface'
+import { INSTRUCTION_PROMPT_GENERATOR } from '../../utils/prompt'
 
 // Define the Zod schema for Agentflowv2 data structure
 const NodeType = z.object({
@@ -248,6 +249,48 @@ const generateAgentflowv2 = async (question: string, selectedChatModel: Record<s
     }
 }
 
+const generateInstruction = async (task: string, selectedChatModel: ICommonObject): Promise<ICommonObject> => {
+    try {
+        const appServer = getRunningExpressApp()
+
+        if (selectedChatModel && Object.keys(selectedChatModel).length > 0) {
+            const nodeInstanceFilePath = appServer.nodesPool.componentNodes[selectedChatModel.name].filePath as string
+            const nodeModule = await import(nodeInstanceFilePath)
+            const newNodeInstance = new nodeModule.nodeClass()
+            const nodeData = {
+                credential: selectedChatModel.credential || selectedChatModel.inputs['FLOWISE_CREDENTIAL_ID'] || undefined,
+                inputs: selectedChatModel.inputs,
+                id: `${selectedChatModel.name}_0`
+            }
+            const options: ICommonObject = {
+                appDataSource: appServer.AppDataSource,
+                databaseEntities,
+                logger
+            }
+            const llmNodeInstance = await newNodeInstance.init(nodeData, '', options)
+            const response = await llmNodeInstance.invoke([
+                {
+                    role: 'user',
+                    content: INSTRUCTION_PROMPT_GENERATOR.replace('{{task}}', task)
+                }
+            ])
+            const content = extractResponseContent(response)
+            return { content }
+        }
+
+        throw new InternalFlowiseError(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            `Error: agentflowv2Service.generateInstruction - Error generating instruction`
+        )
+    } catch (error) {
+        throw new InternalFlowiseError(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            `Error: agentflowv2Service.generateInstruction - ${getErrorMessage(error)}`
+        )
+    }
+}
+
 export default {
-    generateAgentflowv2
+    generateAgentflowv2,
+    generateInstruction
 }

@@ -9,7 +9,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { IconSettings, IconAlertTriangle } from '@tabler/icons-react'
 
 // Project imports
-import NodeInputHandler from '../canvas/NodeInputHandler'
+import NodeInputHandler from '@/ui-component/input-handlers/NodeInputHandler'
 
 // API
 import nodesApi from '@/api/nodes'

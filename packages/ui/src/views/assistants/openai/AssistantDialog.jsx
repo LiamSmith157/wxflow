@@ -24,7 +24,7 @@ import {
 import { TooltipWithParser } from '@/ui-component/tooltip/TooltipWithParser'
 import { Dropdown } from '@/ui-component/dropdown/Dropdown'
 import { MultiDropdown } from '@/ui-component/dropdown/MultiDropdown'
-import CredentialInputHandler from '@/views/canvas/CredentialInputHandler'
+import CredentialInputHandler from '@/ui-component/input-handlers/CredentialInputHandler'
 import { File } from '@/ui-component/file/File'
 import { BackdropLoader } from '@/ui-component/loading/BackdropLoader'
 import DeleteConfirmDialog from './DeleteConfirmDialog'

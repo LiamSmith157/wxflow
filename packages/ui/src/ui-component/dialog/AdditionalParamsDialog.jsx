@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Dialog, DialogContent } from '@mui/material'
 import PerfectScrollbar from 'react-perfect-scrollbar'
-import NodeInputHandler from '@/views/canvas/NodeInputHandler'
+import NodeInputHandler from '@/ui-component/input-handlers/NodeInputHandler'
 import { HIDE_CANVAS_DIALOG, SHOW_CANVAS_DIALOG } from '@/store/actions'
 
 const AdditionalParamsDialog = ({ show, dialogProps, onCancel }) => {

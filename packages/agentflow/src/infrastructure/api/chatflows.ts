@@ -89,6 +89,7 @@ export function bindChatflowsApi(client: AxiosInstance) {
                 label: string
                 description?: string
                 category?: string
+                tags?: string[]
                 inputParams?: Array<{
                     name: string
                     label: string
@@ -98,8 +99,9 @@ export function bindChatflowsApi(client: AxiosInstance) {
                 }>
             }>
         > => {
-            const response = await client.get('/assistants/chatmodels')
-            return response.data
+            const response = await client.get('/nodes/category/Chat Models')
+            // LlamaIndex variants are not supported by agentflow
+            return response.data.filter((node: { tags?: string[] }) => !node.tags?.includes('LlamaIndex'))
         }
     }
 }

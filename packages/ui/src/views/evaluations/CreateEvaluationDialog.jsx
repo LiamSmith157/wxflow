@@ -30,7 +30,7 @@ import { useTheme } from '@mui/material/styles'
 import { StyledButton } from '@/ui-component/button/StyledButton'
 import ConfirmDialog from '@/ui-component/dialog/ConfirmDialog'
 import { Dropdown } from '@/ui-component/dropdown/Dropdown'
-import CredentialInputHandler from '@/views/canvas/CredentialInputHandler'
+import CredentialInputHandler from '@/ui-component/input-handlers/CredentialInputHandler'
 import { TooltipWithParser } from '@/ui-component/tooltip/TooltipWithParser'
 import { MultiDropdown } from '@/ui-component/dropdown/MultiDropdown'
 

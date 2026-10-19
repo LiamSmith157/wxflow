@@ -60,7 +60,7 @@ import { ChatMessage } from '../database/entities/ChatMessage'
 import { Telemetry } from './telemetry'
 import { getWorkspaceSearchOptions } from '../enterprise/utils/ControllerServiceUtils'
 import { UsageCacheManager } from '../UsageCacheManager'
-import { generateTTSForResponseStream, shouldAutoPlayTTS } from './buildChatflow'
+import { generateTTSForResponseStream, shouldAutoPlayTTS } from './textToSpeech'
 import { InternalFlowiseError } from '../errors/internalFlowiseError'
 import { StatusCodes } from 'http-status-codes'
 

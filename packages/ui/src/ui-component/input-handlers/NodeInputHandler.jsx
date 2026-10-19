@@ -80,7 +80,7 @@ import NvidiaNIMDialog from '@/ui-component/dialog/NvidiaNIMDialog'
 import PromptGeneratorDialog from '@/ui-component/dialog/PromptGeneratorDialog'
 
 // API
-import assistantsApi from '@/api/assistants'
+import nodesApi from '@/api/nodes'
 import chatflowsApi from '@/api/chatflows'
 import documentstoreApi from '@/api/documentstore'
 
@@ -606,7 +606,7 @@ const NodeInputHandler = ({
 
     const loadChatModels = async () => {
         try {
-            const resp = await assistantsApi.getChatModels()
+            const resp = await nodesApi.getChatModels()
             if (resp.data) {
                 const chatModels = resp.data ?? []
                 const chatModelsOptions = chatModels.map((model) => ({

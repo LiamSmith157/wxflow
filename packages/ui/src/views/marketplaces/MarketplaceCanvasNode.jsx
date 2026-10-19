@@ -7,8 +7,8 @@ import { Box, Typography, Divider, Button } from '@mui/material'
 
 // project imports
 import MainCard from '@/ui-component/cards/MainCard'
-import NodeInputHandler from '@/views/canvas/NodeInputHandler'
-import NodeOutputHandler from '@/views/canvas/NodeOutputHandler'
+import NodeInputHandler from '@/ui-component/input-handlers/NodeInputHandler'
+import NodeOutputHandler from '@/ui-component/input-handlers/NodeOutputHandler'
 import AdditionalParamsDialog from '@/ui-component/dialog/AdditionalParamsDialog'
 
 // const

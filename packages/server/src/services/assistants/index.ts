@@ -17,7 +17,7 @@ import { databaseEntities, decryptCredentialData, getAppVersion } from '../../ut
 import { INPUT_PARAMS_TYPE } from '../../utils/constants'
 import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
 import logger from '../../utils/logger'
-import { ASSISTANT_PROMPT_GENERATOR } from '../../utils/prompt'
+import { INSTRUCTION_PROMPT_GENERATOR } from '../../utils/prompt'
 import { checkUsageLimit } from '../../utils/quotaUsage'
 import nodesService from '../nodes'
 
@@ -547,7 +547,7 @@ const generateAssistantInstruction = async (task: string, selectedChatModel: ICo
             const response = await llmNodeInstance.invoke([
                 {
                     role: 'user',
-                    content: ASSISTANT_PROMPT_GENERATOR.replace('{{task}}', task)
+                    content: INSTRUCTION_PROMPT_GENERATOR.replace('{{task}}', task)
                 }
             ])
             const content = extractResponseContent(response)

@@ -12,7 +12,7 @@ import { StyledButton } from '@/ui-component/button/StyledButton'
 import { TabPanel } from '@/ui-component/tabs/TabPanel'
 import { TabsList } from '@/ui-component/tabs/TabsList'
 import { Tab } from '@/ui-component/tabs/Tab'
-import NodeInputHandler from '@/views/canvas/NodeInputHandler'
+import NodeInputHandler from '@/ui-component/input-handlers/NodeInputHandler'
 
 // Store
 import { HIDE_CANVAS_DIALOG, SHOW_CANVAS_DIALOG } from '@/store/actions'

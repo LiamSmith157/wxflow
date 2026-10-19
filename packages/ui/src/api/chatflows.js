@@ -22,6 +22,8 @@ const getHasChatflowChanged = (id, lastUpdatedDateTime) => client.get(`/chatflow
 
 const generateAgentflow = (body) => client.post(`/agentflowv2-generator/generate`, body)
 
+const generateInstruction = (body) => client.post(`/agentflowv2-generator/instruction`, body)
+
 const setWebhookSecret = (id) => client.post(`/chatflows/${id}/webhook-secret`)
 
 const clearWebhookSecret = (id) => client.delete(`/chatflows/${id}/webhook-secret`)
@@ -46,6 +48,7 @@ export default {
     getAllowChatflowUploads,
     getHasChatflowChanged,
     generateAgentflow,
+    generateInstruction,
     setWebhookSecret,
     clearWebhookSecret,
     getScheduleStatus,

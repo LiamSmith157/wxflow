@@ -9,12 +9,12 @@
 
 ## 2. 迁移共享代码(只移动,不删除功能)
 
--   [ ] 2.1 把 `buildChatflow.ts` 中的 `generateTTSForResponseStream` 和 `shouldAutoPlayTTS` 移到 `server/src/utils/textToSpeech.ts`,同时更新 `buildAgentflow.ts` 和 `buildChatflow.ts` 的 import。验证:`buildAgentflow.ts` 不再 import `./buildChatflow`;server 的 `tsc` 通过
--   [ ] 2.2 把 prompt 指令生成从 `services/assistants` 迁到 `services/agentflowv2-generator`,并注册 `POST /agentflowv2-generator/instruction`;UI 的 `PromptGeneratorDialog` 改为调用新路径;给新接口补一个 controller 的 jest 测试。验证:测试通过,并且在 v2 节点里用"生成指令"能拿到返回结果
--   [ ] 2.3 把 UI 中对 `assistantsApi.getChatModels` 的调用(`AgentflowGeneratorDialog`、`NodeInputHandler`、`CreateEvaluationDialog`)改为调用 `GET /nodes/category/Chat Models`;在 `ui/src/api/nodes.js` 中增加对应方法。验证:ui 构建通过,"AI 生成 flow"对话框中的模型列表能正常加载
--   [ ] 2.4 把 `packages/agentflow/src/infrastructure` 中对 `/assistants/chatmodels` 的调用改为 `GET /nodes/category/Chat Models`,同时更新相关测试的 mock。验证:`pnpm --filter @flowiseai/agentflow test` 通过
--   [ ] 2.5 把 `views/canvas/{CredentialInputHandler,NodeInputHandler,NodeOutputHandler}.jsx` 移到 `ui-component/input-handlers/`,把 `views/canvas/{AddNodes,CanvasHeader}.jsx` 移到 `views/agentflowsv2/`,并更新所有 import。验证:`grep -r "views/canvas/" ui/src` 只剩 `views/canvas` 目录自身以及待删除页面的引用;ui 构建通过
--   [ ] 2.6 提交本阶段改动,并重跑 v2 冒烟清单中的 AI 生成、节点编辑、凭据配置这几项。验证:与基线结果一致
+-   [x] 2.1 把 `buildChatflow.ts` 中的 `generateTTSForResponseStream` 和 `shouldAutoPlayTTS` 移到 `server/src/utils/textToSpeech.ts`,同时更新 `buildAgentflow.ts` 和 `buildChatflow.ts` 的 import。验证:`buildAgentflow.ts` 不再 import `./buildChatflow`;server 的 `tsc` 通过
+-   [x] 2.2 把 prompt 指令生成从 `services/assistants` 迁到 `services/agentflowv2-generator`,并注册 `POST /agentflowv2-generator/instruction`;UI 的 `PromptGeneratorDialog` 改为调用新路径;给新接口补一个 controller 的 jest 测试。验证:测试通过,并且在 v2 节点里用"生成指令"能拿到返回结果
+-   [x] 2.3 把 UI 中对 `assistantsApi.getChatModels` 的调用(`AgentflowGeneratorDialog`、`NodeInputHandler`、`CreateEvaluationDialog`)改为调用 `GET /nodes/category/Chat Models`;在 `ui/src/api/nodes.js` 中增加对应方法。验证:ui 构建通过,"AI 生成 flow"对话框中的模型列表能正常加载
+-   [x] 2.4 把 `packages/agentflow/src/infrastructure` 中对 `/assistants/chatmodels` 的调用改为 `GET /nodes/category/Chat Models`,同时更新相关测试的 mock。验证:`pnpm --filter @flowiseai/agentflow test` 通过
+-   [x] 2.5 把 `views/canvas/{CredentialInputHandler,NodeInputHandler,NodeOutputHandler}.jsx` 移到 `ui-component/input-handlers/`,把 `views/canvas/{AddNodes,CanvasHeader}.jsx` 移到 `views/agentflowsv2/`,并更新所有 import。验证:`grep -r "views/canvas/" ui/src` 只剩 `views/canvas` 目录自身以及待删除页面的引用;ui 构建通过
+-   [x] 2.6 提交本阶段改动,并重跑 v2 冒烟清单中的 AI 生成、节点编辑、凭据配置这几项。验证:与基线结果一致
 
 ## 3. 后端引擎与 flow 类型
 

@@ -20,7 +20,7 @@ import { CodeEditor } from '@/ui-component/editor/CodeEditor'
 import { ArrayRenderer } from '@/ui-component/array/ArrayRenderer'
 import ExpandTextDialog from '@/ui-component/dialog/ExpandTextDialog'
 import ManageScrapedLinksDialog from '@/ui-component/dialog/ManageScrapedLinksDialog'
-import CredentialInputHandler from '@/views/canvas/CredentialInputHandler'
+import CredentialInputHandler from '@/ui-component/input-handlers/CredentialInputHandler'
 import { flowContext } from '@/store/context/ReactFlowContext'
 
 // const

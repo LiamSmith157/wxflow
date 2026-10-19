@@ -22,7 +22,7 @@ import { IconX, IconVolume } from '@tabler/icons-react'
 import { useTheme } from '@mui/material/styles'
 
 // Project import
-import CredentialInputHandler from '@/views/canvas/CredentialInputHandler'
+import CredentialInputHandler from '@/ui-component/input-handlers/CredentialInputHandler'
 import { TooltipWithParser } from '@/ui-component/tooltip/TooltipWithParser'
 import { SwitchInput } from '@/ui-component/switch/Switch'
 import { Input } from '@/ui-component/input/Input'

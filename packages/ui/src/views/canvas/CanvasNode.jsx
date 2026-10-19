@@ -10,8 +10,8 @@ import Tooltip from '@mui/material/Tooltip'
 // project imports
 import NodeCardWrapper from '@/ui-component/cards/NodeCardWrapper'
 import NodeTooltip from '@/ui-component/tooltip/NodeTooltip'
-import NodeInputHandler from './NodeInputHandler'
-import NodeOutputHandler from './NodeOutputHandler'
+import NodeInputHandler from '@/ui-component/input-handlers/NodeInputHandler'
+import NodeOutputHandler from '@/ui-component/input-handlers/NodeOutputHandler'
 import AdditionalParamsDialog from '@/ui-component/dialog/AdditionalParamsDialog'
 import NodeInfoDialog from '@/ui-component/dialog/NodeInfoDialog'
 

@@ -48,7 +48,7 @@ import multiagent_workerPNG from '@/assets/images/multiagent_worker.png'
 import audioUploadSVG from '@/assets/images/wave-sound.jpg'
 
 // project import
-import NodeInputHandler from '@/views/canvas/NodeInputHandler'
+import NodeInputHandler from '@/ui-component/input-handlers/NodeInputHandler'
 import { MemoizedReactMarkdown } from '@/ui-component/markdown/MemoizedReactMarkdown'
 import { SafeHTML } from '@/ui-component/safe/SafeHTML'
 import SourceDocDialog from '@/ui-component/dialog/SourceDocDialog'
