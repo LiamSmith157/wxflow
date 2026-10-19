@@ -22,6 +22,7 @@ import { IMetricsProvider } from './Interface.Metrics'
 import { OpenTelemetry } from './metrics/OpenTelemetry'
 import { Prometheus } from './metrics/Prometheus'
 import errorHandlerMiddleware from './middlewares/errors'
+import apiNotFoundMiddleware from './middlewares/notFound'
 import { NodesPool } from './NodesPool'
 import { QueueManager } from './queue/QueueManager'
 import { ScheduleBeat } from './schedule/ScheduleBeat'
@@ -360,6 +361,8 @@ export class App {
         // ----------------------------------------
         // Serve UI static
         // ----------------------------------------
+
+        this.app.use('/api', apiNotFoundMiddleware)
 
         const packagePath = getNodeModulesPackagePath('flowise-ui')
         const uiBuildPath = path.join(packagePath, 'build')

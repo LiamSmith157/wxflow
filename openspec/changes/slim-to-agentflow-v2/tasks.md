@@ -27,16 +27,16 @@
 
 ## 4. 后端 API、实体与权限
 
--   [ ] 4.1 删除 `assistants`、`openai-assistants`、`openai-assistants-files`、`openai-assistants-vector-store`、`openai-realtime` 这几个模块的 routes、controllers、services,并从 `routes/index.ts` 中去掉注册;同时在 `index.ts` 的 UI 兜底路由之前增加 `/api` 下未匹配请求返回 404 JSON 的处理(上游会对任何未匹配路径返回 `200 + index.html`)。验证:`tsc` 通过;请求这些路径返回 404 且 `Content-Type` 为 JSON
--   [ ] 4.2 删除 `marketplaces` 模块的 routes、controllers、services,以及 `server/marketplaces/` 目录。验证:`tsc` 通过;`GET /api/v1/marketplaces/templates` 返回 404
--   [ ] 4.3 删除 `vectors` 模块的 routes、controllers、services,以及 `utils/upsertVector.ts`,同时删掉 `queue/UpsertQueue.ts` 中 `executeUpsert` 这个分支;保留 `upsert-history` 和 Document Store 的 upsert 任务。验证:`tsc` 通过;冒烟清单中 Document Store 的 upsert 和 upsert 历史查询都正常
--   [ ] 4.4 修改 `services/export-import`:删掉 ChatFlow、MultiAgent、AssistantCustom、AssistantFlow、AssistantOpenAI、CustomTemplate 段的导出;导入时如果遇到这些段或非 AGENTFLOW 类型的 flow,返回 400。补 jest 测试,覆盖 flow-types spec 中的导入、导出场景。验证:测试通过(其中 ChatFlow / AgentFlow(v1)/ AssistantFlow 三段及其导入 400 校验已在 3.4 完成,这里只处理 Assistant 与 CustomTemplate 段)
--   [ ] 4.5 删掉 `services/evaluations` 中的 Custom Assistant 分支。验证:`tsc` 通过;冒烟清单中的评估项通过
--   [ ] 4.6 删掉 `enterprise/services/workspace.service.ts`、`account.service.ts` 以及 `utils/index.ts` 中对 `Assistant`、`CustomTemplate` 的引用。验证:`tsc` 通过;创建和删除工作区都能成功
--   [ ] 4.7 删除 `Assistant`、`CustomTemplate` 实体,并从 `database/entities/index.ts` 中去掉;按 D5 为 sqlite、mysql、mariadb、postgres 各追加一个删表 migration 并注册。验证:用 sqlite 和 postgres 分别从空库启动,migration 全部执行成功,库里没有这两张表
--   [ ] 4.8 在 `enterprise/rbac/Permissions.ts` 中删除 `assistants:*`、`templates:*`、`chatflows:*`;把所有路由的权限检查中对这些权限的引用去掉,只保留 `agentflows:*` 等保留权限。补一个测试,验证只有 `agentflows:view` 权限的用户可以 `GET /chatflows`。验证:测试通过;`grep -rE "'(assistants|templates|chatflows):" server/src` 没有结果
--   [ ] 4.9 在 `packages/api-documentation` 中删掉上面这些被删接口的 swagger 定义,增加 `POST /agentflowv2-generator/instruction`。验证:启动文档服务后,页面中没有被删接口,有新接口
--   [ ] 4.10 提交本阶段改动,并重跑完整的 v2 冒烟清单。验证:与基线结果一致
+-   [x] 4.1 删除 `assistants`、`openai-assistants`、`openai-assistants-files`、`openai-assistants-vector-store`、`openai-realtime` 这几个模块的 routes、controllers、services,并从 `routes/index.ts` 中去掉注册;同时在 `index.ts` 的 UI 兜底路由之前增加 `/api` 下未匹配请求返回 404 JSON 的处理(上游会对任何未匹配路径返回 `200 + index.html`)。验证:`tsc` 通过;请求这些路径返回 404 且 `Content-Type` 为 JSON
+-   [x] 4.2 删除 `marketplaces` 模块的 routes、controllers、services,以及 `server/marketplaces/` 目录。验证:`tsc` 通过;`GET /api/v1/marketplaces/templates` 返回 404(实施时:`marketplaces/agentflowsv2` 的 13 个文件没有删除,而是改名为 `server/agentflow-examples/`,因为 AI 生成 flow 要把它们当参考样例,见 design D5a)
+-   [x] 4.3 删除 `vectors` 模块的 routes、controllers、services,以及 `utils/upsertVector.ts`,同时删掉 `queue/UpsertQueue.ts` 中 `executeUpsert` 这个分支;保留 `upsert-history` 和 Document Store 的 upsert 任务。验证:`tsc` 通过;冒烟清单中 Document Store 的 upsert 和 upsert 历史查询都正常(实施时同时删除了随之变成死代码的 `buildFlow`、`getStartingNodes`、`getEndingNodes`、`isFlowValidForStream`、`findMemoryNode`、`getMemorySessionId`、`getAllConnectedNodes` 以及 `IncomingInput.stopNodeId`、`isUpsert`;`saveUpsertFlowData` 仍被 Document Store 使用,保留)
+-   [x] 4.4 修改 `services/export-import`:删掉 ChatFlow、MultiAgent、AssistantCustom、AssistantFlow、AssistantOpenAI、CustomTemplate 段的导出;导入时如果遇到这些段或非 AGENTFLOW 类型的 flow,返回 400。补 jest 测试,覆盖 flow-types spec 中的导入、导出场景。验证:测试通过(其中 ChatFlow / AgentFlow(v1)/ AssistantFlow 三段及其导入 400 校验已在 3.4 完成,这里只处理 Assistant 与 CustomTemplate 段)(实施时 4.4 整体先于 4.1 完成,因为 export-import 同时依赖 assistants 和 marketplaces 两个 service)
+-   [x] 4.5 删掉 `services/evaluations` 中的 Custom Assistant 分支。验证:`tsc` 通过;冒烟清单中的评估项通过
+-   [x] 4.6 删掉 `enterprise/services/workspace.service.ts`、`account.service.ts` 以及 `utils/index.ts` 中对 `Assistant`、`CustomTemplate` 的引用。验证:`tsc` 通过;创建和删除工作区都能成功
+-   [x] 4.7 删除 `Assistant`、`CustomTemplate` 实体,并从 `database/entities/index.ts` 中去掉;按 D5 为 sqlite、mysql、mariadb、postgres 各追加一个删表 migration 并注册。验证:用 sqlite 和 postgres 分别从空库启动,migration 全部执行成功,库里没有这两张表
+-   [x] 4.8 在 `enterprise/rbac/Permissions.ts` 中删除 `assistants:*`、`templates:*`、`chatflows:*`;把所有路由的权限检查中对这些权限的引用去掉,只保留 `agentflows:*` 等保留权限。补一个测试,验证只有 `agentflows:view` 权限的用户可以 `GET /chatflows`。验证:测试通过;`grep -rE "'(assistants|templates|chatflows):" server/src` 没有结果
+-   [x] 4.9 在 `packages/api-documentation` 中删掉上面这些被删接口的 swagger 定义,增加 `POST /agentflowv2-generator/instruction`。验证:启动文档服务后,页面中没有被删接口,有新接口
+-   [x] 4.10 提交本阶段改动,并重跑完整的 v2 冒烟清单。验证:与基线结果一致
 
 ## 5. Components 节点裁剪
 
@@ -52,7 +52,7 @@
 -   [ ] 6.2 修改 `routes/MainRoutes.jsx`、`CanvasRoutes.jsx`、`DefaultRedirect.jsx` 和 `menu-items/*`:删掉 console-navigation spec 中列出的路由和菜单项,`DefaultRedirect` 的候选列表以 Agentflows 开头。验证:按 spec 中的场景手动检查菜单、根路径和已删除的路由
 -   [ ] 6.3 把 `views/agentflows` 改成只有 v2 的列表页:删掉版本切换、v1 废弃提示和 `MULTIAGENT` 查询,新建按钮跳转到 `/v2/agentcanvas`。验证:按 spec 中的场景手动检查
 -   [ ] 6.4 删掉 `ExportAsTemplateDialog`,以及 `FlowListMenu`、v2 `CanvasHeader`、`ToolDialog` 中与模板相关的入口。验证:`grep -rn "ExportAsTemplate\|marketplace" ui/src -i` 没有结果
--   [ ] 6.5 删掉 `CreateEvaluationDialog` 中的 Chatflow 和 Custom Assistant 选项,以及 `ChatMessage.jsx` 中的 RAG 上传分支。验证:按 spec 中的场景手动检查评估创建和文件上传
+-   [ ] 6.5 删掉 `CreateEvaluationDialog` 中的 Chatflow 和 Custom Assistant 选项,以及 `ChatMessage.jsx` 中的 RAG 上传分支。验证:按 spec 中的场景手动检查评估创建和文件上传(阶段 4 反查发现,UI 里 Custom Assistant 的引用还包括 `EvaluationResult`、`EvaluationResultSideDrawer`、`EvalsResultDialog`,以及 `views/settings/index.jsx` 与 `menu-items/customassistant.js`,这些在本任务一并处理)
 -   [ ] 6.6 grep `isAgentCanvas`、`isAgentflowV2`、`'CHATFLOW'`、`'MULTIAGENT'`、`'ASSISTANT'`,删掉已经不可能走到的分支;无法安全删除的记录到 `openspec/changes/slim-to-agentflow-v2/leftovers.md`。验证:ui 构建通过,并且 `pnpm --filter flowise-ui test` 通过
 -   [ ] 6.7 删除 server 中 cypress e2e 里覆盖已删页面的用例。验证:剩下的 cypress 用例能运行
 -   [ ] 6.8 提交本阶段改动,并重跑完整的 v2 冒烟清单。验证:与基线结果一致

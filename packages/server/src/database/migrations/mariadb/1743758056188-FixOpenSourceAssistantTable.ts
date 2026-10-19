@@ -1,5 +1,4 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
-import { Assistant } from '../../entities/Assistant'
 
 export class FixOpenSourceAssistantTable1743758056188 implements MigrationInterface {
     name = 'FixOpenSourceAssistantTable1743758056188'
@@ -10,7 +9,7 @@ export class FixOpenSourceAssistantTable1743758056188 implements MigrationInterf
             await queryRunner.query(`ALTER TABLE \`assistant\` ADD COLUMN \`type\` TEXT;`)
             await queryRunner.query(`UPDATE \`assistant\` SET \`type\` = 'OPENAI';`)
 
-            const assistants: Assistant[] = await queryRunner.query(`SELECT * FROM \`assistant\`;`)
+            const assistants: { id: string; details: string }[] = await queryRunner.query(`SELECT * FROM \`assistant\`;`)
             for (let assistant of assistants) {
                 const details = JSON.parse(assistant.details)
                 if (!details?.id) await queryRunner.query(`UPDATE \`assistant\` SET \`type\` = 'CUSTOM' WHERE id = '${assistant.id}';`)

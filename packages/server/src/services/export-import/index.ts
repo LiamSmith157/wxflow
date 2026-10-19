@@ -1,11 +1,9 @@
 import { StatusCodes } from 'http-status-codes'
 import { EntityManager, In, QueryRunner } from 'typeorm'
 import { v4 as uuidv4 } from 'uuid'
-import { Assistant } from '../../database/entities/Assistant'
 import { ChatFlow } from '../../database/entities/ChatFlow'
 import { ChatMessage } from '../../database/entities/ChatMessage'
 import { ChatMessageFeedback } from '../../database/entities/ChatMessageFeedback'
-import { CustomTemplate } from '../../database/entities/CustomTemplate'
 import { DocumentStore } from '../../database/entities/DocumentStore'
 import { DocumentStoreFileChunk } from '../../database/entities/DocumentStoreFileChunk'
 import { Execution } from '../../database/entities/Execution'
@@ -13,7 +11,6 @@ import { Tool } from '../../database/entities/Tool'
 import { Variable } from '../../database/entities/Variable'
 import { InternalFlowiseError } from '../../errors/internalFlowiseError'
 import { getErrorMessage } from '../../errors/utils'
-import assistantsService from '../assistants'
 import chatflowService from '../chatflows'
 import chatMessagesService from '../chat-messages'
 import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
@@ -23,7 +20,6 @@ import path from 'path'
 import { checkUsageLimit } from '../../utils/quotaUsage'
 import documenStoreService from '../documentstore'
 import executionService, { ExecutionFilters } from '../executions'
-import marketplacesService from '../marketplaces'
 import toolsService from '../tools'
 import variableService from '../variables'
 import { ChatMessageRatingType, ChatType, Platform } from '../../Interface'
@@ -31,12 +27,8 @@ import { sanitizeNullBytes } from '../../utils/sanitize.util'
 
 type ExportInput = {
     agentflowv2: boolean
-    assistantCustom: boolean
-    assistantOpenAI: boolean
-    assistantAzure: boolean
     chat_message: boolean
     chat_feedback: boolean
-    custom_template: boolean
     document_store: boolean
     execution: boolean
     tool: boolean
@@ -45,12 +37,8 @@ type ExportInput = {
 
 type ExportData = {
     AgentFlowV2: ChatFlow[]
-    AssistantCustom: Assistant[]
-    AssistantOpenAI: Assistant[]
-    AssistantAzure: Assistant[]
     ChatMessage: ChatMessage[]
     ChatMessageFeedback: ChatMessageFeedback[]
-    CustomTemplate: CustomTemplate[]
     DocumentStore: DocumentStore[]
     DocumentStoreFileChunk: DocumentStoreFileChunk[]
     Execution: Execution[]
@@ -62,13 +50,10 @@ const convertExportInput = (body: any): ExportInput => {
     try {
         if (!body || typeof body !== 'object') throw new Error('Invalid ExportInput object in request body')
         if (body.agentflowv2 && typeof body.agentflowv2 !== 'boolean') throw new Error('Invalid agentflowv2 property in ExportInput object')
-        if (body.assistant && typeof body.assistant !== 'boolean') throw new Error('Invalid assistant property in ExportInput object')
         if (body.chat_message && typeof body.chat_message !== 'boolean')
             throw new Error('Invalid chat_message property in ExportInput object')
         if (body.chat_feedback && typeof body.chat_feedback !== 'boolean')
             throw new Error('Invalid chat_feedback property in ExportInput object')
-        if (body.custom_template && typeof body.custom_template !== 'boolean')
-            throw new Error('Invalid custom_template property in ExportInput object')
         if (body.document_store && typeof body.document_store !== 'boolean')
             throw new Error('Invalid document_store property in ExportInput object')
         if (body.execution && typeof body.execution !== 'boolean') throw new Error('Invalid execution property in ExportInput object')
@@ -90,15 +75,6 @@ const exportData = async (exportInput: ExportInput, activeWorkspaceId: string): 
             exportInput.agentflowv2 === true ? await chatflowService.getAllChatflows('AGENTFLOW', activeWorkspaceId) : []
         AgentFlowV2 = 'data' in AgentFlowV2 ? AgentFlowV2.data : AgentFlowV2
 
-        let AssistantCustom: Assistant[] =
-            exportInput.assistantCustom === true ? await assistantsService.getAllAssistants(activeWorkspaceId, 'CUSTOM') : []
-
-        let AssistantOpenAI: Assistant[] =
-            exportInput.assistantOpenAI === true ? await assistantsService.getAllAssistants(activeWorkspaceId, 'OPENAI') : []
-
-        let AssistantAzure: Assistant[] =
-            exportInput.assistantAzure === true ? await assistantsService.getAllAssistants(activeWorkspaceId, 'AZURE') : []
-
         let allChatflow: ChatFlow[] | { data: ChatFlow[]; total: number } =
             exportInput.chat_message === true || exportInput.chat_feedback === true
                 ? await chatflowService.getAllChatflows(undefined, activeWorkspaceId)
@@ -111,9 +87,6 @@ const exportData = async (exportInput: ExportInput, activeWorkspaceId: string): 
 
         let ChatMessageFeedback: ChatMessageFeedback[] =
             exportInput.chat_feedback === true ? await chatMessagesService.getMessagesFeedbackByChatflowIds(chatflowIds) : []
-
-        let CustomTemplate: CustomTemplate[] =
-            exportInput.custom_template === true ? await marketplacesService.getAllCustomTemplates(activeWorkspaceId) : []
 
         let DocumentStore: DocumentStore[] | { data: DocumentStore[]; total: number } =
             exportInput.document_store === true ? await documenStoreService.getAllDocumentStores(activeWorkspaceId) : []
@@ -142,12 +115,8 @@ const exportData = async (exportInput: ExportInput, activeWorkspaceId: string): 
         return {
             FileDefaultName,
             AgentFlowV2,
-            AssistantCustom,
-            AssistantOpenAI,
-            AssistantAzure,
             ChatMessage,
             ChatMessageFeedback,
-            CustomTemplate,
             DocumentStore,
             DocumentStoreFileChunk,
             Execution,
@@ -179,27 +148,6 @@ async function replaceDuplicateIdsForChatFlow(queryRunner: QueryRunner, original
         throw new InternalFlowiseError(
             StatusCodes.INTERNAL_SERVER_ERROR,
             `Error: exportImportService.replaceDuplicateIdsForChatflow - ${getErrorMessage(error)}`
-        )
-    }
-}
-
-async function replaceDuplicateIdsForAssistant(queryRunner: QueryRunner, originalData: ExportData, assistants: Assistant[]) {
-    try {
-        const ids = assistants.map((assistant) => assistant.id)
-        const records = await queryRunner.manager.find(Assistant, {
-            where: { id: In(ids) }
-        })
-        if (records.length < 0) return originalData
-        for (let record of records) {
-            const oldId = record.id
-            const newId = uuidv4()
-            originalData = JSON.parse(JSON.stringify(originalData).replaceAll(oldId, newId))
-        }
-        return originalData
-    } catch (error) {
-        throw new InternalFlowiseError(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            `Error: exportImportService.replaceDuplicateIdsForAssistant - ${getErrorMessage(error)}`
         )
     }
 }
@@ -421,27 +369,6 @@ async function replaceDuplicateIdsForChatMessageFeedback(
     }
 }
 
-async function replaceDuplicateIdsForCustomTemplate(queryRunner: QueryRunner, originalData: ExportData, customTemplates: CustomTemplate[]) {
-    try {
-        const ids = customTemplates.map((customTemplate) => customTemplate.id)
-        const records = await queryRunner.manager.find(CustomTemplate, {
-            where: { id: In(ids) }
-        })
-        if (records.length < 0) return originalData
-        for (let record of records) {
-            const oldId = record.id
-            const newId = uuidv4()
-            originalData = JSON.parse(JSON.stringify(originalData).replaceAll(oldId, newId))
-        }
-        return originalData
-    } catch (error) {
-        throw new InternalFlowiseError(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            `Error: exportImportService.replaceDuplicateIdsForCustomTemplate - ${getErrorMessage(error)}`
-        )
-    }
-}
-
 async function replaceDuplicateIdsForDocumentStore(queryRunner: QueryRunner, originalData: ExportData, documentStores: DocumentStore[]) {
     try {
         const ids = documentStores.map((documentStore) => documentStore.id)
@@ -566,15 +493,6 @@ function reduceSpaceForChatflowFlowData(chatflows: ChatFlow[]) {
 function insertWorkspaceId(importedData: any, activeWorkspaceId?: string) {
     if (!activeWorkspaceId) return importedData
     importedData.forEach((item: any) => {
-        if (item.type === 'Tool') {
-            // TODO: This is a temporary fix where export data for CustomTemplate type Tool need to be changed in the future.
-            // Also handles backward compatibility for previously exported data where CustomTemplate type Tool does not have flowData field.
-            item.flowData = JSON.stringify({
-                iconSrc: item.iconSrc,
-                schema: item.schema,
-                func: item.func
-            })
-        }
         item.workspaceId = activeWorkspaceId
     })
     return importedData
@@ -587,11 +505,19 @@ async function saveBatch(manager: EntityManager, entity: any, items: any[], batc
     }
 }
 
-const REMOVED_FLOW_SEGMENTS = ['AgentFlow', 'AssistantFlow', 'ChatFlow']
+const REMOVED_SEGMENTS = [
+    'AgentFlow',
+    'AssistantFlow',
+    'ChatFlow',
+    'AssistantCustom',
+    'AssistantOpenAI',
+    'AssistantAzure',
+    'CustomTemplate'
+]
 
 function assertSupportedImportData(importData: ExportData) {
     const raw = importData as unknown as Record<string, unknown>
-    const unsupported = REMOVED_FLOW_SEGMENTS.filter((segment) => Array.isArray(raw[segment]) && (raw[segment] as unknown[]).length > 0)
+    const unsupported = REMOVED_SEGMENTS.filter((segment) => Array.isArray(raw[segment]) && (raw[segment] as unknown[]).length > 0)
     if ((importData.AgentFlowV2 ?? []).some((flow) => flow.type !== 'AGENTFLOW'))
         unsupported.push('AgentFlowV2 (flows that are not AGENTFLOW)')
     if (unsupported.length > 0) {
@@ -607,12 +533,8 @@ const importData = async (importData: ExportData, orgId: string, activeWorkspace
 
     // Initialize missing properties with empty arrays to avoid "undefined" errors
     importData.AgentFlowV2 = importData.AgentFlowV2 || []
-    importData.AssistantCustom = importData.AssistantCustom || []
-    importData.AssistantOpenAI = importData.AssistantOpenAI || []
-    importData.AssistantAzure = importData.AssistantAzure || []
     importData.ChatMessage = importData.ChatMessage || []
     importData.ChatMessageFeedback = importData.ChatMessageFeedback || []
-    importData.CustomTemplate = importData.CustomTemplate || []
     importData.DocumentStore = importData.DocumentStore || []
     importData.DocumentStoreFileChunk = importData.DocumentStoreFileChunk || []
     importData.Execution = importData.Execution || []
@@ -638,42 +560,6 @@ const importData = async (importData: ExportData, orgId: string, activeWorkspace
                 )
                 importData = await replaceDuplicateIdsForChatFlow(queryRunner, importData, importData.AgentFlowV2)
             }
-            if (importData.AssistantCustom.length > 0) {
-                importData.AssistantCustom = insertWorkspaceId(importData.AssistantCustom, activeWorkspaceId)
-                const existingAssistantCount = await assistantsService.getAssistantsCountByOrganization('CUSTOM', orgId)
-                const newAssistantCount = importData.AssistantCustom.length
-                await checkUsageLimit(
-                    'flows',
-                    subscriptionId,
-                    getRunningExpressApp().usageCacheManager,
-                    existingAssistantCount + newAssistantCount
-                )
-                importData = await replaceDuplicateIdsForAssistant(queryRunner, importData, importData.AssistantCustom)
-            }
-            if (importData.AssistantOpenAI.length > 0) {
-                importData.AssistantOpenAI = insertWorkspaceId(importData.AssistantOpenAI, activeWorkspaceId)
-                const existingAssistantCount = await assistantsService.getAssistantsCountByOrganization('OPENAI', orgId)
-                const newAssistantCount = importData.AssistantOpenAI.length
-                await checkUsageLimit(
-                    'flows',
-                    subscriptionId,
-                    getRunningExpressApp().usageCacheManager,
-                    existingAssistantCount + newAssistantCount
-                )
-                importData = await replaceDuplicateIdsForAssistant(queryRunner, importData, importData.AssistantOpenAI)
-            }
-            if (importData.AssistantAzure.length > 0) {
-                importData.AssistantAzure = insertWorkspaceId(importData.AssistantAzure, activeWorkspaceId)
-                const existingAssistantCount = await assistantsService.getAssistantsCountByOrganization('AZURE', orgId)
-                const newAssistantCount = importData.AssistantAzure.length
-                await checkUsageLimit(
-                    'flows',
-                    subscriptionId,
-                    getRunningExpressApp().usageCacheManager,
-                    existingAssistantCount + newAssistantCount
-                )
-                importData = await replaceDuplicateIdsForAssistant(queryRunner, importData, importData.AssistantAzure)
-            }
             if (importData.ChatMessage.length > 0) {
                 importData = await replaceDuplicateIdsForChatMessage(queryRunner, importData, importData.ChatMessage, activeWorkspaceId)
                 importData = await replaceExecutionIdForChatMessage(queryRunner, importData, importData.ChatMessage, activeWorkspaceId)
@@ -685,10 +571,6 @@ const importData = async (importData: ExportData, orgId: string, activeWorkspace
                     importData.ChatMessageFeedback,
                     activeWorkspaceId
                 )
-            if (importData.CustomTemplate.length > 0) {
-                importData.CustomTemplate = insertWorkspaceId(importData.CustomTemplate, activeWorkspaceId)
-                importData = await replaceDuplicateIdsForCustomTemplate(queryRunner, importData, importData.CustomTemplate)
-            }
             if (importData.DocumentStore.length > 0) {
                 importData.DocumentStore = insertWorkspaceId(importData.DocumentStore, activeWorkspaceId)
                 importData = await replaceDuplicateIdsForDocumentStore(queryRunner, importData, importData.DocumentStore)
@@ -713,13 +595,9 @@ const importData = async (importData: ExportData, orgId: string, activeWorkspace
             await queryRunner.startTransaction()
 
             if (importData.AgentFlowV2.length > 0) await queryRunner.manager.save(ChatFlow, importData.AgentFlowV2)
-            if (importData.AssistantCustom.length > 0) await queryRunner.manager.save(Assistant, importData.AssistantCustom)
-            if (importData.AssistantOpenAI.length > 0) await queryRunner.manager.save(Assistant, importData.AssistantOpenAI)
-            if (importData.AssistantAzure.length > 0) await queryRunner.manager.save(Assistant, importData.AssistantAzure)
             if (importData.ChatMessage.length > 0) await saveBatch(queryRunner.manager, ChatMessage, importData.ChatMessage)
             if (importData.ChatMessageFeedback.length > 0)
                 await queryRunner.manager.save(ChatMessageFeedback, importData.ChatMessageFeedback)
-            if (importData.CustomTemplate.length > 0) await queryRunner.manager.save(CustomTemplate, importData.CustomTemplate)
             if (importData.DocumentStore.length > 0) await queryRunner.manager.save(DocumentStore, importData.DocumentStore)
             if (importData.DocumentStoreFileChunk.length > 0)
                 await saveBatch(queryRunner.manager, DocumentStoreFileChunk, importData.DocumentStoreFileChunk)

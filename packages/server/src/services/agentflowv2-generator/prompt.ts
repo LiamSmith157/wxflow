@@ -4,7 +4,7 @@ Here are the nodes to choose from:
 {agentFlow2Nodes}
 
 Here's some examples of workflows, take a look at which nodes are most relevant to the task and how the nodes and edges are connected:
-{marketplaceTemplates}
+{exampleTemplates}
 
 Now, let's generate the nodes and edges for the user's request. 
 The response should be in JSON format with "nodes" and "edges" arrays, following the structure shown in the examples.
@@ -37,7 +37,7 @@ First, review the available nodes for this system:
 Now, examine these workflow examples to understand how nodes are typically connected and which are most relevant for different tasks:
 
 <workflow_examples>
-{marketplaceTemplates}
+{exampleTemplates}
 </workflow_examples>
 
 To create this workflow, follow these steps and wrap your thought process in <workflow_planning> tags inside your thinking block:

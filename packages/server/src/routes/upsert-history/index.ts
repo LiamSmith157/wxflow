@@ -6,10 +6,10 @@ const router = express.Router()
 // CREATE
 
 // READ
-router.get(['/', '/:id'], checkAnyPermission('chatflows:view,documentStores:view'), upsertHistoryController.getAllUpsertHistory)
+router.get(['/', '/:id'], checkAnyPermission('documentStores:view'), upsertHistoryController.getAllUpsertHistory)
 
 // PATCH
-router.patch('/', checkAnyPermission('chatflows:update,documentStores:upsert-config'), upsertHistoryController.patchDeleteUpsertHistory)
+router.patch('/', checkAnyPermission('documentStores:upsert-config'), upsertHistoryController.patchDeleteUpsertHistory)
 
 // DELETE
 

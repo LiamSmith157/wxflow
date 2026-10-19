@@ -1,12 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
 import { DataSource, EntityManager, In, IsNull, QueryRunner, UpdateResult } from 'typeorm'
 import { ApiKey } from '../../database/entities/ApiKey'
-import { Assistant } from '../../database/entities/Assistant'
 import { ChatFlow } from '../../database/entities/ChatFlow'
 import { ChatMessage } from '../../database/entities/ChatMessage'
 import { ChatMessageFeedback } from '../../database/entities/ChatMessageFeedback'
 import { Credential } from '../../database/entities/Credential'
-import { CustomTemplate } from '../../database/entities/CustomTemplate'
 import { Dataset } from '../../database/entities/Dataset'
 import { DatasetRow } from '../../database/entities/DatasetRow'
 import { DocumentStore } from '../../database/entities/DocumentStore'
@@ -182,7 +180,6 @@ export class WorkspaceService {
         // Start deleting in the correct order to maintain referential integrity
         await queryRunner.manager.delete(WorkspaceUser, { workspaceId })
         await queryRunner.manager.delete(ApiKey, { workspaceId })
-        await queryRunner.manager.delete(Assistant, { workspaceId })
         await queryRunner.manager.delete(Execution, { workspaceId })
 
         // Delete chatflow related entities
@@ -194,7 +191,6 @@ export class WorkspaceService {
         }
 
         await queryRunner.manager.delete(Credential, { workspaceId })
-        await queryRunner.manager.delete(CustomTemplate, { workspaceId })
 
         // Delete dataset related entities
         if (datasetIds.length > 0) {
@@ -269,10 +265,6 @@ export class WorkspaceService {
                 select: ['id', 'name', 'credentialName', 'createdDate', 'updatedDate', 'workspaceId'],
                 where: { id: In(itemIds) }
             })
-        } else if (itemType === 'custom_template') {
-            return await this.dataSource.getRepository(CustomTemplate).find({
-                where: { id: In(itemIds) }
-            })
         }
         return []
     }
@@ -308,15 +300,13 @@ export class WorkspaceService {
      * @param workspaceId The target workspaceId to assign to records with null workspaceId
      * @returns An array of update results, each containing the count of affected rows.
      * The array will always contain results for each entity type in the following order:
-     * [ApiKey, Assistant, ChatFlow, Credential, CustomTemplate, Dataset, DocumentStore, Evaluation, Evaluator, Tool, Variable]
+     * [ApiKey, ChatFlow, Credential, Dataset, DocumentStore, Evaluation, Evaluator, Execution, Tool, Variable]
      */
     public async setNullWorkspaceId(queryRunner: QueryRunner, workspaceId: string): Promise<UpdateResult[]> {
         return await Promise.all([
             queryRunner.manager.update(ApiKey, { workspaceId: IsNull() }, { workspaceId }),
-            queryRunner.manager.update(Assistant, { workspaceId: IsNull() }, { workspaceId }),
             queryRunner.manager.update(ChatFlow, { workspaceId: IsNull() }, { workspaceId }),
             queryRunner.manager.update(Credential, { workspaceId: IsNull() }, { workspaceId }),
-            queryRunner.manager.update(CustomTemplate, { workspaceId: IsNull() }, { workspaceId }),
             queryRunner.manager.update(Dataset, { workspaceId: IsNull() }, { workspaceId }),
             queryRunner.manager.update(DocumentStore, { workspaceId: IsNull() }, { workspaceId }),
             queryRunner.manager.update(Evaluation, { workspaceId: IsNull() }, { workspaceId }),

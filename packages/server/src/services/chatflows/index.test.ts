@@ -66,11 +66,8 @@ jest.mock('../../services/documentstore', () => ({
     default: { updateDocumentStoreUsage: jest.fn().mockResolvedValue(undefined) }
 }))
 jest.mock('../../utils', () => ({
-    constructGraphs: jest.fn().mockReturnValue({ graph: {}, nodeDependencies: {} }),
     getAppVersion: jest.fn().mockResolvedValue('1.0.0'),
-    getEndingNodes: jest.fn().mockReturnValue([]),
-    getTelemetryFlowObj: jest.fn().mockReturnValue({}),
-    isFlowValidForStream: jest.fn().mockReturnValue(false)
+    getTelemetryFlowObj: jest.fn().mockReturnValue({})
 }))
 jest.mock('../../utils/fileValidation', () => ({
     sanitizeAllowedUploadMimeTypesFromConfig: jest.fn((x: string) => x)

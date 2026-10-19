@@ -68,6 +68,23 @@
 
 -   备选方案:只删实体,不删表。没有采用,因为全新部署时这两张表会以空表形式一直留在库里,让人困惑。
 
+### D5a. v2 生成器依赖的参考样例要保留,但与 Marketplace 脱钩
+
+`agentflowv2-generator` 在生成 flow 时,会把 `server/marketplaces/agentflowsv2/` 里的 13 个 v2 模板读进系统提示词当作参考样例。删除 Marketplace 时不能把它们一并删掉,否则"AI 生成 flow"会因为读目录失败而整体不可用。处理方式:
+
+-   目录改名并移到 `packages/server/agentflow-examples/`(仍在包根目录,与 `dist` 的相对位置不变),`package.json` 的 `files` 同步改名;其余三个模板目录(chatflows、agentflows、tools)随 Marketplace 删除。
+-   生成器里的函数、变量和提示词占位符一并从 `marketplace` 改为 `example`(`prompt.ts` 与 `index.ts` 必须同步改,只改一边会让样例填不进提示词)。
+-   这些文件不再有任何面向用户的入口,只是生成器的内部数据。
+
+### D5b. 历史 migration 对实体的依赖
+
+删除 `Assistant`、`CustomTemplate` 实体时,历史 migration `FixOpenSourceAssistantTable`(4 个数据库各一个)用 `Assistant` 当查询行的类型。改为内联的 `{ id: string; details: string }`,运行行为不变。以后删实体时,要把 `database/migrations` 也纳入引用检查,不能只看业务代码。
+
+### D5c. 权限
+
+-   `Permissions.ts` 里删除 `chatflows`、`assistants`、`templates` 三个分类,所有路由守卫只保留 `agentflows:*` 等权限。
+-   历史 migration(`RefactorEnterpriseDatabase`、`AddApiKeyPermission`)写入默认角色的权限 JSON 里仍含这三类字符串。它们没有被任何守卫识别,也不在角色编辑页的权限目录里,所以是无害的残留;为了不改历史 migration,不去清理。
+
 ### D6. 先迁移共享代码,再删除
 
 UI 和 server 都按"先迁移,后删除"的顺序进行,保证每一步之后都能编译通过:

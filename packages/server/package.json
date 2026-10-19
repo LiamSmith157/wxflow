@@ -9,7 +9,7 @@
     },
     "files": [
         "bin",
-        "marketplaces",
+        "agentflow-examples",
         "dist",
         "npm-shrinkwrap.json",
         "oclif.manifest.json",

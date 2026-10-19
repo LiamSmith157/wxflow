@@ -8,6 +8,6 @@ router.post('/generate', textToSpeechController.generateTextToSpeech)
 
 router.post('/abort', textToSpeechController.abortTextToSpeech)
 
-router.get('/voices', checkAnyPermission('chatflows:config,agentflows:config'), textToSpeechController.getVoices)
+router.get('/voices', checkAnyPermission('agentflows:config'), textToSpeechController.getVoices)
 
 export default router

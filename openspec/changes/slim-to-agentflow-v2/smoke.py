@@ -2,11 +2,12 @@
 """v2 冒烟脚本:不依赖 LLM 的后端检查。每个阶段结束后对照 baseline.md 运行。
 
 用法:
-  SMOKE_BASE=http://localhost:3000 SMOKE_EMAIL=... SMOKE_PASSWORD=... python3 -I smoke.py [--phase baseline|stage3|after]
+  SMOKE_BASE=http://localhost:3000 SMOKE_EMAIL=... SMOKE_PASSWORD=... python3 -I smoke.py [--phase baseline|stage3|stage4|after]
 
 baseline 阶段:被计划删除的模块只记录 INFO(当前返回什么)。
 stage3 阶段:flow 类型约束必须生效(只接受 AGENTFLOW、缺省 AGENTFLOW),被删模块仍只记录 INFO。
-after 阶段:被删除的模块必须返回 404,迁移后的新接口必须可用。
+stage4 阶段:在 stage3 之上,被删除的 API 必须返回 JSON 404,迁移后的新接口必须可用;节点类别仍只记录 INFO。
+after 阶段:在 stage4 之上,已移除的节点类别和 LlamaIndex 节点也必须消失。
 LLM 相关项(Agent/LLM 节点执行、AI 生成 flow、AI 生成 prompt、评估运行)不在此脚本范围内。
 """
 import http.cookiejar
@@ -20,8 +21,9 @@ BASE = os.environ.get('SMOKE_BASE', 'http://localhost:3000').rstrip('/') + '/api
 EMAIL = os.environ['SMOKE_EMAIL']
 PASSWORD = os.environ['SMOKE_PASSWORD']
 PHASE = sys.argv[sys.argv.index('--phase') + 1] if '--phase' in sys.argv else 'baseline'
-TYPES_ENFORCED = PHASE in ('stage3', 'after')
-REMOVAL_ENFORCED = PHASE == 'after'
+TYPES_ENFORCED = PHASE in ('stage3', 'stage4', 'after')
+API_REMOVAL_ENFORCED = PHASE in ('stage4', 'after')
+NODES_REMOVAL_ENFORCED = PHASE == 'after'
 
 jar = http.cookiejar.CookieJar()
 opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
@@ -215,7 +217,7 @@ def main():
     removed_cats = ['Agents', 'Chains', 'LLMs', 'Multi Agents', 'Sequential Agents', 'Output Parsers', 'Prompts', 'Engine',
                     'Response Synthesizer', 'Graph', 'Moderation', 'Memory', 'Cache', 'Retrievers']
     present = [c for c in removed_cats if c in cats]
-    if REMOVAL_ENFORCED:
+    if NODES_REMOVAL_ENFORCED:
         check('nodes: 已移除类别不再出现', not present, f'still present={present}')
         check('nodes: 无 LlamaIndex 节点', not any('LlamaIndex' in (n.get('tags') or []) for n in nodes))
     else:
@@ -331,16 +333,22 @@ def main():
     # ---- 将被删除/迁移的接口 ----
     removed = ['/assistants', '/marketplaces/templates', '/openai-assistants', '/openai-realtime', '/assistants/components/chatmodels']
     for p in removed:
-        s, _, _ = call('GET', p)
-        if REMOVAL_ENFORCED:
-            check(f'GET {p} 已移除(404)', s == 404, f'status={s}')
+        s, _, ctype = call('GET', p)
+        if API_REMOVAL_ENFORCED:
+            check(f'GET {p} 已移除(JSON 404)', s == 404 and 'json' in ctype, f'status={s} type={ctype}')
         else:
             info(f'基线:GET {p}', f'status={s}')
-    s, _, _ = call('POST', f'/vector/internal-upsert/{fid}', {})
-    if REMOVAL_ENFORCED:
-        check('POST /vector/internal-upsert 已移除(404)', s == 404, f'status={s}')
+    s, _, ctype = call('POST', f'/vector/internal-upsert/{fid}', {})
+    if API_REMOVAL_ENFORCED:
+        check('POST /vector/internal-upsert 已移除(JSON 404)', s == 404 and 'json' in ctype, f'status={s} type={ctype}')
     else:
         info('基线:POST /vector/internal-upsert', f'status={s}')
+    if API_REMOVAL_ENFORCED:
+        s, _, ctype = call('GET', '/definitely-not-a-route')
+        check('未匹配的 /api 请求返回 JSON 404(不再落到 UI 页面)', s == 404 and 'json' in ctype, f'status={s} type={ctype}')
+        for t in ('CHATFLOW', 'MULTIAGENT', 'ASSISTANT'):
+            s, _, _ = call('GET', f'/chatflows?type={t}')
+            check(f'GET /chatflows?type={t} 被拒绝(400)', s == 400, f'status={s}')
     s, _, _ = call('POST', '/agentflowv2-generator/instruction', {})
     if PHASE != 'baseline':
         check('POST /agentflowv2-generator/instruction 路由存在(非404)', s != 404, f'status={s}(无模型,预期 4xx/5xx)')

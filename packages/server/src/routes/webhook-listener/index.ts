@@ -4,7 +4,7 @@ import { checkAnyPermission } from '../../enterprise/rbac/PermissionCheck'
 
 const router = express.Router()
 
-const requireFlowEdit = checkAnyPermission('chatflows:create,chatflows:update,agentflows:create,agentflows:update')
+const requireFlowEdit = checkAnyPermission('agentflows:create,agentflows:update')
 
 router.post('/:id/register', requireFlowEdit, webhookListenerController.registerListener)
 router.get('/:id/stream/:listenerId', requireFlowEdit, webhookListenerController.streamListener)

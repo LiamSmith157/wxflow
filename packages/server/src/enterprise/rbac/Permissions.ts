@@ -5,18 +5,6 @@ export class Permissions {
         // auditCategory.addPermission(new Permission('auditLogs:view', 'View Audit Logs'))
         // this.categories.push(auditCategory)
 
-        const chatflowsCategory = new PermissionCategory('chatflows')
-        chatflowsCategory.addPermission(new Permission('chatflows:view', 'View', true, true, true))
-        chatflowsCategory.addPermission(new Permission('chatflows:create', 'Create', true, true, true))
-        chatflowsCategory.addPermission(new Permission('chatflows:update', 'Update', true, true, true))
-        chatflowsCategory.addPermission(new Permission('chatflows:duplicate', 'Duplicate', true, true, true))
-        chatflowsCategory.addPermission(new Permission('chatflows:delete', 'Delete', true, true, true))
-        chatflowsCategory.addPermission(new Permission('chatflows:export', 'Export', true, true, true))
-        chatflowsCategory.addPermission(new Permission('chatflows:import', 'Import', true, true, true))
-        chatflowsCategory.addPermission(new Permission('chatflows:config', 'Edit Configuration', true, true, true))
-        chatflowsCategory.addPermission(new Permission('chatflows:domains', 'Allowed Domains', true, true, true))
-        this.categories.push(chatflowsCategory)
-
         const agentflowsCategory = new PermissionCategory('agentflows')
         agentflowsCategory.addPermission(new Permission('agentflows:view', 'View', true, true, true))
         agentflowsCategory.addPermission(new Permission('agentflows:create', 'Create', true, true, true))
@@ -36,13 +24,6 @@ export class Permissions {
         toolsCategory.addPermission(new Permission('tools:delete', 'Delete', true, true, true))
         toolsCategory.addPermission(new Permission('tools:export', 'Export', true, true, true))
         this.categories.push(toolsCategory)
-
-        const assistantsCategory = new PermissionCategory('assistants')
-        assistantsCategory.addPermission(new Permission('assistants:view', 'View', true, true, true))
-        assistantsCategory.addPermission(new Permission('assistants:create', 'Create', true, true, true))
-        assistantsCategory.addPermission(new Permission('assistants:update', 'Update', true, true, true))
-        assistantsCategory.addPermission(new Permission('assistants:delete', 'Delete', true, true, true))
-        this.categories.push(assistantsCategory)
 
         const credentialsCategory = new PermissionCategory('credentials')
         credentialsCategory.addPermission(new Permission('credentials:view', 'View', true, true, true))
@@ -106,15 +87,6 @@ export class Permissions {
         evaluationsCategory.addPermission(new Permission('evaluations:delete', 'Delete', false, true, true))
         evaluationsCategory.addPermission(new Permission('evaluations:run', 'Run Again', false, true, true))
         this.categories.push(evaluationsCategory)
-
-        const templatesCategory = new PermissionCategory('templates')
-        templatesCategory.addPermission(new Permission('templates:marketplace', 'View Marketplace Templates', true, true, true))
-        templatesCategory.addPermission(new Permission('templates:custom', 'View Custom Templates', true, true, true))
-        templatesCategory.addPermission(new Permission('templates:custom-delete', 'Delete Custom Template', true, true, true))
-        templatesCategory.addPermission(new Permission('templates:toolexport', 'Export Tool as Template', true, true, true))
-        templatesCategory.addPermission(new Permission('templates:flowexport', 'Export Flow as Template', true, true, true))
-        templatesCategory.addPermission(new Permission('templates:custom-share', 'Share Custom Templates', false, true, true))
-        this.categories.push(templatesCategory)
 
         const workspaceCategory = new PermissionCategory('workspace')
         workspaceCategory.addPermission(new Permission('workspace:view', 'View', false, true, true))

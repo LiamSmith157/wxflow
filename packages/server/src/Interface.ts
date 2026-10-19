@@ -18,8 +18,6 @@ export type MessageType = 'apiMessage' | 'userMessage'
 
 export type ChatflowType = 'AGENTFLOW'
 
-export type AssistantType = 'CUSTOM' | 'OPENAI' | 'AZURE'
-
 export type ExecutionState = 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' | 'TIMEOUT' | 'STOPPED'
 
 export enum MODE {
@@ -120,16 +118,6 @@ export interface ITool {
     iconSrc?: string
     schema?: string
     func?: string
-    updatedDate: Date
-    createdDate: Date
-    workspaceId: string
-}
-
-export interface IAssistant {
-    id: string
-    details: string
-    credential: string
-    iconSrc?: string
     updatedDate: Date
     createdDate: Date
     workspaceId: string
@@ -364,7 +352,6 @@ export interface IncomingInput {
     overrideConfig?: ICommonObject
     chatId?: string
     sessionId?: string
-    stopNodeId?: string
     uploads?: IFileUpload[]
     leadEmail?: string
     history?: IMessage[]
@@ -422,20 +409,6 @@ export interface IUploadFileSizeAndTypes {
     maxUploadSize: number
 }
 
-export interface ICustomTemplate {
-    id: string
-    name: string
-    flowData: string
-    updatedDate: Date
-    createdDate: Date
-    description?: string
-    type?: string
-    badge?: string
-    framework?: string
-    usecases?: string
-    workspaceId: string
-}
-
 export interface IFlowConfig {
     chatflowid: string
     chatflowId: string
@@ -473,7 +446,6 @@ export interface IExecuteFlowParams extends IPredictionQueueAppServer {
     files?: Express.Multer.File[]
     fileUploads?: IFileUpload[]
     uploadedFilesContent?: string
-    isUpsert?: boolean
     isRecursive?: boolean
     parentExecutionId?: string
     iterationContext?: ICommonObject

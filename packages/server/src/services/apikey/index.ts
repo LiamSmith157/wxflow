@@ -50,7 +50,7 @@ function validatePermissions(user: LoggedInUser, requestedPermissions: string[],
             'feat:login-activity': ['loginActivity:'],
             'feat:logs': ['logs:'],
             'feat:roles': ['roles:'],
-            'feat:share': ['credentials:share', 'templates:custom-share'],
+            'feat:share': ['credentials:share'],
             'feat:sso-config': ['sso:'],
             'feat:users': ['users:'],
             'feat:workspaces': ['workspace:']

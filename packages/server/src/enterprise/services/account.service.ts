@@ -5,12 +5,10 @@ import jwt, { JwtPayload } from 'jsonwebtoken'
 import moment from 'moment'
 import { DataSource, In, QueryRunner } from 'typeorm'
 import { ApiKey } from '../../database/entities/ApiKey'
-import { Assistant } from '../../database/entities/Assistant'
 import { ChatFlow } from '../../database/entities/ChatFlow'
 import { ChatMessage } from '../../database/entities/ChatMessage'
 import { ChatMessageFeedback } from '../../database/entities/ChatMessageFeedback'
 import { Credential } from '../../database/entities/Credential'
-import { CustomTemplate } from '../../database/entities/CustomTemplate'
 import { Dataset } from '../../database/entities/Dataset'
 import { DatasetRow } from '../../database/entities/DatasetRow'
 import { DocumentStore } from '../../database/entities/DocumentStore'
@@ -834,9 +832,7 @@ export class AccountService {
         await queryRunner.manager.delete(Variable, { workspaceId: In(workspaceIds) })
         await queryRunner.manager.delete(Tool, { workspaceId: In(workspaceIds) })
         await queryRunner.manager.delete(Credential, { workspaceId: In(workspaceIds) })
-        await queryRunner.manager.delete(Assistant, { workspaceId: In(workspaceIds) })
         await queryRunner.manager.delete(Evaluator, { workspaceId: In(workspaceIds) })
-        await queryRunner.manager.delete(CustomTemplate, { workspaceId: In(workspaceIds) })
         await queryRunner.manager.delete(Execution, { workspaceId: In(workspaceIds) })
 
         // Step 4.4.9: Delete Workspace

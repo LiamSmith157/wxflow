@@ -6,11 +6,7 @@ const router = express.Router()
 // CREATE
 
 // READ
-router.post(
-    '/',
-    checkAnyPermission('chatflows:create,chatflows:update,agentflows:create,agentflows:update'),
-    nodesRouter.executeCustomFunction
-)
+router.post('/', checkAnyPermission('agentflows:create,agentflows:update'), nodesRouter.executeCustomFunction)
 
 // UPDATE
 

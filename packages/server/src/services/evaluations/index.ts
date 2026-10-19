@@ -3,7 +3,6 @@ import { StatusCodes } from 'http-status-codes'
 import { In } from 'typeorm'
 import { v4 as uuidv4 } from 'uuid'
 import { ApiKey } from '../../database/entities/ApiKey'
-import { Assistant } from '../../database/entities/Assistant'
 import { ChatFlow } from '../../database/entities/ChatFlow'
 import { Credential } from '../../database/entities/Credential'
 import { Dataset } from '../../database/entities/Dataset'
@@ -515,15 +514,7 @@ const isOutdated = async (id: string, workspaceId: string) => {
         }
         const chatflowIds = evaluation.chatflowId ? JSON.parse(evaluation.chatflowId) : []
         const chatflowNames = evaluation.chatflowName ? JSON.parse(evaluation.chatflowName) : []
-        const chatflowTypes = evaluation.additionalConfig ? JSON.parse(evaluation.additionalConfig).chatflowTypes : []
         for (let i = 0; i < chatflowIds.length; i++) {
-            // check for backward compatibility, as previous versions did not the types in additionalConfig
-            if (chatflowTypes && chatflowTypes.length >= 0) {
-                if (chatflowTypes[i] === 'Custom Assistant') {
-                    // if the chatflow type is custom assistant, then we should NOT check in the chatflows table
-                    continue
-                }
-            }
             const chatflow = await appServer.AppDataSource.getRepository(ChatFlow).findOneBy({
                 id: chatflowIds[i],
                 workspaceId: workspaceId
@@ -541,39 +532,9 @@ const isOutdated = async (id: string, workspaceId: string) => {
                     returnObj.chatflows.push({
                         chatflowName: chatflowNames[i],
                         chatflowId: chatflowIds[i],
-                        chatflowType: chatflow.type === 'AGENTFLOW' ? 'Agentflow v2' : 'Chatflow',
+                        chatflowType: 'Agentflow v2',
                         isOutdated: true
                     })
-                }
-            }
-        }
-        if (chatflowTypes && chatflowTypes.length > 0) {
-            for (let i = 0; i < chatflowIds.length; i++) {
-                if (chatflowTypes[i] !== 'Custom Assistant') {
-                    // if the chatflow type is NOT custom assistant, then bail out for this item
-                    continue
-                }
-                const assistant = await appServer.AppDataSource.getRepository(Assistant).findOneBy({
-                    id: chatflowIds[i],
-                    workspaceId: workspaceId
-                })
-                if (!assistant) {
-                    returnObj.errors.push({
-                        message: `Custom Assistant ${chatflowNames[i]} not found`,
-                        id: chatflowIds[i]
-                    })
-                    isOutdated = true
-                } else {
-                    const chatflowLastUpdated = assistant.updatedDate.getTime()
-                    if (chatflowLastUpdated > evaluationRunDate) {
-                        isOutdated = true
-                        returnObj.chatflows.push({
-                            chatflowName: chatflowNames[i],
-                            chatflowId: chatflowIds[i],
-                            chatflowType: 'Custom Assistant',
-                            isOutdated: true
-                        })
-                    }
                 }
             }
         }

@@ -60,6 +60,7 @@ import { AddSSOColumns1730519457880 } from '../../../enterprise/database/migrati
 import { AddPersonalWorkspace1734074497540 } from '../../../enterprise/database/migrations/mariadb/1734074497540-AddPersonalWorkspace'
 import { RefactorEnterpriseDatabase1737076223692 } from '../../../enterprise/database/migrations/mariadb/1737076223692-RefactorEnterpriseDatabase'
 import { ExecutionLinkWorkspaceId1746862866554 } from '../../../enterprise/database/migrations/mariadb/1746862866554-ExecutionLinkWorkspaceId'
+import { DropAssistantAndCustomTemplate1790000000000 } from './1790000000000-DropAssistantAndCustomTemplate'
 
 export const mariadbMigrations = [
     Init1693840429259,
@@ -122,5 +123,6 @@ export const mariadbMigrations = [
     AddWebhookSecretToChatFlow1776240000003,
     AddMcpServerConfigToChatFlow1767000000000,
     AddScheduleEntities1772000000000,
-    AddSSOIdentityBinding1780000000000
+    AddSSOIdentityBinding1780000000000,
+    DropAssistantAndCustomTemplate1790000000000
 ]

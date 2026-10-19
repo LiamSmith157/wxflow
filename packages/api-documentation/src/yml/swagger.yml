@@ -1,5 +1,5 @@
 tags:
-    - name: assistants
+    - name: agentflowv2-generator
     - name: attachments
     - name: chatmessage
     - name: chatflows
@@ -11,9 +11,59 @@ tags:
     - name: tools
     - name: upsert-history
     - name: variables
-    - name: vector
 
 paths:
+    /agentflowv2-generator/instruction:
+        post:
+            tags:
+                - agentflowv2-generator
+            security:
+                - bearerAuth: []
+            operationId: generateInstruction
+            summary: Generate an instruction
+            description: Use a chat model to turn a task description into a detailed system prompt for an agentflow node.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - task
+                                - selectedChatModel
+                            properties:
+                                task:
+                                    type: string
+                                    description: What the node should do
+                                    example: Summarize incoming support emails
+                                selectedChatModel:
+                                    type: object
+                                    description: The chat model node to use, with its inputs
+                                    required:
+                                        - name
+                                    properties:
+                                        name:
+                                            type: string
+                                            example: chatOpenAI
+                                        inputs:
+                                            type: object
+                                            additionalProperties: true
+            responses:
+                '200':
+                    description: The generated instruction
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    content:
+                                        type: string
+                                        description: The generated system prompt
+                '412':
+                    description: Request body not provided
+                '500':
+                    description: Internal server error
+
     /chatmessage/{id}:
         get:
             tags:
@@ -164,138 +214,6 @@ paths:
                     description: Chat messages not found
                 '500':
                     description: Internal error
-    /assistants:
-        post:
-            tags:
-                - assistants
-            security:
-                - bearerAuth: []
-            operationId: createAssistant
-            summary: Create a new assistant
-            description: Create a new assistant with the provided details
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Assistant'
-                required: true
-            responses:
-                '200':
-                    description: Assistant created successfully
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Assistant'
-                '400':
-                    description: Invalid input provided
-                '422':
-                    description: Validation exception
-        get:
-            tags:
-                - assistants
-            security:
-                - bearerAuth: []
-            summary: List all assistants
-            description: Retrieve a list of all assistants
-            operationId: listAssistants
-            responses:
-                '200':
-                    description: Successful operation
-                    content:
-                        application/json:
-                            schema:
-                                type: array
-                                items:
-                                    $ref: '#/components/schemas/Assistant'
-                '500':
-                    description: Internal error
-    /assistants/{id}:
-        get:
-            tags:
-                - assistants
-            security:
-                - bearerAuth: []
-            summary: Get assistant by ID
-            description: Retrieve a specific assistant by ID
-            operationId: getAssistantById
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-                  description: Assistant ID
-            responses:
-                '200':
-                    description: Successful operation
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Assistant'
-                '400':
-                    description: The specified ID is invalid
-                '404':
-                    description: Assistant not found
-                '500':
-                    description: Internal error
-        put:
-            tags:
-                - assistants
-            security:
-                - bearerAuth: []
-            summary: Update assistant details
-            description: Update the details of an existing assistant
-            operationId: updateAssistant
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-                  description: Assistant ID
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Assistant'
-            responses:
-                '200':
-                    description: Assistant updated successfully
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Assistant'
-                '400':
-                    description: The specified ID is invalid or body is missing
-                '404':
-                    description: Assistant not found
-                '500':
-                    description: Internal error
-        delete:
-            tags:
-                - assistants
-            security:
-                - bearerAuth: []
-            summary: Delete an assistant
-            description: Delete an assistant by ID
-            operationId: deleteAssistant
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-                  description: Assistant ID
-            responses:
-                '200':
-                    description: Assistant deleted successfully
-                '400':
-                    description: The specified ID is invalid
-                '404':
-                    description: Assistant not found
-                '500':
-                    description: Internal error
-
     /attachments/{chatflowId}/{chatId}:
         post:
             tags:
@@ -1695,69 +1613,6 @@ paths:
                     description: Variable not found
                 '500':
                     description: Internal server error
-    /vector/upsert/{id}:
-        post:
-            tags:
-                - vector
-            security:
-                - bearerAuth: []
-            operationId: vectorUpsert
-            summary: Upsert vector embeddings
-            description: Upsert vector embeddings of documents in a chatflow
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-                  description: Chatflow ID
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            type: object
-                            properties:
-                                stopNodeId:
-                                    type: string
-                                    description: In cases when you have multiple vector store nodes, you can specify the node ID to store the vectors
-                                    example: 'node_1'
-                                overrideConfig:
-                                    type: object
-                                    description: The configuration to override the default vector upsert settings (optional)
-                    multipart/form-data:
-                        schema:
-                            type: object
-                            properties:
-                                files:
-                                    type: array
-                                    items:
-                                        type: string
-                                        format: binary
-                                    description: Files to be uploaded
-                                modelName:
-                                    type: string
-                                    nullable: true
-                                    example: ''
-                                    description: Other override configurations
-                            required:
-                                - files
-                required: true
-            responses:
-                '200':
-                    description: Vector embeddings upserted successfully
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/VectorUpsertResponse'
-                '400':
-                    description: Invalid input provided
-                '404':
-                    description: Chatflow not found
-                '422':
-                    description: Validation error
-                '500':
-                    description: Internal server error
-
 components:
     responses:
         UnauthorizedError:
@@ -1890,7 +1745,7 @@ components:
                     example: 'category1;category2'
                 type:
                     type: string
-                    enum: [CHATFLOW, MULTIAGENT]
+                    enum: [AGENTFLOW]
                 createdDate:
                     type: string
                     format: date-time
@@ -2005,59 +1860,6 @@ components:
                     type: object
                     additionalProperties:
                         type: string
-
-        Assistant:
-            type: object
-            properties:
-                id:
-                    type: string
-                    example: 'd290f1ee-6c54-4b01-90e6-d701748f0851'
-                details:
-                    type: object
-                    properties:
-                        id:
-                            type: string
-                            example: 'asst_zbNeYIuXIUSKVHjJkfRo6ilv'
-                        name:
-                            type: string
-                            example: 'assistant'
-                        description:
-                            type: string
-                        model:
-                            type: string
-                            example: 'gpt-4'
-                        instructions:
-                            type: string
-                            example: 'You are a helpful assistant, do your best to answer question and query'
-                        temperature:
-                            type: number
-                            example: 1
-                        top_p:
-                            type: number
-                            example: 1
-                        tools:
-                            type: array
-                            items:
-                                type: string
-                            example: ['function', 'code_interpreter', 'file_search']
-                        tool_resources:
-                            type: object
-                            additionalProperties:
-                                type: object
-                credential:
-                    type: string
-                    example: '7db93c02-8d5a-4117-a8f1-3dfb6721b339'
-                iconSrc:
-                    type: string
-                    example: '/images/assistant.png'
-                createdDate:
-                    type: string
-                    format: date-time
-                    example: '2024-08-24T14:15:22Z'
-                updatedDate:
-                    type: string
-                    format: date-time
-                    example: '2024-08-24T14:15:22Z'
 
         Credential:
             type: object

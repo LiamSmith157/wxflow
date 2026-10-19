@@ -2,7 +2,6 @@ import { DataSource } from 'typeorm'
 import {
     IComponentNodes,
     IExecuteDocStoreUpsert,
-    IExecuteFlowParams,
     IExecutePreviewLoader,
     IExecuteProcessLoader,
     IExecuteVectorStoreInsert
@@ -10,7 +9,6 @@ import {
 import { Telemetry } from '../utils/telemetry'
 import { CachePool } from '../CachePool'
 import { BaseQueue } from './BaseQueue'
-import { executeUpsert } from '../utils/upsertVector'
 import { executeDocStoreUpsert, insertIntoVectorStore, previewChunks, processLoader } from '../services/documentstore'
 import { RedisOptions } from 'bullmq'
 import logger from '../utils/logger'
@@ -50,9 +48,7 @@ export class UpsertQueue extends BaseQueue {
         return this.queue
     }
 
-    async processJob(
-        data: IExecuteFlowParams | IExecuteDocStoreUpsert | IExecuteProcessLoader | IExecuteVectorStoreInsert | IExecutePreviewLoader
-    ) {
+    async processJob(data: IExecuteDocStoreUpsert | IExecuteProcessLoader | IExecuteVectorStoreInsert | IExecutePreviewLoader) {
         if (this.appDataSource) data.appDataSource = this.appDataSource
         if (this.telemetry) data.telemetry = this.telemetry
         if (this.cachePool) data.cachePool = this.cachePool
@@ -83,8 +79,6 @@ export class UpsertQueue extends BaseQueue {
             return await executeDocStoreUpsert(data as IExecuteDocStoreUpsert)
         }
 
-        // upsert-vector/:chatflowid
-        logger.info('Upserting to vector store via chatflow...')
-        return await executeUpsert(data as IExecuteFlowParams)
+        throw new Error('Unknown upsert job type')
     }
 }
