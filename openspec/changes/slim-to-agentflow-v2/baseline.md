@@ -43,7 +43,7 @@
 ```bash
 # 1. 启动服务(sqlite,数据目录放在临时目录;SECRETKEY_PATH 等目录必须预先创建)
 export PATH=/root/.local/share/node-v24.15.0/bin:$PATH
-export PORT=3000 DATABASE_TYPE=sqlite DATABASE_PATH=<dir>/db LOG_PATH=<dir>/logs \
+export HTTP_SECURITY_CHECK=false PORT=3000 DATABASE_TYPE=sqlite DATABASE_PATH=<dir>/db LOG_PATH=<dir>/logs \
        BLOB_STORAGE_PATH=<dir>/storage SECRETKEY_PATH=<dir>/secret APIKEY_PATH=<dir>/apikey
 mkdir -p <dir>/{db,logs,storage,secret,apikey}
 cd packages/server/bin && ./run start
@@ -58,7 +58,7 @@ SMOKE_EMAIL=smoke@example.com SMOKE_PASSWORD=<password> python3 -I smoke.py --ph
 
 之后每个阶段结束都用 `--phase after` 对照(被删除接口必须 404,不传 `type` 缺省为 AGENTFLOW,已移除类别不再出现)。
 
-### 基线结果:24 通过,0 失败
+### 基线结果:31 通过,0 失败
 
 ```
 PASS  ping  status=200
@@ -73,10 +73,19 @@ INFO  基线:不传 type 创建(上游返回 400,任务 3.4 改为缺省 AGENTFL
 INFO  基线:创建 type=CHATFLOW  status=200
 PASS  prediction: Start→CustomFunction→DirectReply(变量已替换)  status=200 text=OUT:fn-result-3
 PASS  prediction: Condition 走 true 分支  status=200 text=BRANCH_TRUE
-PASS  executions: 有执行记录  status=200 total=13
+PASS  Iteration: 对数组逐项执行子节点  status=200 text='item-a
+item-b
+item-c'
+PASS  Loop: 达到 maxLoopCount 后输出 fallbackMessage  status=200 text='LOOP_FALLBACK' fn_runs=2
+PASS  Human Input(proceed): 首次执行在 Human Input 处暂停  status=200 exec=[('startAgentflow_0', 'FINISHED'), ('humanInputAgentflow_0', 'STOPPED')]
+PASS  Human Input(proceed): 恢复后走 APPROVED 分支  status=200 text='APPROVED'
+PASS  Human Input(reject): 首次执行在 Human Input 处暂停  status=200 exec=[('startAgentflow_0', 'FINISHED'), ('humanInputAgentflow_0', 'STOPPED')]
+PASS  Human Input(reject): 恢复后走 REJECTED 分支  status=200 text='REJECTED'
+PASS  executions: 有执行记录  status=200 total=28
 PASS  executions: 详情可读取  status=200
 PASS  public-chatflows 可匿名读取  status=200
 PASS  prediction 流式返回 SSE  status=200 ctype=text/event-stream
+PASS  Execute Flow: 调用另一个 v2 flow 并取得结果  status=200 text='EF:OUT:fn-result-3'(需要服务端 HTTP_SECURITY_CHECK=false,见 baseline.md)
 PASS  document-store 创建  status=200
 PASS  upsert-history 接口可用  status=200
 PASS  tools 创建自定义工具  status=200
@@ -96,7 +105,7 @@ INFO  基线:GET /openai-realtime  status=412
 INFO  基线:GET /assistants/components/chatmodels  status=200
 INFO  基线:POST /vector/internal-upsert  status=500
 INFO  基线:POST /agentflowv2-generator/instruction  status=200
-== baseline: 24 pass, 0 fail, 13 info ==
+== baseline: 31 pass, 0 fail, 13 info ==
 ```
 
 基线中的节点类别数量(共 300 个节点):
@@ -107,21 +116,26 @@ INFO  基线:POST /agentflowv2-generator/instruction  status=200
 
 ### 基线观察到的事实
 
+-   **Execute Flow 默认被上游的 SSRF 防护拦截。** 它通过 HTTP 自调用 `{baseURL}/api/v1/prediction/{flowId}`,而 `localhost`/`127.0.0.0/8` 在默认拒绝列表里,报 `Access to this host is denied by policy`。冒烟用的测试服务设置了 `HTTP_SECURITY_CHECK=false` 才能自调用本机;这是**测试环境配置,不要带进生产**。被调用的 flow 需要是 public 的(或带 API Key)。
+
 -   **`/` 能正常托管 UI**:`index.html` 与 JS 资源都返回 200。
 -   **不传 `type` 创建 flow 时,上游返回 400**(`validateChatflowType(undefined)` 失败)。flow-types spec 要求改为缺省 `AGENTFLOW`,由任务 3.4 完成。
 -   **开源版没有 `datasets:*` 权限**(`Permissions.ts` 中该权限对 open source 标记为 false),`POST /datasets/set` 对 owner 也返回 403。因此在没有 enterprise 许可的部署里,**Datasets / Evaluators / Evaluations 无法验证**,后续各阶段对这部分只能靠 `tsc` 和单元测试兜底。
 -   `GET /openai-assistants`、`/openai-realtime` 返回 412(缺少 credential),路由存在。
 -   `Utilities` 类别(5 个节点:customFunction、getVariable、ifElseFunction、setVariable、stickyNote)在 node-catalog spec 中没有归类。它们是 v1 画布用的节点(v2 有自己的 Custom Function / Sticky Note),任务 5.1 处理节点裁剪时需要决定,默认建议删除。
 
+### 已纳入冒烟的控制流节点(不依赖 LLM)
+
+Iteration(3 项数组逐项执行)、Loop(`maxLoopCount` 到达后输出 fallback)、Human Input(暂停,再分别用 proceed / reject 恢复)、Execute Flow(自调用另一个 v2 flow)。
+
 ### 未验证项(需要真实模型,或需要浏览器操作)
 
-| 项目                                                    | 原因                                                           |
-| ------------------------------------------------------- | -------------------------------------------------------------- |
-| Agent / LLM / Condition Agent 节点实际调用模型          | 不接真实模型                                                   |
-| AI 生成 flow、AI 生成 prompt                            | 需要模型                                                       |
-| Agent 节点使用 Tool / MCP / Document Store 知识库       | 需要模型                                                       |
-| Iteration、Loop、Human Input 的暂停与继续、Execute Flow | 本次脚本未覆盖,建议在阶段 3 之前补进脚本(这几个节点不依赖 LLM) |
-| Evaluations / Datasets / Evaluators                     | 开源版无权限(见上)                                             |
-| 画布交互、聊天面板、HITL 审批界面、embed                | 需要浏览器                                                     |
-| Schedule / Webhook / MCP endpoint 的触发                | 本次脚本未覆盖                                                 |
-| `packages/agentflow/examples` 能否加载保存              | 需要浏览器                                                     |
+| 项目                                              | 原因               |
+| ------------------------------------------------- | ------------------ |
+| Agent / LLM / Condition Agent 节点实际调用模型    | 不接真实模型       |
+| AI 生成 flow、AI 生成 prompt                      | 需要模型           |
+| Agent 节点使用 Tool / MCP / Document Store 知识库 | 需要模型           |
+| Evaluations / Datasets / Evaluators               | 开源版无权限(见上) |
+| 画布交互、聊天面板、HITL 审批界面、embed          | 需要浏览器         |
+| Schedule / Webhook / MCP endpoint 的触发          | 本次脚本未覆盖     |
+| `packages/agentflow/examples` 能否加载保存        | 需要浏览器         |

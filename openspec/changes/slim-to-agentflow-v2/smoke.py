@@ -119,6 +119,72 @@ def flow_condition():
     return {'nodes': nodes, 'edges': edges, 'viewport': {'x': 0, 'y': 0, 'zoom': 1}}
 
 
+VP = {'x': 0, 'y': 0, 'zoom': 1}
+
+
+def sx(flow):
+    return json.dumps(flow)
+
+
+def flow_iteration():
+    it = node('iterationAgentflow_0', 'iterationAgentflow', 'Iteration', {'iterationInput': '["a","b","c"]'})
+    it['type'], it['width'], it['height'] = 'iteration', 481, 250
+    fn = node('customFunctionAgentflow_0', 'customFunctionAgentflow', 'Custom Function',
+              {'customFunctionInputVariables': [{'variableName': 'item', 'variableValue': '{{ $iteration }}'}],
+               'customFunctionJavascriptFunction': 'return "item-" + $item;', 'customFunctionUpdateState': ''})
+    fn['parentNode'], fn['extent'] = 'iterationAgentflow_0', 'parent'
+    nodes = [start(), it, fn, reply('directReplyAgentflow_0', '<p>{{ iterationAgentflow_0 }}</p>')]
+    edges = [edge('startAgentflow_0', 'startAgentflow_0-output-startAgentflow', 'iterationAgentflow_0'),
+             edge('iterationAgentflow_0', 'iterationAgentflow_0-output-iterationAgentflow', 'directReplyAgentflow_0')]
+    return {'nodes': nodes, 'edges': edges, 'viewport': VP}
+
+
+def flow_loop():
+    fn = node('customFunctionAgentflow_0', 'customFunctionAgentflow', 'Custom Function',
+              {'customFunctionInputVariables': '', 'customFunctionJavascriptFunction': 'return "body";', 'customFunctionUpdateState': ''})
+    lp = node('loopAgentflow_0', 'loopAgentflow', 'Loop',
+              {'loopBackToNode': 'customFunctionAgentflow_0-Custom Function', 'maxLoopCount': 2,
+               'fallbackMessage': 'LOOP_FALLBACK', 'loopUpdateState': ''}, anchors=[])
+    edges = [edge('startAgentflow_0', 'startAgentflow_0-output-startAgentflow', 'customFunctionAgentflow_0'),
+             edge('customFunctionAgentflow_0', 'customFunctionAgentflow_0-output-customFunctionAgentflow', 'loopAgentflow_0')]
+    return {'nodes': [start(), fn, lp], 'edges': edges, 'viewport': VP}
+
+
+def flow_human_input():
+    anchors = [{'id': f'humanInputAgentflow_0-output-{i}', 'label': 'Human Input', 'name': 'humanInputAgentflow'} for i in (0, 1)]
+    hi = node('humanInputAgentflow_0', 'humanInputAgentflow', 'Human Input',
+              {'humanInputDescriptionType': 'fixed', 'humanInputDescription': 'Approve?', 'humanInputEnableFeedback': True},
+              anchors=anchors)
+
+    def human_edge(handle, target, label):
+        e = edge('humanInputAgentflow_0', handle, target)
+        e['data'] = {'sourceColor': '#6E6EFD', 'targetColor': '#4DDBBB', 'edgeLabel': label, 'isHumanInput': True}
+        return e
+    nodes = [start(), hi, reply('directReplyAgentflow_0', 'APPROVED'), reply('directReplyAgentflow_1', 'REJECTED')]
+    edges = [edge('startAgentflow_0', 'startAgentflow_0-output-startAgentflow', 'humanInputAgentflow_0'),
+             human_edge('humanInputAgentflow_0-output-0', 'directReplyAgentflow_0', 'proceed'),
+             human_edge('humanInputAgentflow_0-output-1', 'directReplyAgentflow_1', 'reject')]
+    return {'nodes': nodes, 'edges': edges, 'viewport': VP}
+
+
+def flow_execute_flow(target_id):
+    ef = node('executeFlowAgentflow_0', 'executeFlowAgentflow', 'Execute Flow',
+              {'executeFlowSelectedFlow': target_id, 'executeFlowInput': 'hi', 'executeFlowOverrideConfig': '', 'executeFlowBaseURL': ''})
+    nodes = [start(), ef, reply('directReplyAgentflow_0', '<p>EF:{{ executeFlowAgentflow_0 }}</p>')]
+    edges = [edge('startAgentflow_0', 'startAgentflow_0-output-startAgentflow', 'executeFlowAgentflow_0'),
+             edge('executeFlowAgentflow_0', 'executeFlowAgentflow_0-output-executeFlowAgentflow', 'directReplyAgentflow_0')]
+    return {'nodes': nodes, 'edges': edges, 'viewport': VP}
+
+
+def create_flow(name, flow):
+    s, f, _ = call('POST', '/chatflows', {'name': name, 'type': 'AGENTFLOW', 'flowData': sx(flow)})
+    return f.get('id') if isinstance(f, dict) else None
+
+
+def executed(out):
+    return [(e['nodeId'], e['status']) for e in out.get('agentFlowExecutedData', [])] if isinstance(out, dict) else []
+
+
 def predict(fid, question='hi'):
     s, b, _ = call('POST', f'/internal-prediction/{fid}', {'question': question, 'streaming': False})
     return s, b
@@ -185,6 +251,33 @@ def main():
     s, out = predict(f2.get('id'))
     text = json.dumps(out, ensure_ascii=False) if out is not None else ''
     check('prediction: Condition 走 true 分支', s == 200 and isinstance(out, dict) and out.get('text') == 'BRANCH_TRUE', f"status={s} text={out.get('text') if isinstance(out, dict) else out}")
+
+    # ---- 控制流节点(不依赖 LLM)----
+    fi = create_flow('smoke-iteration', flow_iteration())
+    s, out = predict(fi)
+    ex = executed(out)
+    check('Iteration: 对数组逐项执行子节点', s == 200 and out.get('text') == 'item-a\nitem-b\nitem-c'
+          and sum(1 for n, _ in ex if n == 'customFunctionAgentflow_0') == 3 and ('iterationAgentflow_0', 'FINISHED') in ex,
+          f"status={s} text={out.get('text') if isinstance(out, dict) else out!r}")
+    fl = create_flow('smoke-loop', flow_loop())
+    s, out = predict(fl)
+    ex = executed(out)
+    check('Loop: 达到 maxLoopCount 后输出 fallbackMessage', s == 200 and out.get('text') == 'LOOP_FALLBACK'
+          and sum(1 for n, _ in ex if n == 'customFunctionAgentflow_0') == 2,
+          f"status={s} text={out.get('text') if isinstance(out, dict) else out!r} fn_runs={sum(1 for n, _ in ex if n == 'customFunctionAgentflow_0')}")
+    fh = create_flow('smoke-hitl', flow_human_input())
+    for decision, expected, chat in (('proceed', 'APPROVED', 'smoke-hitl-a'), ('reject', 'REJECTED', 'smoke-hitl-b')):
+        s, out, _ = call('POST', f'/internal-prediction/{fh}', {'question': 'go', 'streaming': False, 'chatId': chat})
+        ex = executed(out)
+        action = out.get('action') if isinstance(out, dict) else None
+        check(f'Human Input({decision}): 首次执行在 Human Input 处暂停', s == 200 and ('humanInputAgentflow_0', 'STOPPED') in ex
+              and isinstance(action, dict) and action.get('mapping', {}).get('approve') == 'Proceed', f'status={s} exec={ex}')
+        s, out, _ = call('POST', f'/internal-prediction/{fh}', {
+            'question': decision, 'streaming': False, 'chatId': chat,
+            'humanInput': {'type': decision, 'startNodeId': 'humanInputAgentflow_0', 'feedback': 'fine'}})
+        check(f'Human Input({decision}): 恢复后走 {expected} 分支', s == 200 and isinstance(out, dict) and out.get('text') == expected,
+              f"status={s} text={out.get('text') if isinstance(out, dict) else out!r}")
+
     s, ex, _ = call('GET', '/executions')
     check('executions: 有执行记录', s == 200 and ex.get('total', 0) >= 2, f"status={s} total={ex.get('total') if isinstance(ex, dict) else ex}")
     if s == 200 and ex.get('data'):
@@ -197,6 +290,11 @@ def main():
     check('public-chatflows 可匿名读取', s == 200, f'status={s}')
     s, body, ctype = call('POST', f'/prediction/{fid}', {'question': 'hi', 'streaming': True}, internal=False, raw=True)
     check('prediction 流式返回 SSE', s == 200 and 'event-stream' in ctype and 'OUT:fn-result-3' in body, f'status={s} ctype={ctype}')
+
+    fe = create_flow('smoke-execute-flow', flow_execute_flow(fid))
+    s, out = predict(fe)
+    check('Execute Flow: 调用另一个 v2 flow 并取得结果', s == 200 and isinstance(out, dict) and out.get('text') == 'EF:OUT:fn-result-3',
+          f"status={s} text={out.get('text') if isinstance(out, dict) else out!r}(需要服务端 HTTP_SECURITY_CHECK=false,见 baseline.md)")
 
     # ---- 保留模块:创建与读取 ----
     s, ds, _ = call('POST', '/document-store/store', {'name': 'smoke-store', 'description': 'x'})
