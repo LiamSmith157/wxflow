@@ -1,0 +1,100 @@
+# Design
+
+## Context
+
+动机见 proposal.md 的 Why;对外行为见 `specs/` 下的四个 capability。这里只说明实施时会影响做法的现状:
+
+- **v2 与 v1 共用同一条执行入口。** `server/src/utils/buildChatflow.ts` 被 predictions、internal-predictions、mcp-endpoint、PredictionQueue、webhook 共 7 个地方引用。它在 `:481` 判断 `type === 'AGENTFLOW'`,然后把请求转给 `buildAgentflow.ts` 的 `executeAgentFlow`。反方向上,`buildAgentflow.ts` 又从 `buildChatflow.ts` 引入了 `generateTTSForResponseStream` 和 `shouldAutoPlayTTS`。
+- **`utils/index.ts`(2143 行)混合了两类函数。** 一类只服务于 v1 和 Chatflow,例如 `buildFlow`、`getEndingNodes`、`getStartingNodes`、`findMemoryNode`、`getMemorySessionId`、`getAllConnectedNodes`、`isFlowValidForStream`,以及 `isStartNodeDependOnInput`、`isSameOverrideConfig`、`isSameChatId` 这三个已经没有调用方的函数。另一类是 v2 或平台在用的函数,例如 `constructGraphs`、`resolveVariables`、`replaceInputsWithConfig`、`findAvailableConfigs` 以及加解密相关函数。
+- **节点注册是扫描目录。** `NodesPool` 会扫描 `components/dist/nodes` 下的所有文件,所以删掉源码目录,对应节点就会从注册表消失,不需要另外维护清单。
+- **UI 的 v2 画布引用了 v1 目录里的组件。** `views/agentflowsv2` 引用了 `views/canvas/{AddNodes,CanvasHeader,NodeInputHandler}` 和 `views/marketplaces/MarketplaceCanvasHeader`。`views/canvas/CredentialInputHandler` 被 8 处共享组件引用,`NodeInputHandler` 被 6 处引用。
+- **Assistants 路由里有 v2 在用的通用接口。** 一个是 chat model 列表:它的实现就是 `getAllNodesForCategory('Chat Models')` 再过滤掉 LlamaIndex,跟现有的 `/nodes/category/:name` 是等价的。另一个是 prompt 指令生成。
+- **`chat_flow.type` 列的数据库默认值是 `'CHATFLOW'`。** 这个默认值同时写在实体定义和历史 migration 里。
+- **本地还没安装依赖。** 没有 `node_modules`。本机 Node 版本是 v22.23.3,而 `.nvmrc` 要求 v24.15.0。
+
+## Goals / Non-Goals
+
+**Goals:**
+- 每完成一个阶段,仓库都能通过 `pnpm build` 和 `pnpm test`,并且 v2 冒烟清单(见 Migration Plan)全部通过,这样任何一个阶段都可以单独提交和回退。
+- 删除要彻底:被删模块的源码、测试、路由注册、UI 入口、权限、swagger、依赖包都不留残余。
+
+**Non-Goals:**
+- 不重命名 `ChatFlow` 实体、`chat_flow` 表、`/chatflows` 路由,也不改 `chatflowid` 之类的字段名。改名会波及 SDK、embed、公开链接和所有 migration,收益不大。
+- 不重构 v2 引擎(`buildAgentflow.ts`)本身。只把它从 `buildChatflow.ts` 里拆出来,内部逻辑不改。
+- 不删 `credentials/` 下的凭据定义。凭据和节点不是一一对应的关系,多留几个无害;误删则会让某个保留节点无法配置。
+- 不修改上游历史 migration,也不压缩 migration。
+- 不让主 UI 改用 `packages/agentflow` SDK。
+
+## Decisions
+
+### D1. `buildChatflow.ts` 保留为瘦入口,不删文件也不改名
+
+`utilBuildChatflow` 被 7 个地方引用。这个函数只保留以下职责:校验 flow 存在、校验 `type === 'AGENTFLOW'`(否则返回 400)、做 API Key 和域名校验、调用 `executeAgentFlow`,以及更新 metrics。v1 和 Chatflow 的分支整段删掉。`generateTTSForResponseStream` 和 `shouldAutoPlayTTS` 移到新文件 `utils/textToSpeech.ts`,`buildAgentflow.ts` 改为从那里引入,这样就消除了反向依赖。
+
+- 备选方案:直接删掉 `buildChatflow.ts`,让 7 个调用方都改为调用 `executeAgentFlow`。没有采用,因为 API Key 校验、域名校验、metrics 这些入口逻辑会在 7 个地方重复。
+
+### D2. `utils/index.ts` 按调用方删除
+
+逐个函数检查:如果删掉 v1 代码后它没有任何调用方了,就删除。不把这个文件拆成多个文件。
+
+- 备选方案:借这次机会把 `utils/index.ts` 拆成多个模块。没有采用,因为这会让改动量翻倍,而且和"裁剪"这个目标无关。
+
+### D3. 通用接口迁移:能复用现有接口就复用
+
+- chat model 列表:调用方改为请求 `GET /nodes/category/Chat Models`,不新建接口。因为 LlamaIndex 节点都会被删掉,原来的过滤条件变成了恒为真,两个接口的返回结果一致。
+- prompt 指令生成:移到 `agentflowv2-generator` 路由下,新路径是 `POST /agentflowv2-generator/instruction`。service 函数也从 `services/assistants` 搬到 `services/agentflowv2-generator`。
+- `packages/agentflow` SDK 的 `src/infrastructure` 同步修改,同时更新它的测试 mock。
+- 备选方案:先保留 `/assistants/components/chatmodels` 作为别名。没有采用,因为 SDK 在同一个仓库里,可以一起修改,不存在需要兼容的外部调用方。
+
+### D4. flow 类型约束在 service 层强制执行
+
+`EnumChatflowType` 和 `ChatflowType` 只保留 `AGENTFLOW`,`validateChatflowType` 会自动拒绝其他值。在 `saveChatflow` 中,如果没传 `type`,就设为 `AGENTFLOW`。实体上 `type` 列的 `default` 也改成 `AGENTFLOW`,但**不写 migration 去修改数据库列的默认值**:所有写入都会经过 service 层,而 sqlite 修改列默认值需要重建整张表,风险和收益不对等。`getAllChatflows` 无论传什么参数,都固定加上 `type = 'AGENTFLOW'` 的过滤条件。
+
+- 备选方案:写 migration 修改四种数据库的列默认值。没有采用,理由如上;这个问题留作 Open Question。
+
+### D5. 删除表的 migration:每种数据库各追加一个
+
+为 sqlite、mysql、mariadb、postgres 各新增一个 `<timestamp>-DropAssistantAndCustomTemplate.ts`,用 `DROP TABLE IF EXISTS` 删除 `assistant` 和 `custom_template` 两张表。`down()` 按照上游最后一次的表结构重新建表,以保持可以回滚。这些 migration 注册在各数据库 migrations 目录的 `index.ts` 末尾。enterprise 相关的 migration 如果引用了这两张表(例如工作区共享),需要一起检查。
+
+- 备选方案:只删实体,不删表。没有采用,因为全新部署时这两张表会以空表形式一直留在库里,让人困惑。
+
+### D6. 先迁移共享代码,再删除
+
+UI 和 server 都按"先迁移,后删除"的顺序进行,保证每一步之后都能编译通过:
+
+- `views/canvas/{CredentialInputHandler,NodeInputHandler,NodeOutputHandler}` 移到 `ui-component/input-handlers/`(新目录)。`AddNodes`、`CanvasHeader` 移到 `views/agentflowsv2/`。所有 import 一起改。
+- `MarketplaceCanvasHeader` 不迁移:它只被 `agentflowsv2/MarketplaceCanvas` 使用,而这个页面本身也要删除。
+- 迁移的时候只改路径。v1 专用的分支(例如 `isAgentCanvas` 为 false 时的逻辑)放到 UI 清理阶段再删,这样迁移那一步的 diff 只有路径变化,方便 review。
+
+### D7. 节点裁剪以编译结果为准
+
+按 proposal 的清单删除 components 的节点目录,再删掉 4 个依赖 v1 锚点的 tools,以及保留类别中的 LlamaIndex 变体。删完之后跑 `components` 的 `tsc`:如果保留的节点 import 了被删目录里的工具函数(例如 `memory` 或 `retrievers` 下的共享代码),就把这个函数搬到 `components/src`,而不是恢复整个目录。`ExecuteFlow` 和 `ChatflowTool` 的 `listChatflows` 改为查询时加上 `type: 'AGENTFLOW'` 条件。
+
+### D8. 依赖瘦身放在最后,并以构建通过为准
+
+所有代码删除都完成之后,再逐个包用 `depcheck` 或 `knip` 找出没有被引用的依赖,删除后重新执行 `pnpm install` 和 `pnpm build`。这一步和代码删除分开提交,出问题时可以只回退这一步。
+
+## Risks / Trade-offs
+
+- [`utils/index.ts` 或 `buildChatflow.ts` 中的某个函数被 v2 间接用到,删掉之后才发现] → 每次删除之后都跑 `tsc`;冒烟清单要覆盖流式输出、文件上传、TTS、HITL、定时调度、webhook、MCP endpoint。
+- [删除 `memory`、`cache`、`retrievers` 之后,某个保留节点在运行时动态 `require` 失败,编译期发现不了] → 冒烟清单要覆盖 v2 Agent 节点使用 Tools、Document Store Retriever 以及 MCP 工具的组合;同时 grep 被删目录名,确认没有字符串形式的动态引用。
+- [UI 中大量组件带有 `isAgentCanvas` 一类分支,清理不完整的话会留下死代码] → UI 清理阶段 grep 这些标志,判断哪些分支已经不可能走到;不要求一次清理干净,只要求功能正确,剩余的死代码记录下来。
+- [`packages/agentflow` SDK 的 jest 测试 mock 了旧路径,迁移后测试失败] → SDK 的修改和接口迁移放在同一个任务里完成,并在该任务中跑 SDK 测试。
+- [export-import 删除 Assistant、CustomTemplate 段之后,从上游 Flowise 导出的文件无法导入] → 这是 spec 要求的行为:返回 400 并说明原因。全新部署没有需要兼容的旧导出文件。
+- [本地 Node v22 与 `.nvmrc` 要求的 v24 不一致] → 第一步先确认基线构建;如果 v22 下构建失败,先切换到 v24,再开始任何删除工作。
+- [裁剪之后基本无法再 merge 上游的安全修复] → 用户已接受这个代价。之后只能看上游 changelog,手动移植需要的修复。
+
+## Migration Plan
+
+按 tasks.md 的阶段顺序执行。每个阶段完成后的检查标准如下:
+
+1. `pnpm build` 通过。
+2. `pnpm test` 通过;被删模块的测试随模块一起删除。
+3. **v2 冒烟清单**(手动执行,或在 cypress 中补充用例):新建 v2 flow 并保存;Start → Agent(带一个 Tool 和一个 MCP 工具)→ Direct Reply 能以流式方式返回;Agent 节点使用 Document Store 知识库;Condition、Iteration、Loop、Human Input 能正确分支、循环,并且在 HITL 处暂停后能继续;Execute Flow 能调用另一个 v2 flow;Executions 页面能看到执行记录;公开分享链接和 embed 能对话;定时调度和 webhook 能触发执行;"AI 生成 flow"和"AI 生成 prompt"能正常使用;Evaluations 能对 v2 flow 运行一次评估;SDK 示例(`packages/agentflow/examples`)能加载和保存 flow。
+
+回滚方式:每个阶段单独提交,回退一个阶段只需要 revert 对应的提交。项目是全新部署,数据库可以直接重建。如果需要在有数据的库上回滚,删表 migration 的 `down()` 会重建两张空表。
+
+## Open Questions
+
+- 要不要在以后写一个 migration,把 `chat_flow.type` 列的数据库默认值改为 `AGENTFLOW`?目前由 service 层保证,不影响本次的规范、方案和任务拆分。
+- metrics 和 telemetry 中带 `CHATFLOW_*` 字样的计数器名称要不要改名?目前保持不变;如果以后要改,会影响已有的监控面板。
