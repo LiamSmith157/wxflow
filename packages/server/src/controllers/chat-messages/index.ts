@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
-import { ChatMessageRatingType, ChatType, IReactFlowObject } from '../../Interface'
+import { ChatMessageRatingType, ChatType } from '../../Interface'
 import chatflowsService from '../../services/chatflows'
 import chatMessagesService from '../../services/chat-messages'
-import { aMonthAgo, clearSessionMemory } from '../../utils'
+import { aMonthAgo } from '../../utils'
 import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
 import { Between, DeleteResult, FindOptionsWhere, In } from 'typeorm'
 import { ChatMessage } from '../../database/entities/ChatMessage'
@@ -170,9 +170,6 @@ const removeAllChatMessages = async (req: Request, res: Response, next: NextFunc
         if (!chatflow) {
             return res.status(404).send('Chatflow not found')
         }
-        const flowData = chatflow.flowData
-        const parsedFlowData: IReactFlowObject = JSON.parse(flowData)
-        const nodes = parsedFlowData.nodes
         const chatId = req.query?.chatId as string
         const memoryType = req.query?.memoryType as string | undefined
         const sessionId = req.query?.sessionId as string | undefined
@@ -191,7 +188,6 @@ const removeAllChatMessages = async (req: Request, res: Response, next: NextFunc
         }
         const startDate = req.query?.startDate as string | undefined
         const endDate = req.query?.endDate as string | undefined
-        const isClearFromViewMessageDialog = req.query?.isClearFromViewMessageDialog as string | undefined
         let feedbackTypeFilters = req.query?.feedbackType as ChatMessageRatingType[] | undefined
         if (feedbackTypeFilters) {
             feedbackTypeFilters = getFeedbackTypeFilters(feedbackTypeFilters)
@@ -199,7 +195,6 @@ const removeAllChatMessages = async (req: Request, res: Response, next: NextFunc
 
         if (!chatId) {
             const isFeedback = feedbackTypeFilters?.length ? true : false
-            const hardDelete = req.query?.hardDelete as boolean | undefined
 
             const messages = await utilGetChatMessage({
                 chatflowid,
@@ -231,27 +226,6 @@ const removeAllChatMessages = async (req: Request, res: Response, next: NextFunc
                 chatIdMap.get(composite_key)?.push(message)
             })
 
-            // If hardDelete is ON, we clearSessionMemory from third party integrations
-            if (hardDelete) {
-                for (const [composite_key] of chatIdMap) {
-                    const [chatId, memoryType, sessionId] = composite_key.split('_')
-                    try {
-                        await clearSessionMemory(
-                            nodes,
-                            appServer.nodesPool.componentNodes,
-                            chatId,
-                            appServer.AppDataSource,
-                            orgId,
-                            sessionId,
-                            memoryType,
-                            isClearFromViewMessageDialog
-                        )
-                    } catch (e) {
-                        console.error('Error clearing chat messages')
-                    }
-                }
-            }
-
             const apiResponse = await chatMessagesService.removeChatMessagesByMessageIds(
                 chatflowid,
                 chatIdMap,
@@ -262,21 +236,6 @@ const removeAllChatMessages = async (req: Request, res: Response, next: NextFunc
             )
             return res.json(apiResponse)
         } else {
-            try {
-                await clearSessionMemory(
-                    nodes,
-                    appServer.nodesPool.componentNodes,
-                    chatId,
-                    appServer.AppDataSource,
-                    orgId,
-                    sessionId,
-                    memoryType,
-                    isClearFromViewMessageDialog
-                )
-            } catch (e) {
-                return res.status(500).send('Error clearing chat messages')
-            }
-
             const deleteOptions: FindOptionsWhere<ChatMessage> = { chatflowid }
             if (chatId) deleteOptions.chatId = chatId
             if (memoryType) deleteOptions.memoryType = memoryType

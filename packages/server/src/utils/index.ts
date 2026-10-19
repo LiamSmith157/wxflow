@@ -4,12 +4,10 @@
 
 import path from 'path'
 import fs from 'fs'
-import logger from './logger'
 import { v4 as uuidv4 } from 'uuid'
 import {
     IChatFlow,
     IComponentCredentials,
-    IComponentNodes,
     ICredentialDataDecrypted,
     ICredentialReqBody,
     INodeData,
@@ -31,7 +29,6 @@ import {
     ICommonObject,
     IDatabaseEntity,
     IMessage,
-    FlowiseMemory,
     StorageProviderFactory
 } from 'flowise-components'
 import { randomBytes } from 'crypto'
@@ -42,7 +39,6 @@ import { ChatMessage } from '../database/entities/ChatMessage'
 import { Credential } from '../database/entities/Credential'
 import { Tool } from '../database/entities/Tool'
 import { Lead } from '../database/entities/Lead'
-import { DataSource } from 'typeorm'
 import { Variable } from '../database/entities/Variable'
 import { DocumentStore } from '../database/entities/DocumentStore'
 import { DocumentStoreFileChunk } from '../database/entities/DocumentStoreFileChunk'
@@ -295,58 +291,6 @@ export const getFileName = (fileBase64: string): string => {
         const splitDataURI = fileBase64.split(',')
         const filename = splitDataURI[splitDataURI.length - 1].split(':')[1]
         return filename
-    }
-}
-
-/**
- * Clear session memories
- * @param {IReactFlowNode[]} reactFlowNodes
- * @param {IComponentNodes} componentNodes
- * @param {string} chatId
- * @param {DataSource} appDataSource
- * @param {string} sessionId
- * @param {string} memoryType
- * @param {string} isClearFromViewMessageDialog
- */
-export const clearSessionMemory = async (
-    reactFlowNodes: IReactFlowNode[],
-    componentNodes: IComponentNodes,
-    chatId: string,
-    appDataSource: DataSource,
-    orgId?: string,
-    sessionId?: string,
-    memoryType?: string,
-    isClearFromViewMessageDialog?: string
-) => {
-    for (const node of reactFlowNodes) {
-        if (node.data.category !== 'Memory' && node.data.type !== 'OpenAIAssistant') continue
-
-        // Only clear specific session memory from View Message Dialog UI
-        if (isClearFromViewMessageDialog && memoryType && node.data.label !== memoryType) continue
-
-        const nodeInstanceFilePath = componentNodes[node.data.name].filePath as string
-        const nodeModule = await import(nodeInstanceFilePath)
-        const newNodeInstance = new nodeModule.nodeClass()
-        const options: ICommonObject = { orgId, chatId, appDataSource, databaseEntities, logger }
-
-        // SessionId always take priority first because it is the sessionId used for 3rd party memory node
-        if (sessionId && node.data.inputs) {
-            if (node.data.type === 'OpenAIAssistant') {
-                await newNodeInstance.clearChatMessages(node.data, options, { type: 'threadId', id: sessionId })
-            } else {
-                node.data.inputs.sessionId = sessionId
-                const initializedInstance: FlowiseMemory = await newNodeInstance.init(node.data, '', options)
-                await initializedInstance.clearChatMessages(sessionId)
-            }
-        } else if (chatId && node.data.inputs) {
-            if (node.data.type === 'OpenAIAssistant') {
-                await newNodeInstance.clearChatMessages(node.data, options, { type: 'chatId', id: chatId })
-            } else {
-                node.data.inputs.sessionId = chatId
-                const initializedInstance: FlowiseMemory = await newNodeInstance.init(node.data, '', options)
-                await initializedInstance.clearChatMessages(chatId)
-            }
-        }
     }
 }
 

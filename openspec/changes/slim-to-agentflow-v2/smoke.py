@@ -330,6 +330,36 @@ def main():
     s, sch, _ = call('GET', '/settings', internal=False)
     check('settings', s == 200, f'status={s}')
 
+    # ---- Agent / Tool / Retriever 节点设计时依赖的加载器(不需要模型)----
+    def loader(node, method):
+        st, body, _ = call('POST', f'/node-load-method/{node}', {'loadMethod': method, 'name': node, 'inputs': {}})
+        return st, body if isinstance(body, list) else []
+
+    for node, method in [('agentAgentflow', 'listModels'), ('llmAgentflow', 'listModels'), ('conditionAgentAgentflow', 'listModels'),
+                         ('humanInputAgentflow', 'listModels'), ('agentAgentflow', 'listTools'), ('toolAgentflow', 'listTools'),
+                         ('agentAgentflow', 'listVectorStores'), ('agentAgentflow', 'listEmbeddings')]:
+        st, items = loader(node, method)
+        check(f'加载器 {node}.{method} 返回非空列表', st == 200 and len(items) > 0, f'status={st} items={len(items)}')
+    for node, method in [('agentAgentflow', 'listStores'), ('retrieverAgentflow', 'listStores'), ('executeFlowAgentflow', 'listFlows')]:
+        st, items = loader(node, method)
+        check(f'加载器 {node}.{method} 可用', st == 200, f'status={st} items={len(items)}')
+    st, tool_items = loader('toolAgentflow', 'listTools')
+    tool_names = {t.get('name') for t in tool_items}
+    if NODES_REMOVAL_ENFORCED:
+        check('listTools 不含依赖 v1 输入的工具', not tool_names & {'chainTool', 'retrieverTool', 'queryEngineTool', 'webBrowser'},
+              f"present={sorted(tool_names & {'chainTool', 'retrieverTool', 'queryEngineTool', 'webBrowser'})}")
+        st, model_items = loader('agentAgentflow', 'listModels')
+        check('listModels 不含 LlamaIndex 模型', not any('LlamaIndex' in json.dumps(x) for x in model_items), '')
+    st, flows = loader('executeFlowAgentflow', 'listFlows')
+    if TYPES_ENFORCED:
+        check('listFlows 只列出 Agentflow V2', all(f.get('description') == 'Agentflow V2' for f in flows) and len(flows) > 0,
+              f'items={len(flows)}')
+
+    for path in ('loaders', 'embeddings', 'vectorstore', 'recordmanager'):
+        st, items, _ = call('GET', f'/document-store/components/{path}')
+        check(f'document-store 组件列表 {path} 非空', st == 200 and isinstance(items, list) and len(items) > 0,
+              f"status={st} items={len(items) if isinstance(items, list) else items}")
+
     # ---- 将被删除/迁移的接口 ----
     removed = ['/assistants', '/marketplaces/templates', '/openai-assistants', '/openai-realtime', '/assistants/components/chatmodels']
     for p in removed:

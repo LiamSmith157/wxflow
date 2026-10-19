@@ -97,6 +97,14 @@ UI 和 server 都按"先迁移,后删除"的顺序进行,保证每一步之后�
 
 按 proposal 的清单删除 components 的节点目录,再删掉 4 个依赖 v1 锚点的 tools,以及保留类别中的 LlamaIndex 变体。删完之后跑 `components` 的 `tsc`:如果保留的节点 import 了被删目录里的工具函数(例如 `memory` 或 `retrievers` 下的共享代码),就把这个函数搬到 `components/src`,而不是恢复整个目录。`ExecuteFlow` 和 `ChatflowTool` 的 `listChatflows` 改为查询时加上 `type: 'AGENTFLOW'` 条件。
 
+### D7a. 节点裁剪实施中的修正
+
+-   **`Utilities/CustomFunction` 必须保留。** `POST /node-custom-function` 是 v2 也在用的接口(代码编辑器放大对话框里的"执行"按钮),服务端靠 `customFunction` 这个节点来跑 JS。`Utilities` 里另外 4 个节点(`getVariable`、`setVariable`、`ifElseFunction`、`stickyNote`)是 v1 画布专用,已删除。v2 画布的节点面板只展示 `Agent Flows` 类别,所以这个节点不会出现在用户界面里。
+-   保留代码对被删目录只有两条编译期依赖:`customGet`(搬进 `components/src/utils.ts`)和 `Moderation` 类型(随 v1 的 `IMultiAgentNode`、`ISeqAgentNode` 等类型一起删除)。运行时的字符串引用用"节点 name"逐个在保留代码里搜过,没有保留代码按名字去加载被删节点。
+-   server 的 `clearSessionMemory` 只对 `Memory` 类别和 OpenAI Assistant 节点起作用,对 v2 flow 永远是空操作,连同 chat-messages 控制器里的两处调用一起删除。UI 的"同时清除第三方记忆"勾选框因此失去意义,留到阶段 6 处理。
+-   **`components/dist` 不会自动清理。** `NodesPool` 扫描 `dist/nodes` 注册节点,只删源码而不清 `dist` 的话,旧节点仍会被加载。增量构建前必须先 `pnpm clean`;Docker 全新构建不受影响。
+-   `GET /nodes/:name` 对不存在的节点原本返回 500(内部抛出的 404 被外层 catch 包成了 500),改为透传 404。
+
 ### D8. 依赖瘦身放在最后,并以构建通过为准
 
 所有代码删除都完成之后,再逐个包用 `depcheck` 或 `knip` 找出没有被引用的依赖,删除后重新执行 `pnpm install` 和 `pnpm build`。这一步和代码删除分开提交,出问题时可以只回退这一步。

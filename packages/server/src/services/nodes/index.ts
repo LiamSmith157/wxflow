@@ -61,6 +61,7 @@ const getNodeByName = async (nodeName: string, client?: ClientType) => {
             throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Node ${nodeName} not found`)
         }
     } catch (error) {
+        if (error instanceof InternalFlowiseError && error.statusCode === StatusCodes.NOT_FOUND) throw error
         throw new InternalFlowiseError(StatusCodes.INTERNAL_SERVER_ERROR, `Error: nodesService.getAllNodes - ${getErrorMessage(error)}`)
     }
 }

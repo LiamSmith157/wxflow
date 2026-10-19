@@ -19,7 +19,6 @@ import { DataSource, Equal } from 'typeorm'
 import { NodeVM } from 'vm2'
 import zodToJsonSchema, { type JsonSchema7Type } from 'zod-to-json-schema'
 import { z } from 'zod/v3'
-import { customGet } from '../nodes/sequentialagents/commonUtils'
 import { checkDenyList, secureAxiosRequest, secureFetch } from './httpSecurity'
 import { ICommonObject, IDatabaseEntity, IFileUpload, IMessage, INodeData, IVariable, MessageContentImageUrl } from './Interface'
 import { getFileFromStorage } from './storageUtils'
@@ -1326,6 +1325,41 @@ export const extractOutputFromArray = (output: any): string => {
         else return JSON.stringify(output)
     }
     return output
+}
+
+const customGet = (obj: any, path: string) => {
+    if (path.includes('[-1]')) {
+        const parts = path.split('.')
+        let result = obj
+
+        for (let part of parts) {
+            if (part.includes('[') && part.includes(']')) {
+                const [name, indexPart] = part.split('[')
+                const index = parseInt(indexPart.replace(']', ''))
+
+                result = result[name]
+                if (Array.isArray(result)) {
+                    if (index < 0) {
+                        result = result[result.length + index]
+                    } else {
+                        result = result[index]
+                    }
+                } else {
+                    return undefined
+                }
+            } else {
+                result = get(result, part)
+            }
+
+            if (result === undefined) {
+                return undefined
+            }
+        }
+
+        return result
+    } else {
+        return get(obj, path)
+    }
 }
 
 /**

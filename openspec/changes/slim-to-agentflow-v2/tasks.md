@@ -40,11 +40,11 @@
 
 ## 5. Components 节点裁剪
 
--   [ ] 5.1 删除 `components/nodes/` 下的这些目录:agents、chains、llms、multiagents、sequentialagents、outputparsers、prompts、engine、responsesynthesizer、graphs、moderation、memory、cache、retrievers。如果编译时发现保留节点依赖其中的工具函数,按 D7 把函数搬到 `components/src`。验证:components 的 `tsc` 通过;对每个被删目录名 grep,确认没有字符串形式的动态引用
--   [ ] 5.2 删除 tools 下的 ChainTool、QueryEngineTool、RetrieverTool、WebBrowser,以及 chatmodels、embeddings、vectorstores 中带 `LlamaIndex` 标签的节点文件。验证:`grep -rl "'LlamaIndex'" components/nodes` 只剩 agentflow 节点里的过滤代码
--   [ ] 5.3 修改 `ExecuteFlow` 和 `ChatflowTool` 的列表 load method:查询时只取 `type: 'AGENTFLOW'`,并删掉 MULTIAGENT 和 Chatflow 的标签分支。补单元测试。验证:测试通过
--   [ ] 5.4 在 server 中补一个节点注册表测试:断言节点列表包含全部 v2 节点,不包含任何已删除类别和 LlamaIndex 节点,并且请求已删除节点名返回 404。验证:测试通过
--   [ ] 5.5 提交本阶段改动,并重跑完整的 v2 冒烟清单(重点检查 Agent + Tools、MCP、Document Store 的组合)。验证:与基线结果一致
+-   [x] 5.1 删除 `components/nodes/` 下的这些目录:agents、chains、llms、multiagents、sequentialagents、outputparsers、prompts、engine、responsesynthesizer、graphs、moderation、memory、cache、retrievers。如果编译时发现保留节点依赖其中的工具函数,按 D7 把函数搬到 `components/src`。验证:components 的 `tsc` 通过;对每个被删目录名 grep,确认没有字符串形式的动态引用(实施时 `Utilities` 类别只删除 getVariable、setVariable、ifElseFunction、stickyNote 四个节点,`CustomFunction` 保留,见 design D7a)
+-   [x] 5.2 删除 tools 下的 ChainTool、QueryEngineTool、RetrieverTool、WebBrowser,以及 chatmodels、embeddings、vectorstores 中带 `LlamaIndex` 标签的节点文件。验证:`grep -rl "'LlamaIndex'" components/nodes` 只剩 agentflow 节点里的过滤代码
+-   [x] 5.3 修改 `ExecuteFlow` 和 `ChatflowTool` 的列表 load method:查询时只取 `type: 'AGENTFLOW'`,并删掉 MULTIAGENT 和 Chatflow 的标签分支。补单元测试。验证:测试通过
+-   [x] 5.4 在 server 中补一个节点注册表测试:断言节点列表包含全部 v2 节点,不包含任何已删除类别和 LlamaIndex 节点,并且请求已删除节点名返回 404。验证:测试通过
+-   [x] 5.5 提交本阶段改动,并重跑完整的 v2 冒烟清单(重点检查 Agent + Tools、MCP、Document Store 的组合)。验证:与基线结果一致
 
 ## 6. UI 清理
 

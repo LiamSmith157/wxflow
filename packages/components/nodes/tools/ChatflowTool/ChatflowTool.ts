@@ -133,23 +133,15 @@ class ChatflowTool_Tools implements INode {
             }
 
             const searchOptions = options.searchOptions || {}
-            const chatflows = await appDataSource.getRepository(databaseEntities['ChatFlow']).findBy(searchOptions)
+            const chatflows = await appDataSource
+                .getRepository(databaseEntities['ChatFlow'])
+                .findBy({ ...searchOptions, type: 'AGENTFLOW' })
 
             for (let i = 0; i < chatflows.length; i += 1) {
-                let type = chatflows[i].type
-                if (type === 'AGENTFLOW') {
-                    type = 'AgentflowV2'
-                } else if (type === 'MULTIAGENT') {
-                    type = 'AgentflowV1'
-                } else if (type === 'ASSISTANT') {
-                    type = 'Custom Assistant'
-                } else {
-                    type = 'Chatflow'
-                }
                 const data = {
                     label: chatflows[i].name,
                     name: chatflows[i].id,
-                    description: type
+                    description: 'AgentflowV2'
                 } as INodeOptionsValue
                 returnData.push(data)
             }

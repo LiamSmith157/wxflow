@@ -1,6 +1,5 @@
 import { BaseMessage } from '@langchain/core/messages'
 import { BufferMemory, BufferWindowMemory, ConversationSummaryMemory, ConversationSummaryBufferMemory } from '@langchain/classic/memory'
-import { Moderation } from '../nodes/moderation/Moderation'
 
 /**
  * Types
@@ -192,61 +191,6 @@ export interface IUsedTool {
     toolOutput: string | object
     sourceDocuments?: ICommonObject[]
     error?: string
-}
-
-export interface IMultiAgentNode {
-    node: any
-    name: string
-    label: string
-    type: 'supervisor' | 'worker'
-    llm?: any
-    parentSupervisorName?: string
-    workers?: string[]
-    workerPrompt?: string
-    workerInputVariables?: string[]
-    recursionLimit?: number
-    moderations?: Moderation[]
-    multiModalMessageContent?: MessageContentImageUrl[]
-    checkpointMemory?: any
-}
-
-type SeqAgentType = 'agent' | 'condition' | 'end' | 'start' | 'tool' | 'state' | 'llm' | 'utilities'
-export type ConversationHistorySelection = 'user_question' | 'last_message' | 'all_messages' | 'empty'
-
-export interface ISeqAgentNode {
-    id: string
-    node: any
-    name: string
-    label: string
-    type: SeqAgentType
-    output: string
-    llm?: any
-    startLLM?: any
-    predecessorAgents?: ISeqAgentNode[]
-    recursionLimit?: number
-    moderations?: Moderation[]
-    multiModalMessageContent?: MessageContentImageUrl[]
-    checkpointMemory?: any
-    agentInterruptToolNode?: any
-    agentInterruptToolFunc?: any
-}
-
-export interface ITeamState {
-    messages: {
-        value: (x: BaseMessage[], y: BaseMessage[]) => BaseMessage[]
-        default: () => BaseMessage[]
-    }
-    team_members: string[]
-    next: string
-    instructions: string
-    summarization?: string
-}
-
-export interface ISeqAgentsState {
-    messages: {
-        value: (x: BaseMessage[], y: BaseMessage[]) => BaseMessage[]
-        default: () => BaseMessage[]
-    }
 }
 
 export interface IAgentReasoning {
