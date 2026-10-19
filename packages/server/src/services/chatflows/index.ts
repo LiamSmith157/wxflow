@@ -18,15 +18,7 @@ import { getErrorMessage } from '../../errors/utils'
 import { ScheduleBeat } from '../../schedule/ScheduleBeat'
 import documentStoreService from '../../services/documentstore'
 import scheduleService from '../../services/schedule'
-import {
-    constructGraphs,
-    decryptCredentialData,
-    encryptCredentialData,
-    getAppVersion,
-    getEndingNodes,
-    getTelemetryFlowObj,
-    isFlowValidForStream
-} from '../../utils'
+import { decryptCredentialData, encryptCredentialData, getAppVersion, getTelemetryFlowObj } from '../../utils'
 import { containsBase64File, updateFlowDataWithFilePaths } from '../../utils/fileRepository'
 import { sanitizeAllowedUploadMimeTypesFromConfig } from '../../utils/fileValidation'
 import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
@@ -67,37 +59,7 @@ const checkIfChatflowIsValidForStreaming = async (chatflowId: string): Promise<a
             }
         }
 
-        if (chatflow.type === 'AGENTFLOW') {
-            return { isStreaming: true }
-        }
-
-        /*** Get Ending Node with Directed Graph  ***/
-        const flowData = chatflow.flowData
-        const parsedFlowData: IReactFlowObject = JSON.parse(flowData)
-        const nodes = parsedFlowData.nodes
-        const edges = parsedFlowData.edges
-        const { graph, nodeDependencies } = constructGraphs(nodes, edges)
-
-        const endingNodes = getEndingNodes(nodeDependencies, graph, nodes)
-
-        let isStreaming = false
-        for (const endingNode of endingNodes) {
-            const endingNodeData = endingNode.data
-            const isEndingNode = endingNodeData?.outputs?.output === 'EndingNode'
-            // Once custom function ending node exists, flow is always unavailable to stream
-            if (isEndingNode) {
-                return { isStreaming: false }
-            }
-            isStreaming = isFlowValidForStream(nodes, endingNodeData)
-        }
-
-        // If it is a Multi/Sequential Agents, always enable streaming
-        if (endingNodes.filter((node) => node.data.category === 'Multi Agents' || node.data.category === 'Sequential Agents').length > 0) {
-            return { isStreaming: true }
-        }
-
-        const dbResponse = { isStreaming: isStreaming }
-        return dbResponse
+        return { isStreaming: true }
     } catch (error) {
         throw new InternalFlowiseError(
             StatusCodes.INTERNAL_SERVER_ERROR,
@@ -171,26 +133,18 @@ const deleteChatflow = async (
 }
 
 const getAllChatflows = async (type?: ChatflowType, workspaceId?: string, page: number = -1, limit: number = -1) => {
+    if (type) validateChatflowType(type)
     try {
         const appServer = getRunningExpressApp()
 
         const queryBuilder = appServer.AppDataSource.getRepository(ChatFlow)
             .createQueryBuilder('chat_flow')
+            .where('chat_flow.type = :type', { type: EnumChatflowType.AGENTFLOW })
             .orderBy('chat_flow.updatedDate', 'DESC')
 
         if (page > 0 && limit > 0) {
             queryBuilder.skip((page - 1) * limit)
             queryBuilder.take(limit)
-        }
-        if (type === 'MULTIAGENT') {
-            queryBuilder.andWhere('chat_flow.type = :type', { type: 'MULTIAGENT' })
-        } else if (type === 'AGENTFLOW') {
-            queryBuilder.andWhere('chat_flow.type = :type', { type: 'AGENTFLOW' })
-        } else if (type === 'ASSISTANT') {
-            queryBuilder.andWhere('chat_flow.type = :type', { type: 'ASSISTANT' })
-        } else if (type === 'CHATFLOW') {
-            // fetch all chatflows that are not agentflow
-            queryBuilder.andWhere('chat_flow.type = :type', { type: 'CHATFLOW' })
         }
         if (workspaceId) queryBuilder.andWhere('chat_flow.workspaceId = :workspaceId', { workspaceId })
         const [data, total] = await queryBuilder.getManyAndCount()
@@ -229,16 +183,13 @@ async function getAllChatflowsCountByOrganization(type: ChatflowType, organizati
 }
 
 const getAllChatflowsCount = async (type?: ChatflowType, workspaceId?: string): Promise<number> => {
+    if (type) validateChatflowType(type)
     try {
         const appServer = getRunningExpressApp()
-        if (type) {
-            const dbResponse = await appServer.AppDataSource.getRepository(ChatFlow).countBy({
-                type,
-                ...getWorkspaceSearchOptions(workspaceId)
-            })
-            return dbResponse
-        }
-        const dbResponse = await appServer.AppDataSource.getRepository(ChatFlow).countBy(getWorkspaceSearchOptions(workspaceId))
+        const dbResponse = await appServer.AppDataSource.getRepository(ChatFlow).countBy({
+            type: EnumChatflowType.AGENTFLOW,
+            ...getWorkspaceSearchOptions(workspaceId)
+        })
         return dbResponse
     } catch (error) {
         throw new InternalFlowiseError(
@@ -351,6 +302,7 @@ const saveChatflow = async (
     subscriptionId: string,
     usageCacheManager: UsageCacheManager
 ): Promise<any> => {
+    if (newChatFlow.type === undefined || newChatFlow.type === null) newChatFlow.type = EnumChatflowType.AGENTFLOW
     validateChatflowType(newChatFlow.type)
     const appServer = getRunningExpressApp()
 
@@ -443,10 +395,7 @@ const saveChatflow = async (
         orgId
     )
 
-    appServer.metricsProvider?.incrementCounter(
-        dbResponse?.type === 'MULTIAGENT' ? FLOWISE_METRIC_COUNTERS.AGENTFLOW_CREATED : FLOWISE_METRIC_COUNTERS.CHATFLOW_CREATED,
-        { status: FLOWISE_COUNTER_STATUS.SUCCESS }
-    )
+    appServer.metricsProvider?.incrementCounter(FLOWISE_METRIC_COUNTERS.CHATFLOW_CREATED, { status: FLOWISE_COUNTER_STATUS.SUCCESS })
 
     return dbResponse
 }

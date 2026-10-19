@@ -16,7 +16,7 @@ import { UsageCacheManager } from './UsageCacheManager'
 
 export type MessageType = 'apiMessage' | 'userMessage'
 
-export type ChatflowType = 'CHATFLOW' | 'MULTIAGENT' | 'ASSISTANT' | 'AGENTFLOW'
+export type ChatflowType = 'AGENTFLOW'
 
 export type AssistantType = 'CUSTOM' | 'OPENAI' | 'AZURE'
 

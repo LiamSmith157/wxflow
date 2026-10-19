@@ -41,7 +41,7 @@ jest.mock('../../utils/getRunningExpressApp', () => ({
 }))
 jest.mock('../../database/entities/ChatFlow', () => ({
     ChatFlow: class ChatFlow {},
-    EnumChatflowType: { AGENTFLOW: 'AGENTFLOW', CHATFLOW: 'CHATFLOW', MULTIAGENT: 'MULTIAGENT' }
+    EnumChatflowType: { AGENTFLOW: 'AGENTFLOW' }
 }))
 jest.mock('../../database/entities/ChatMessage', () => ({ ChatMessage: class ChatMessage {} }))
 jest.mock('../../database/entities/ChatMessageFeedback', () => ({ ChatMessageFeedback: class ChatMessageFeedback {} }))
@@ -386,8 +386,28 @@ describe('saveChatflow', () => {
         expect(mockCreateOrUpdateSchedule).not.toHaveBeenCalled()
     })
 
-    it('does not create a schedule for a non-AGENTFLOW type', async () => {
-        const chatflow = makeChatflow({ type: EnumChatflowType.CHATFLOW, flowData: makePlainFlowData() })
+    it.each(['CHATFLOW', 'MULTIAGENT', 'ASSISTANT'])(
+        'rejects a removed flow type (%s) before saving or creating a schedule',
+        async (type) => {
+            const chatflow = makeChatflow({ type, flowData: makeScheduleFlowData() })
+
+            await expect(
+                chatflowsService.saveChatflow(
+                    chatflow as any,
+                    SAVE_ARGS.orgId,
+                    SAVE_ARGS.workspaceId,
+                    SAVE_ARGS.subscriptionId,
+                    SAVE_ARGS.usageCacheManager
+                )
+            ).rejects.toMatchObject({ statusCode: 400 })
+
+            expect(mockRepo.save).not.toHaveBeenCalled()
+            expect(mockCreateOrUpdateSchedule).not.toHaveBeenCalled()
+        }
+    )
+
+    it('defaults the type to AGENTFLOW when none is given', async () => {
+        const chatflow = makeChatflow({ type: undefined, flowData: makeChatInputFlowData() })
         mockRepo.save.mockResolvedValue(chatflow)
 
         await chatflowsService.saveChatflow(
@@ -398,7 +418,8 @@ describe('saveChatflow', () => {
             SAVE_ARGS.usageCacheManager
         )
 
-        expect(mockCreateOrUpdateSchedule).not.toHaveBeenCalled()
+        expect(chatflow.type).toBe(EnumChatflowType.AGENTFLOW)
+        expect(mockRepo.save).toHaveBeenCalledWith(expect.objectContaining({ type: 'AGENTFLOW' }))
     })
 
     // ── telemetry ─────────────────────────────────────────────────────────────
@@ -407,7 +428,7 @@ describe('saveChatflow', () => {
         mockRepo.save.mockResolvedValue(makeChatflow({ flowData: makePlainFlowData() }))
 
         await chatflowsService.saveChatflow(
-            makeChatflow({ type: EnumChatflowType.CHATFLOW, flowData: makePlainFlowData() }) as any,
+            makeChatflow({ flowData: makePlainFlowData() }) as any,
             SAVE_ARGS.orgId,
             SAVE_ARGS.workspaceId,
             SAVE_ARGS.subscriptionId,
@@ -582,14 +603,77 @@ describe('updateChatflow', () => {
         expect(beat.onScheduleChanged).not.toHaveBeenCalled()
     })
 
-    it('does not touch schedules for a non-AGENTFLOW type', async () => {
-        const nonAgentFlow = makeChatflow({ type: EnumChatflowType.CHATFLOW, flowData: makePlainFlowData() })
-        mockRepo.merge.mockReturnValue(nonAgentFlow)
-        mockRepo.save.mockResolvedValue(nonAgentFlow)
+    it.each(['CHATFLOW', 'MULTIAGENT', 'ASSISTANT'])(
+        'rejects an update to a removed flow type (%s) without touching schedules',
+        async (type) => {
+            const updates = makeChatflow({ type, flowData: makePlainFlowData() })
 
-        await chatflowsService.updateChatflow(existingFlow as any, nonAgentFlow as any, 'org-1', 'ws-1', 'sub-1')
+            await expect(
+                chatflowsService.updateChatflow(existingFlow as any, updates as any, 'org-1', 'ws-1', 'sub-1')
+            ).rejects.toMatchObject({
+                statusCode: 400
+            })
 
-        expect(mockCreateOrUpdateSchedule).not.toHaveBeenCalled()
-        expect(mockDeleteScheduleForTarget).not.toHaveBeenCalled()
+            expect(mockRepo.save).not.toHaveBeenCalled()
+            expect(mockCreateOrUpdateSchedule).not.toHaveBeenCalled()
+            expect(mockDeleteScheduleForTarget).not.toHaveBeenCalled()
+        }
+    )
+})
+
+describe('getAllChatflows', () => {
+    const makeQueryBuilder = (rows: unknown[] = []) => {
+        const qb: Record<string, jest.Mock> = {}
+        for (const method of ['where', 'andWhere', 'orderBy', 'skip', 'take']) qb[method] = jest.fn().mockReturnValue(qb)
+        qb.getManyAndCount = jest.fn().mockResolvedValue([rows, rows.length])
+        mockRepo.createQueryBuilder.mockReturnValue(qb)
+        return qb
+    }
+
+    it('only returns AGENTFLOW flows when no type is given', async () => {
+        const rows = [makeChatflow()]
+        const qb = makeQueryBuilder(rows)
+
+        const result = await chatflowsService.getAllChatflows(undefined, 'ws-1')
+
+        expect(result).toBe(rows)
+        expect(qb.where).toHaveBeenCalledWith('chat_flow.type = :type', { type: 'AGENTFLOW' })
+        expect(qb.andWhere).toHaveBeenCalledWith('chat_flow.workspaceId = :workspaceId', { workspaceId: 'ws-1' })
+    })
+
+    it('returns a page with the total when page and limit are given', async () => {
+        const rows = [makeChatflow()]
+        const qb = makeQueryBuilder(rows)
+
+        const result = await chatflowsService.getAllChatflows('AGENTFLOW', 'ws-1', 2, 10)
+
+        expect(result).toEqual({ data: rows, total: 1 })
+        expect(qb.skip).toHaveBeenCalledWith(10)
+        expect(qb.take).toHaveBeenCalledWith(10)
+    })
+
+    it.each(['CHATFLOW', 'MULTIAGENT', 'ASSISTANT'])('rejects the removed type %s with 400 without querying', async (type) => {
+        makeQueryBuilder()
+
+        await expect(chatflowsService.getAllChatflows(type as any, 'ws-1')).rejects.toMatchObject({ statusCode: 400 })
+
+        expect(mockRepo.createQueryBuilder).not.toHaveBeenCalled()
+    })
+})
+
+describe('getAllChatflowsCount', () => {
+    it('only counts AGENTFLOW flows', async () => {
+        mockRepo.countBy.mockResolvedValue(3)
+
+        const result = await chatflowsService.getAllChatflowsCount(undefined, 'ws-1')
+
+        expect(result).toBe(3)
+        expect(mockRepo.countBy).toHaveBeenCalledWith(expect.objectContaining({ type: 'AGENTFLOW' }))
+    })
+
+    it.each(['CHATFLOW', 'MULTIAGENT', 'ASSISTANT'])('rejects the removed type %s with 400', async (type) => {
+        await expect(chatflowsService.getAllChatflowsCount(type as any, 'ws-1')).rejects.toMatchObject({ statusCode: 400 })
+
+        expect(mockRepo.countBy).not.toHaveBeenCalled()
     })
 })

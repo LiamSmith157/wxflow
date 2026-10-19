@@ -69,15 +69,9 @@ const deleteChatflow = async (req: Request, res: Response, next: NextFunction) =
         const userPermittedTypes: EnumChatflowType[] = []
         const permissions = req.user!.permissions
         if (req.user?.isOrganizationAdmin) {
-            userPermittedTypes.push(EnumChatflowType.CHATFLOW)
             userPermittedTypes.push(EnumChatflowType.AGENTFLOW)
-            userPermittedTypes.push(EnumChatflowType.MULTIAGENT)
-            userPermittedTypes.push(EnumChatflowType.ASSISTANT)
         } else {
-            if (permissions.includes(`chatflows:delete`)) userPermittedTypes.push(EnumChatflowType.CHATFLOW)
             if (permissions.includes(`agentflows:delete`)) userPermittedTypes.push(EnumChatflowType.AGENTFLOW)
-            if (permissions.includes(`agentflows:delete`)) userPermittedTypes.push(EnumChatflowType.MULTIAGENT)
-            if (permissions.includes(`assistants:delete`)) userPermittedTypes.push(EnumChatflowType.ASSISTANT)
             if (userPermittedTypes.length === 0)
                 throw new InternalFlowiseError(StatusCodes.FORBIDDEN, `You do not have permission to delete any chatflow types`)
         }

@@ -18,19 +18,19 @@
 
 ## 3. 后端引擎与 flow 类型
 
--   [ ] 3.1 把 `buildChatflow.ts` 精简为 D1 描述的瘦入口:非 `AGENTFLOW` 类型返回 400;删除 CHATFLOW 和 MULTIAGENT 执行分支。补一个 jest 测试,覆盖"非 AGENTFLOW 类型返回 400"。验证:测试通过,`tsc` 通过
--   [ ] 3.2 删除 `utils/buildAgentGraph.ts` 及其测试。验证:`grep -r buildAgentGraph server/src` 没有结果
--   [ ] 3.3 按 D2 清理 `utils/index.ts`:删掉在 3.1 之后已经没有调用方的函数,以及 `isStartNodeDependOnInput`、`isSameOverrideConfig`、`isSameChatId`。验证:对每个被删函数名执行 grep 都没有结果;`tsc` 通过
--   [ ] 3.4 把 `EnumChatflowType` 和 `ChatflowType` 收缩为只有 `AGENTFLOW`;实体 `type` 列的默认值改为 `AGENTFLOW`;`saveChatflow` 在没传 `type` 时设为 `AGENTFLOW`;`getAllChatflows` 和计数函数固定只查 AGENTFLOW。为 `services/chatflows` 补 jest 测试,覆盖 flow-types spec 中创建、更新、缺省类型、列表查询这几个场景。验证:测试通过
--   [ ] 3.5 检查 `checkIfChatflowIsValidForStreaming`、`getUploadsConfig` 等函数中只与 Chatflow 有关的分支(例如 RAG 上传判断),全部删掉。验证:`tsc` 通过;冒烟清单中的流式输出和文件上传两项通过
--   [ ] 3.6 提交本阶段改动,并重跑完整的 v2 冒烟清单。验证:与基线结果一致
+-   [x] 3.1 把 `buildChatflow.ts` 精简为 D1 描述的瘦入口:非 `AGENTFLOW` 类型返回 400;删除 CHATFLOW 和 MULTIAGENT 执行分支。补一个 jest 测试,覆盖"非 AGENTFLOW 类型返回 400"。验证:测试通过,`tsc` 通过
+-   [x] 3.2 删除 `utils/buildAgentGraph.ts` 及其测试。验证:`grep -r buildAgentGraph server/src` 没有结果
+-   [x] 3.3 按 D2 清理 `utils/index.ts`:删掉在 3.1 之后已经没有调用方的函数,以及 `isStartNodeDependOnInput`、`isSameOverrideConfig`、`isSameChatId`。验证:对每个被删函数名执行 grep 都没有结果;`tsc` 通过
+-   [x] 3.4 把 `EnumChatflowType` 和 `ChatflowType` 收缩为只有 `AGENTFLOW`;实体 `type` 列的默认值改为 `AGENTFLOW`;`saveChatflow` 在没传 `type` 时设为 `AGENTFLOW`;`getAllChatflows` 和计数函数固定只查 AGENTFLOW。为 `services/chatflows` 补 jest 测试,覆盖 flow-types spec 中创建、更新、缺省类型、列表查询这几个场景。验证:测试通过(实施时同时处理了 4 个历史 migration 对枚举的引用,以及 `export-import` 中 ChatFlow / AgentFlow(v1)/ AssistantFlow 三段,见 design D4)
+-   [x] 3.5 检查 `checkIfChatflowIsValidForStreaming`、`getUploadsConfig` 等函数中只与 Chatflow 有关的分支(例如 RAG 上传判断),全部删掉。验证:`tsc` 通过;冒烟清单中的流式输出和文件上传两项通过
+-   [x] 3.6 提交本阶段改动,并重跑完整的 v2 冒烟清单。验证:与基线结果一致
 
 ## 4. 后端 API、实体与权限
 
--   [ ] 4.1 删除 `assistants`、`openai-assistants`、`openai-assistants-files`、`openai-assistants-vector-store`、`openai-realtime` 这几个模块的 routes、controllers、services,并从 `routes/index.ts` 中去掉注册。验证:`tsc` 通过;请求这些路径返回 404
+-   [ ] 4.1 删除 `assistants`、`openai-assistants`、`openai-assistants-files`、`openai-assistants-vector-store`、`openai-realtime` 这几个模块的 routes、controllers、services,并从 `routes/index.ts` 中去掉注册;同时在 `index.ts` 的 UI 兜底路由之前增加 `/api` 下未匹配请求返回 404 JSON 的处理(上游会对任何未匹配路径返回 `200 + index.html`)。验证:`tsc` 通过;请求这些路径返回 404 且 `Content-Type` 为 JSON
 -   [ ] 4.2 删除 `marketplaces` 模块的 routes、controllers、services,以及 `server/marketplaces/` 目录。验证:`tsc` 通过;`GET /api/v1/marketplaces/templates` 返回 404
 -   [ ] 4.3 删除 `vectors` 模块的 routes、controllers、services,以及 `utils/upsertVector.ts`,同时删掉 `queue/UpsertQueue.ts` 中 `executeUpsert` 这个分支;保留 `upsert-history` 和 Document Store 的 upsert 任务。验证:`tsc` 通过;冒烟清单中 Document Store 的 upsert 和 upsert 历史查询都正常
--   [ ] 4.4 修改 `services/export-import`:删掉 ChatFlow、MultiAgent、AssistantCustom、AssistantFlow、AssistantOpenAI、CustomTemplate 段的导出;导入时如果遇到这些段或非 AGENTFLOW 类型的 flow,返回 400。补 jest 测试,覆盖 flow-types spec 中的导入、导出场景。验证:测试通过
+-   [ ] 4.4 修改 `services/export-import`:删掉 ChatFlow、MultiAgent、AssistantCustom、AssistantFlow、AssistantOpenAI、CustomTemplate 段的导出;导入时如果遇到这些段或非 AGENTFLOW 类型的 flow,返回 400。补 jest 测试,覆盖 flow-types spec 中的导入、导出场景。验证:测试通过(其中 ChatFlow / AgentFlow(v1)/ AssistantFlow 三段及其导入 400 校验已在 3.4 完成,这里只处理 Assistant 与 CustomTemplate 段)
 -   [ ] 4.5 删掉 `services/evaluations` 中的 Custom Assistant 分支。验证:`tsc` 通过;冒烟清单中的评估项通过
 -   [ ] 4.6 删掉 `enterprise/services/workspace.service.ts`、`account.service.ts` 以及 `utils/index.ts` 中对 `Assistant`、`CustomTemplate` 的引用。验证:`tsc` 通过;创建和删除工作区都能成功
 -   [ ] 4.7 删除 `Assistant`、`CustomTemplate` 实体,并从 `database/entities/index.ts` 中去掉;按 D5 为 sqlite、mysql、mariadb、postgres 各追加一个删表 migration 并注册。验证:用 sqlite 和 postgres 分别从空库启动,migration 全部执行成功,库里没有这两张表

@@ -2,9 +2,10 @@
 """v2 冒烟脚本:不依赖 LLM 的后端检查。每个阶段结束后对照 baseline.md 运行。
 
 用法:
-  SMOKE_BASE=http://localhost:3000 SMOKE_EMAIL=... SMOKE_PASSWORD=... python3 -I smoke.py [--phase baseline|after]
+  SMOKE_BASE=http://localhost:3000 SMOKE_EMAIL=... SMOKE_PASSWORD=... python3 -I smoke.py [--phase baseline|stage3|after]
 
 baseline 阶段:被计划删除的模块只记录 INFO(当前返回什么)。
+stage3 阶段:flow 类型约束必须生效(只接受 AGENTFLOW、缺省 AGENTFLOW),被删模块仍只记录 INFO。
 after 阶段:被删除的模块必须返回 404,迁移后的新接口必须可用。
 LLM 相关项(Agent/LLM 节点执行、AI 生成 flow、AI 生成 prompt、评估运行)不在此脚本范围内。
 """
@@ -19,6 +20,8 @@ BASE = os.environ.get('SMOKE_BASE', 'http://localhost:3000').rstrip('/') + '/api
 EMAIL = os.environ['SMOKE_EMAIL']
 PASSWORD = os.environ['SMOKE_PASSWORD']
 PHASE = sys.argv[sys.argv.index('--phase') + 1] if '--phase' in sys.argv else 'baseline'
+TYPES_ENFORCED = PHASE in ('stage3', 'after')
+REMOVAL_ENFORCED = PHASE == 'after'
 
 jar = http.cookiejar.CookieJar()
 opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
@@ -212,7 +215,7 @@ def main():
     removed_cats = ['Agents', 'Chains', 'LLMs', 'Multi Agents', 'Sequential Agents', 'Output Parsers', 'Prompts', 'Engine',
                     'Response Synthesizer', 'Graph', 'Moderation', 'Memory', 'Cache', 'Retrievers']
     present = [c for c in removed_cats if c in cats]
-    if PHASE == 'after':
+    if REMOVAL_ENFORCED:
         check('nodes: 已移除类别不再出现', not present, f'still present={present}')
         check('nodes: 无 LlamaIndex 节点', not any('LlamaIndex' in (n.get('tags') or []) for n in nodes))
     else:
@@ -231,11 +234,11 @@ def main():
     check('GET /chatflows 列表包含新建 flow', s == 200 and any(x['id'] == fid for x in items), f'status={s}')
     s, nt, _ = call('POST', '/chatflows', {'name': 'smoke-notype', 'flowData': json.dumps(flow_function())})
     detail = f"status={s} type={nt.get('type') if isinstance(nt, dict) else nt}"
-    if PHASE == 'after':
+    if TYPES_ENFORCED:
         check('不传 type 创建时缺省为 AGENTFLOW', s == 200 and nt.get('type') == 'AGENTFLOW', detail)
     else:
         info('基线:不传 type 创建(上游返回 400,任务 3.4 改为缺省 AGENTFLOW)', detail)
-    if PHASE == 'after':
+    if TYPES_ENFORCED:
         for t in ('CHATFLOW', 'MULTIAGENT', 'ASSISTANT'):
             s, _, _ = call('POST', '/chatflows', {'name': f'smoke-{t}', 'type': t, 'flowData': json.dumps(flow_function())})
             check(f'创建 type={t} 被拒绝(400)', s == 400, f'status={s}')
@@ -329,17 +332,17 @@ def main():
     removed = ['/assistants', '/marketplaces/templates', '/openai-assistants', '/openai-realtime', '/assistants/components/chatmodels']
     for p in removed:
         s, _, _ = call('GET', p)
-        if PHASE == 'after':
+        if REMOVAL_ENFORCED:
             check(f'GET {p} 已移除(404)', s == 404, f'status={s}')
         else:
             info(f'基线:GET {p}', f'status={s}')
     s, _, _ = call('POST', f'/vector/internal-upsert/{fid}', {})
-    if PHASE == 'after':
+    if REMOVAL_ENFORCED:
         check('POST /vector/internal-upsert 已移除(404)', s == 404, f'status={s}')
     else:
         info('基线:POST /vector/internal-upsert', f'status={s}')
     s, _, _ = call('POST', '/agentflowv2-generator/instruction', {})
-    if PHASE == 'after':
+    if PHASE != 'baseline':
         check('POST /agentflowv2-generator/instruction 路由存在(非404)', s != 404, f'status={s}(无模型,预期 4xx/5xx)')
     else:
         info('基线:POST /agentflowv2-generator/instruction', f'status={s}')

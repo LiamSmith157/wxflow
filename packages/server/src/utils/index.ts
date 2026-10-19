@@ -27,10 +27,9 @@ import {
     IVariableOverride,
     IncomingInput
 } from '../Interface'
-import { cloneDeep, get, isEqual } from 'lodash'
+import { cloneDeep, get } from 'lodash'
 import {
     convertChatHistoryToText,
-    getInputVariables,
     handleEscapeCharacters,
     getEncryptionKeyPath,
     ICommonObject,
@@ -1250,82 +1249,6 @@ export const replaceInputsWithConfig = (
 }
 
 /**
- * Rebuild flow if LLMChain has dependency on other chains
- * User Question => Prompt_0 => LLMChain_0 => Prompt-1 => LLMChain_1
- * @param {IReactFlowNode[]} startingNodes
- * @returns {boolean}
- */
-export const isStartNodeDependOnInput = (startingNodes: IReactFlowNode[], nodes: IReactFlowNode[]): boolean => {
-    for (const node of startingNodes) {
-        if (node.data.category === 'Cache') return true
-        for (const inputName in node.data.inputs) {
-            const inputVariables = getInputVariables(node.data.inputs[inputName])
-            if (inputVariables.length > 0) return true
-        }
-    }
-    const whitelistNodeNames = ['vectorStoreToDocument', 'autoGPT', 'chatPromptTemplate', 'promptTemplate'] //If these nodes are found, chatflow cannot be reused
-    for (const node of nodes) {
-        if (node.data.name === 'chatPromptTemplate' || node.data.name === 'promptTemplate') {
-            let promptValues: ICommonObject = {}
-            const promptValuesRaw = node.data.inputs?.promptValues
-            if (promptValuesRaw) {
-                try {
-                    promptValues = typeof promptValuesRaw === 'object' ? promptValuesRaw : JSON.parse(promptValuesRaw)
-                } catch (exception) {
-                    console.error(exception)
-                }
-            }
-            if (getAllValuesFromJson(promptValues).includes(`{{${QUESTION_VAR_PREFIX}}}`)) return true
-        } else if (whitelistNodeNames.includes(node.data.name)) return true
-    }
-    return false
-}
-
-/**
- * Rebuild flow if new override config is provided
- * @param {boolean} isInternal
- * @param {ICommonObject} existingOverrideConfig
- * @param {ICommonObject} newOverrideConfig
- * @returns {boolean}
- */
-export const isSameOverrideConfig = (
-    isInternal: boolean,
-    existingOverrideConfig?: ICommonObject,
-    newOverrideConfig?: ICommonObject
-): boolean => {
-    if (isInternal) {
-        if (existingOverrideConfig && Object.keys(existingOverrideConfig).length) return false
-        return true
-    }
-    // If existing and new overrideconfig are the same
-    if (
-        existingOverrideConfig &&
-        Object.keys(existingOverrideConfig).length &&
-        newOverrideConfig &&
-        Object.keys(newOverrideConfig).length &&
-        isEqual(existingOverrideConfig, newOverrideConfig)
-    ) {
-        return true
-    }
-    // If there is no existing and new overrideconfig
-    if (!existingOverrideConfig && !newOverrideConfig) return true
-    return false
-}
-
-/**
- * @param {string} existingChatId
- * @param {string} newChatId
- * @returns {boolean}
- */
-export const isSameChatId = (existingChatId?: string, newChatId?: string): boolean => {
-    if (isEqual(existingChatId, newChatId)) {
-        return true
-    }
-    if (!existingChatId && !newChatId) return true
-    return false
-}
-
-/**
  * Find all available input params config
  * @param {IReactFlowNode[]} reactFlowNodes
  * @param {IComponentCredentials} componentCredentials
@@ -1853,46 +1776,6 @@ export const getMemorySessionId = (
 
     // Default chatId
     return chatId
-}
-
-/**
- * Get chat messages from sessionId
- * @param {IReactFlowNode} memoryNode
- * @param {string} sessionId
- * @param {IReactFlowNode} memoryNode
- * @param {IComponentNodes} componentNodes
- * @param {DataSource} appDataSource
- * @param {IDatabaseEntity} databaseEntities
- * @param {any} logger
- * @returns {IMessage[]}
- */
-export const getSessionChatHistory = async (
-    chatflowid: string,
-    sessionId: string,
-    memoryNode: IReactFlowNode,
-    componentNodes: IComponentNodes,
-    appDataSource: DataSource,
-    databaseEntities: IDatabaseEntity,
-    logger: any,
-    prependMessages?: IMessage[]
-): Promise<IMessage[]> => {
-    const nodeInstanceFilePath = componentNodes[memoryNode.data.name].filePath as string
-    const nodeModule = await import(nodeInstanceFilePath)
-    const newNodeInstance = new nodeModule.nodeClass()
-
-    // Replace memory's sessionId/chatId
-    if (memoryNode.data.inputs) {
-        memoryNode.data.inputs.sessionId = sessionId
-    }
-
-    const initializedInstance: FlowiseMemory = await newNodeInstance.init(memoryNode.data, '', {
-        chatflowid,
-        appDataSource,
-        databaseEntities,
-        logger
-    })
-
-    return (await initializedInstance.getChatMessages(sessionId, undefined, prependMessages)) as IMessage[]
 }
 
 /**
