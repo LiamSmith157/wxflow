@@ -180,7 +180,7 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
     const downloadFile = async (fileAnnotation) => {
         try {
             const response = await axios.post(
-                `${baseURL}/api/v1/openai-assistants-file/download`,
+                `${baseURL}/api/v1/chat-files/download`,
                 { fileName: fileAnnotation.fileName, chatflowId: metadata?.agentflowId, chatId: metadata?.sessionId },
                 { responseType: 'blob' }
             )

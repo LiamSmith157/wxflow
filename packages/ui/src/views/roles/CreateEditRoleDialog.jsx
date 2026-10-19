@@ -66,27 +66,20 @@ const CreateEditRoleDialog = ({ show, dialogProps, onCancel, onConfirm, setError
                 [key]: !prevPermissions[category]?.[key]
             }
 
-            if (category === 'templates') {
-                if (key !== 'templates:marketplace' && key !== 'templates:custom') {
-                    updatedCategoryPermissions['templates:marketplace'] = true
-                    updatedCategoryPermissions['templates:custom'] = true
+            const viewPermissionKey = `${category}:view`
+            if (key !== viewPermissionKey) {
+                const hasEnabledPermissions = Object.keys(updatedCategoryPermissions).some(
+                    ([permissionKey, isEnabled]) => permissionKey !== viewPermissionKey && isEnabled
+                )
+                if (hasEnabledPermissions) {
+                    updatedCategoryPermissions[viewPermissionKey] = true
                 }
             } else {
-                const viewPermissionKey = `${category}:view`
-                if (key !== viewPermissionKey) {
-                    const hasEnabledPermissions = Object.keys(updatedCategoryPermissions).some(
-                        ([permissionKey, isEnabled]) => permissionKey !== viewPermissionKey && isEnabled
-                    )
-                    if (hasEnabledPermissions) {
-                        updatedCategoryPermissions[viewPermissionKey] = true
-                    }
-                } else {
-                    const hasEnabledPermissions = Object.keys(updatedCategoryPermissions).some(
-                        ([permissionKey, isEnabled]) => permissionKey === viewPermissionKey && isEnabled
-                    )
-                    if (hasEnabledPermissions) {
-                        updatedCategoryPermissions[key] = true
-                    }
+                const hasEnabledPermissions = Object.keys(updatedCategoryPermissions).some(
+                    ([permissionKey, isEnabled]) => permissionKey === viewPermissionKey && isEnabled
+                )
+                if (hasEnabledPermissions) {
+                    updatedCategoryPermissions[key] = true
                 }
             }
 
@@ -98,21 +91,10 @@ const CreateEditRoleDialog = ({ show, dialogProps, onCancel, onConfirm, setError
     }
 
     const isCheckboxDisabled = (permissions, category, key) => {
-        if (category === 'templates') {
-            // For templates, disable marketplace and custom view if any other permission is enabled
-            if (key === 'templates:marketplace' || key === 'templates:custom') {
-                return Object.entries(permissions[category] || {}).some(
-                    ([permKey, isEnabled]) => permKey !== 'templates:marketplace' && permKey !== 'templates:custom' && isEnabled
-                )
-            }
-        } else {
-            const viewPermissionKey = `${category}:view`
-            if (key === viewPermissionKey) {
-                // Disable the view permission if any other permission is enabled
-                return Object.entries(permissions[category] || {}).some(
-                    ([permKey, isEnabled]) => permKey !== viewPermissionKey && isEnabled
-                )
-            }
+        const viewPermissionKey = `${category}:view`
+        if (key === viewPermissionKey) {
+            // Disable the view permission if any other permission is enabled
+            return Object.entries(permissions[category] || {}).some(([permKey, isEnabled]) => permKey !== viewPermissionKey && isEnabled)
         }
 
         // Non-view permissions are never disabled

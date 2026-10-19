@@ -4,30 +4,10 @@ import { Box, List, ListItemButton, ListItem, ListItemAvatar, ListItemText, Typo
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import robotPNG from '@/assets/images/robot.png'
 import chatPNG from '@/assets/images/chathistory.png'
-import diskPNG from '@/assets/images/floppy-disc.png'
 import fileAttachmentPNG from '@/assets/images/fileAttachment.png'
 import { baseURL } from '@/store/constant'
 
-const sequentialStateMessagesSelection = [
-    {
-        primary: '$flow.state.messages',
-        secondary: `All messages from the start of the conversation till now`
-    },
-    {
-        primary: '$flow.state.<replace-with-key>',
-        secondary: `Current value of the state variable with specified key`
-    },
-    {
-        primary: '$flow.state.messages[0].content',
-        secondary: `First message content`
-    },
-    {
-        primary: '$flow.state.messages[-1].content',
-        secondary: `Last message content`
-    }
-]
-
-const SelectVariable = ({ availableNodesForVariable, disabled = false, onSelectAndReturnVal, isSequentialAgent }) => {
+const SelectVariable = ({ availableNodesForVariable, disabled = false, onSelectAndReturnVal }) => {
     const customization = useSelector((state) => state.customization)
 
     const onSelectOutputResponseClick = (node, prefix) => {
@@ -208,55 +188,12 @@ const SelectVariable = ({ availableNodesForVariable, disabled = false, onSelectA
                                                             node.data.inputs.variableName ??
                                                             node.data.id
                                                         }
-                                                        secondary={
-                                                            node.data.name === 'ifElseFunction'
-                                                                ? `${node.data.description}`
-                                                                : `${selectedOutputAnchor?.label ?? 'output'} from ${node.data.label}`
-                                                        }
+                                                        secondary={`${selectedOutputAnchor?.label ?? 'output'} from ${node.data.label}`}
                                                     />
                                                 </ListItem>
                                             </ListItemButton>
                                         )
                                     })}
-                                {isSequentialAgent &&
-                                    (sequentialStateMessagesSelection || []).map((item, index) => (
-                                        <ListItemButton
-                                            key={index}
-                                            sx={{
-                                                p: 0,
-                                                borderRadius: `${customization.borderRadius}px`,
-                                                boxShadow: '0 2px 14px 0 rgb(32 40 45 / 8%)',
-                                                mb: 1
-                                            }}
-                                            disabled={disabled}
-                                            onClick={() => onSelectAndReturnVal(item.primary)}
-                                        >
-                                            <ListItem alignItems='center'>
-                                                <ListItemAvatar>
-                                                    <div
-                                                        style={{
-                                                            width: 50,
-                                                            height: 50,
-                                                            borderRadius: '50%',
-                                                            backgroundColor: 'white'
-                                                        }}
-                                                    >
-                                                        <img
-                                                            style={{
-                                                                width: '100%',
-                                                                height: '100%',
-                                                                padding: 10,
-                                                                objectFit: 'contain'
-                                                            }}
-                                                            alt='state'
-                                                            src={diskPNG}
-                                                        />
-                                                    </div>
-                                                </ListItemAvatar>
-                                                <ListItemText sx={{ ml: 1 }} primary={item.primary} secondary={item.secondary} />
-                                            </ListItem>
-                                        </ListItemButton>
-                                    ))}
                             </List>
                         </Box>
                     </PerfectScrollbar>
@@ -269,8 +206,7 @@ const SelectVariable = ({ availableNodesForVariable, disabled = false, onSelectA
 SelectVariable.propTypes = {
     availableNodesForVariable: PropTypes.array,
     disabled: PropTypes.bool,
-    onSelectAndReturnVal: PropTypes.func,
-    isSequentialAgent: PropTypes.bool
+    onSelectAndReturnVal: PropTypes.func
 }
 
 export default SelectVariable

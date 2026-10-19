@@ -69,7 +69,6 @@ import './ChatMessage.css'
 import chatmessageApi from '@/api/chatmessage'
 import chatflowsApi from '@/api/chatflows'
 import predictionApi from '@/api/prediction'
-import vectorstoreApi from '@/api/vectorstore'
 import attachmentsApi from '@/api/attachments'
 import chatmessagefeedbackApi from '@/api/chatmessagefeedback'
 import leadsApi from '@/api/lead'
@@ -185,7 +184,7 @@ CardWithDeleteOverlay.propTypes = {
     onDelete: PropTypes.func
 }
 
-const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setPreviews }) => {
+const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
 
@@ -255,7 +254,6 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
     const fileUploadRef = useRef(null)
     const [isChatFlowAvailableForImageUploads, setIsChatFlowAvailableForImageUploads] = useState(false)
     const [isChatFlowAvailableForFileUploads, setIsChatFlowAvailableForFileUploads] = useState(false)
-    const [isChatFlowAvailableForRAGFileUploads, setIsChatFlowAvailableForRAGFileUploads] = useState(false)
     const [isDragActive, setIsDragActive] = useState(false)
 
     // recording
@@ -325,17 +323,6 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
 
         if (fullFileUpload) {
             return true
-        } else if (constraints.isRAGFileUploadAllowed) {
-            const fileExt = file.name.split('.').pop()
-            if (fileExt && constraints.fileUploadSizeAndTypes && Array.isArray(constraints.fileUploadSizeAndTypes)) {
-                constraints.fileUploadSizeAndTypes.forEach((allowed) => {
-                    if (allowed.fileTypes && allowed.fileTypes.length === 1 && allowed.fileTypes[0] === '*') {
-                        acceptFile = true
-                    } else if (allowed.fileTypes && allowed.fileTypes.includes(`.${fileExt}`)) {
-                        acceptFile = true
-                    }
-                })
-            }
         }
         if (!acceptFile) {
             alert(`Cannot upload file. Kindly check the allowed file types and maximum allowed size.`)
@@ -361,7 +348,7 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
                 const { name } = file
                 // Only add files
                 if (!file.type || !imageUploadAllowedTypes.includes(file.type)) {
-                    uploadedFiles.push({ file, type: fullFileUpload ? 'file:full' : 'file:rag' })
+                    uploadedFiles.push({ file, type: 'file:full' })
                 }
                 files.push(
                     new Promise((resolve) => {
@@ -440,7 +427,7 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
             }
             // Only add files
             if (!file.type || !imageUploadAllowedTypes.includes(file.type)) {
-                uploadedFiles.push({ file, type: fullFileUpload ? 'file:full' : 'file:rag' })
+                uploadedFiles.push({ file, type: 'file:full' })
             }
             const reader = new FileReader()
             const { name } = file
@@ -977,31 +964,6 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
                     }
                 }
             }
-        } else if (isChatFlowAvailableForRAGFileUploads) {
-            const filesWithRAGUploadType = uploadedFiles.filter((file) => file.type === 'file:rag')
-
-            if (filesWithRAGUploadType.length > 0) {
-                const formData = new FormData()
-                for (const file of filesWithRAGUploadType) {
-                    formData.append('files', file.file)
-                }
-                formData.append('chatId', chatId)
-
-                await vectorstoreApi.upsertVectorStoreWithFormData(chatflowid, formData)
-
-                // delay for vector store to be updated
-                const delay = (delayInms) => {
-                    return new Promise((resolve) => setTimeout(resolve, delayInms))
-                }
-                await delay(2500) //TODO: check if embeddings can be retrieved using file name as metadata filter
-
-                uploads = uploads.map((upload) => {
-                    return {
-                        ...upload,
-                        type: 'file:rag'
-                    }
-                })
-            }
         }
         return uploads
     }
@@ -1282,7 +1244,7 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
     const downloadFile = async (fileAnnotation) => {
         try {
             const response = await axios.post(
-                `${baseURL}/api/v1/openai-assistants-file/download`,
+                `${baseURL}/api/v1/chat-files/download`,
                 { fileName: fileAnnotation.fileName, chatflowId: chatflowid, chatId: chatId },
                 { responseType: 'blob' }
             )
@@ -1393,7 +1355,6 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
     useEffect(() => {
         if (getAllowChatFlowUploads.data) {
             setIsChatFlowAvailableForImageUploads(getAllowChatFlowUploads.data?.isImageUploadAllowed ?? false)
-            setIsChatFlowAvailableForRAGFileUploads(getAllowChatFlowUploads.data?.isRAGFileUploadAllowed ?? false)
             setIsChatFlowAvailableForSpeech(getAllowChatFlowUploads.data?.isSpeechToTextEnabled ?? false)
             setImageUploadAllowedTypes(getAllowChatFlowUploads.data?.imgUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(','))
             setFileUploadAllowedTypes(getAllowChatFlowUploads.data?.fileUploadSizeAndTypes.map((allowed) => allowed.fileTypes).join(','))
@@ -1511,14 +1472,8 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
     }, [getChatflowConfig.error])
 
     useEffect(() => {
-        if (fullFileUpload) {
-            setIsChatFlowAvailableForFileUploads(true)
-        } else if (isChatFlowAvailableForRAGFileUploads) {
-            setIsChatFlowAvailableForFileUploads(true)
-        } else {
-            setIsChatFlowAvailableForFileUploads(false)
-        }
-    }, [isChatFlowAvailableForRAGFileUploads, fullFileUpload])
+        setIsChatFlowAvailableForFileUploads(Boolean(fullFileUpload))
+    }, [fullFileUpload])
 
     // Auto scroll chat to bottom (but not during TTS actions)
     useEffect(() => {
@@ -2445,25 +2400,21 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
                     onDrop={handleDrop}
                 />
             )}
-            {isDragActive &&
-                (getAllowChatFlowUploads.data?.isImageUploadAllowed || getAllowChatFlowUploads.data?.isRAGFileUploadAllowed) && (
-                    <Box className='drop-overlay'>
-                        <Typography variant='h2'>Drop here to upload</Typography>
-                        {[
-                            ...getAllowChatFlowUploads.data.imgUploadSizeAndTypes,
-                            ...getAllowChatFlowUploads.data.fileUploadSizeAndTypes
-                        ].map((allowed) => {
-                            return (
-                                <>
-                                    <Typography variant='subtitle1'>{allowed.fileTypes?.join(', ')}</Typography>
-                                    {allowed.maxUploadSize && (
-                                        <Typography variant='subtitle1'>Max Allowed Size: {allowed.maxUploadSize} MB</Typography>
-                                    )}
-                                </>
-                            )
-                        })}
-                    </Box>
-                )}
+            {isDragActive && getAllowChatFlowUploads.data?.isImageUploadAllowed && (
+                <Box className='drop-overlay'>
+                    <Typography variant='h2'>Drop here to upload</Typography>
+                    {getAllowChatFlowUploads.data.imgUploadSizeAndTypes.map((allowed) => {
+                        return (
+                            <>
+                                <Typography variant='subtitle1'>{allowed.fileTypes?.join(', ')}</Typography>
+                                {allowed.maxUploadSize && (
+                                    <Typography variant='subtitle1'>Max Allowed Size: {allowed.maxUploadSize} MB</Typography>
+                                )}
+                            </>
+                        )
+                    })}
+                </Box>
+            )}
             <div ref={ps} className={`${isDialog ? 'cloud-dialog' : 'cloud'}`}>
                 <div id='messagelist' className={'messagelist'}>
                     {messages &&
@@ -3110,61 +3061,33 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
                                             </IconButton>
                                         </InputAdornment>
                                     )}
-                                    {!isAgentCanvas && (
+                                    {!loading && (
                                         <InputAdornment position='end' sx={{ paddingRight: '15px' }}>
                                             <IconButton type='submit' disabled={getInputDisabled()} edge='end'>
-                                                {loading ? (
-                                                    <div>
-                                                        <CircularProgress color='inherit' size={20} />
-                                                    </div>
-                                                ) : (
-                                                    // Send icon SVG in input field
-                                                    <IconSend
-                                                        color={
-                                                            getInputDisabled() ? '#9e9e9e' : customization.isDarkMode ? 'white' : '#1e88e5'
-                                                        }
-                                                    />
-                                                )}
+                                                <IconSend
+                                                    color={getInputDisabled() ? '#9e9e9e' : customization.isDarkMode ? 'white' : '#1e88e5'}
+                                                />
                                             </IconButton>
                                         </InputAdornment>
                                     )}
-                                    {isAgentCanvas && (
-                                        <>
-                                            {!loading && (
-                                                <InputAdornment position='end' sx={{ paddingRight: '15px' }}>
-                                                    <IconButton type='submit' disabled={getInputDisabled()} edge='end'>
-                                                        <IconSend
-                                                            color={
-                                                                getInputDisabled()
-                                                                    ? '#9e9e9e'
-                                                                    : customization.isDarkMode
-                                                                    ? 'white'
-                                                                    : '#1e88e5'
-                                                            }
-                                                        />
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            )}
-                                            {loading && (
-                                                <InputAdornment position='end' sx={{ padding: '15px', mr: 1 }}>
-                                                    <IconButton
-                                                        edge='end'
-                                                        title={isMessageStopping ? 'Stopping...' : 'Stop'}
-                                                        style={{ border: !isMessageStopping ? '2px solid red' : 'none' }}
-                                                        onClick={() => handleAbort()}
-                                                        disabled={isMessageStopping}
-                                                    >
-                                                        {isMessageStopping ? (
-                                                            <div>
-                                                                <CircularProgress color='error' size={20} />
-                                                            </div>
-                                                        ) : (
-                                                            <IconSquareFilled size={15} color='red' />
-                                                        )}
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            )}
-                                        </>
+                                    {loading && (
+                                        <InputAdornment position='end' sx={{ padding: '15px', mr: 1 }}>
+                                            <IconButton
+                                                edge='end'
+                                                title={isMessageStopping ? 'Stopping...' : 'Stop'}
+                                                style={{ border: !isMessageStopping ? '2px solid red' : 'none' }}
+                                                onClick={() => handleAbort()}
+                                                disabled={isMessageStopping}
+                                            >
+                                                {isMessageStopping ? (
+                                                    <div>
+                                                        <CircularProgress color='error' size={20} />
+                                                    </div>
+                                                ) : (
+                                                    <IconSquareFilled size={15} color='red' />
+                                                )}
+                                            </IconButton>
+                                        </InputAdornment>
                                     )}
                                 </>
                             }
@@ -3236,7 +3159,6 @@ const ChatMessage = ({ open, chatflowid, isAgentCanvas, isDialog, previews, setP
 ChatMessage.propTypes = {
     open: PropTypes.bool,
     chatflowid: PropTypes.string,
-    isAgentCanvas: PropTypes.bool,
     isDialog: PropTypes.bool,
     previews: PropTypes.array,
     setPreviews: PropTypes.func

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 // material-ui
 import { useTheme, styled, alpha } from '@mui/material/styles'
-import { Avatar, Box, ButtonBase, Typography, Stack, Switch, TextField, Button, Tooltip } from '@mui/material'
+import { Avatar, Box, ButtonBase, Typography, Stack, Switch, TextField, Tooltip } from '@mui/material'
 
 // icons
 import {
@@ -22,12 +22,10 @@ import {
 // project imports
 import Settings from '@/views/settings'
 import SaveChatflowDialog from '@/ui-component/dialog/SaveChatflowDialog'
-import APICodeDialog from '@/views/chatflows/APICodeDialog'
+import APICodeDialog from '@/views/agentflowsv2/APICodeDialog'
 import ViewMessagesDialog from '@/ui-component/dialog/ViewMessagesDialog'
 import ChatflowConfigurationDialog from '@/ui-component/dialog/ChatflowConfigurationDialog'
-import UpsertHistoryDialog from '@/views/vectorstore/UpsertHistoryDialog'
 import ViewLeadsDialog from '@/ui-component/dialog/ViewLeadsDialog'
-import ExportAsTemplateDialog from '@/ui-component/dialog/ExportAsTemplateDialog'
 import { Available } from '@/ui-component/rbac/available'
 
 // API
@@ -120,7 +118,7 @@ const LockedScheduleSwitch = styled(ScheduleSwitch, { shouldForwardProp: (prop) 
 
 // ==============================|| CANVAS HEADER ||============================== //
 
-const CanvasHeader = ({ chatflow, isAgentCanvas, isAgentflowV2, handleSaveFlow, handleDeleteFlow, handleLoadFlow }) => {
+const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFlow }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -137,19 +135,15 @@ const CanvasHeader = ({ chatflow, isAgentCanvas, isAgentflowV2, handleSaveFlow, 
     const [viewMessagesDialogProps, setViewMessagesDialogProps] = useState({})
     const [viewLeadsDialogOpen, setViewLeadsDialogOpen] = useState(false)
     const [viewLeadsDialogProps, setViewLeadsDialogProps] = useState({})
-    const [upsertHistoryDialogOpen, setUpsertHistoryDialogOpen] = useState(false)
-    const [upsertHistoryDialogProps, setUpsertHistoryDialogProps] = useState({})
     const [chatflowConfigurationDialogOpen, setChatflowConfigurationDialogOpen] = useState(false)
     const [chatflowConfigurationDialogProps, setChatflowConfigurationDialogProps] = useState({})
 
-    const [exportAsTemplateDialogOpen, setExportAsTemplateDialogOpen] = useState(false)
-    const [exportAsTemplateDialogProps, setExportAsTemplateDialogProps] = useState({})
     const enqueueSnackbar = (...args) => dispatch(enqueueSnackbarAction(...args))
     const closeSnackbar = (...args) => dispatch(closeSnackbarAction(...args))
 
-    const [savePermission, setSavePermission] = useState(isAgentCanvas ? 'agentflows:create' : 'chatflows:create')
+    const [savePermission, setSavePermission] = useState('agentflows:create')
 
-    const title = isAgentCanvas ? 'Agents' : 'Chatflow'
+    const title = 'Agents'
 
     const updateChatflowApi = useApi(chatflowsApi.updateChatflow)
     const getScheduleStatusApi = useApi(chatflowsApi.getScheduleStatus)
@@ -163,7 +157,7 @@ const CanvasHeader = ({ chatflow, isAgentCanvas, isAgentflowV2, handleSaveFlow, 
     const [scheduleStatusLoaded, setScheduleStatusLoaded] = useState(false)
 
     const isScheduleFlow = useMemo(() => {
-        if (!chatflow?.flowData || !isAgentflowV2) return false
+        if (!chatflow?.flowData) return false
         try {
             const parsed = JSON.parse(chatflow.flowData)
             const startNode = (parsed.nodes || []).find((n) => n.data?.name === 'startAgentflow')
@@ -171,7 +165,7 @@ const CanvasHeader = ({ chatflow, isAgentCanvas, isAgentflowV2, handleSaveFlow, 
         } catch {
             return false
         }
-    }, [chatflow?.flowData, isAgentflowV2])
+    }, [chatflow?.flowData])
 
     const onSettingsItemClick = (setting) => {
         setSettingsOpen(false)
@@ -181,8 +175,7 @@ const CanvasHeader = ({ chatflow, isAgentCanvas, isAgentflowV2, handleSaveFlow, 
         } else if (setting === 'viewMessages') {
             setViewMessagesDialogProps({
                 title: 'View Messages',
-                chatflow: chatflow,
-                isChatflow: isAgentflowV2 ? false : true
+                chatflow: chatflow
             })
             setViewMessagesDialogOpen(true)
         } else if (setting === 'viewLeads') {
@@ -191,34 +184,6 @@ const CanvasHeader = ({ chatflow, isAgentCanvas, isAgentflowV2, handleSaveFlow, 
                 chatflow: chatflow
             })
             setViewLeadsDialogOpen(true)
-        } else if (setting === 'saveAsTemplate') {
-            if (canvas.isDirty) {
-                enqueueSnackbar({
-                    message: 'Please save the flow before exporting as template',
-                    options: {
-                        key: new Date().getTime() + Math.random(),
-                        variant: 'error',
-                        persist: true,
-                        action: (key) => (
-                            <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
-                                <IconX />
-                            </Button>
-                        )
-                    }
-                })
-                return
-            }
-            setExportAsTemplateDialogProps({
-                title: 'Export As Template',
-                chatflow: chatflow
-            })
-            setExportAsTemplateDialogOpen(true)
-        } else if (setting === 'viewUpsertHistory') {
-            setUpsertHistoryDialogProps({
-                title: 'View Upsert History',
-                chatflow: chatflow
-            })
-            setUpsertHistoryDialogOpen(true)
         } else if (setting === 'chatflowConfiguration') {
             setChatflowConfigurationDialogProps({
                 title: `${title} Configuration`,
@@ -231,13 +196,7 @@ const CanvasHeader = ({ chatflow, isAgentCanvas, isAgentflowV2, handleSaveFlow, 
                 const parsedFlowData = JSON.parse(flowData)
                 flowData = JSON.stringify(parsedFlowData)
                 localStorage.setItem('duplicatedFlowData', flowData)
-                if (isAgentflowV2) {
-                    window.open(`${uiBaseURL}/v2/agentcanvas`, '_blank')
-                } else if (isAgentCanvas) {
-                    window.open(`${uiBaseURL}/agentcanvas`, '_blank')
-                } else {
-                    window.open(`${uiBaseURL}/canvas`, '_blank')
-                }
+                window.open(`${uiBaseURL}/v2/agentcanvas`, '_blank')
             } catch (e) {
                 console.error(e)
             }
@@ -311,9 +270,7 @@ const CanvasHeader = ({ chatflow, isAgentCanvas, isAgentflowV2, handleSaveFlow, 
             chatflowid: chatflow.id,
             chatflowApiKeyId: chatflow.apikeyid,
             isFormDataRequired,
-            isSessionMemory,
-            isAgentCanvas,
-            isAgentflowV2
+            isSessionMemory
         })
         setAPIDialogOpen(true)
     }
@@ -325,14 +282,14 @@ const CanvasHeader = ({ chatflow, isAgentCanvas, isAgentflowV2, handleSaveFlow, 
 
     const onConfirmSaveName = (flowName) => {
         setFlowDialogOpen(false)
-        setSavePermission(isAgentCanvas ? 'agentflows:update' : 'chatflows:update')
+        setSavePermission('agentflows:update')
         handleSaveFlow(flowName)
     }
 
     useEffect(() => {
         if (updateChatflowApi.data) {
             setFlowName(updateChatflowApi.data.name)
-            setSavePermission(isAgentCanvas ? 'agentflows:update' : 'chatflows:update')
+            setSavePermission('agentflows:update')
             dispatch({ type: SET_CHATFLOW, chatflow: updateChatflowApi.data })
         }
         setEditingFlowName(false)
@@ -536,7 +493,7 @@ const CanvasHeader = ({ chatflow, isAgentCanvas, isAgentflowV2, handleSaveFlow, 
                     </Box>
                 </Stack>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {chatflow?.id && isAgentflowV2 && isScheduleFlow && scheduleStatusLoaded && (
+                    {chatflow?.id && isScheduleFlow && scheduleStatusLoaded && (
                         <Tooltip
                             title={
                                 scheduleEnabled
@@ -642,7 +599,6 @@ const CanvasHeader = ({ chatflow, isAgentCanvas, isAgentflowV2, handleSaveFlow, 
                 onClose={() => setSettingsOpen(false)}
                 onSettingsItemClick={onSettingsItemClick}
                 onUploadFile={onUploadFile}
-                isAgentCanvas={isAgentCanvas}
             />
             <SaveChatflowDialog
                 show={flowDialogOpen}
@@ -661,24 +617,11 @@ const CanvasHeader = ({ chatflow, isAgentCanvas, isAgentflowV2, handleSaveFlow, 
                 onCancel={() => setViewMessagesDialogOpen(false)}
             />
             <ViewLeadsDialog show={viewLeadsDialogOpen} dialogProps={viewLeadsDialogProps} onCancel={() => setViewLeadsDialogOpen(false)} />
-            {exportAsTemplateDialogOpen && (
-                <ExportAsTemplateDialog
-                    show={exportAsTemplateDialogOpen}
-                    dialogProps={exportAsTemplateDialogProps}
-                    onCancel={() => setExportAsTemplateDialogOpen(false)}
-                />
-            )}
-            <UpsertHistoryDialog
-                show={upsertHistoryDialogOpen}
-                dialogProps={upsertHistoryDialogProps}
-                onCancel={() => setUpsertHistoryDialogOpen(false)}
-            />
             <ChatflowConfigurationDialog
                 key='chatflowConfiguration'
                 show={chatflowConfigurationDialogOpen}
                 dialogProps={chatflowConfigurationDialogProps}
                 onCancel={() => setChatflowConfigurationDialogOpen(false)}
-                isAgentCanvas={isAgentCanvas}
             />
         </>
     )
@@ -688,9 +631,7 @@ CanvasHeader.propTypes = {
     chatflow: PropTypes.object,
     handleSaveFlow: PropTypes.func,
     handleDeleteFlow: PropTypes.func,
-    handleLoadFlow: PropTypes.func,
-    isAgentCanvas: PropTypes.bool,
-    isAgentflowV2: PropTypes.bool
+    handleLoadFlow: PropTypes.func
 }
 
 export default CanvasHeader

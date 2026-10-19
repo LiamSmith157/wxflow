@@ -2,6 +2,7 @@ import express from 'express'
 import agentflowv2GeneratorRouter from './agentflowv2-generator'
 import apikeyRouter from './apikey'
 import attachmentsRouter from './attachments'
+import chatFilesRouter from './chat-files'
 import chatMessageRouter from './chat-messages'
 import chatflowsRouter from './chatflows'
 import chatflowsStreamingRouter from './chatflows-streaming'
@@ -73,6 +74,9 @@ router.use('/attachments', attachmentsRouter)
 router.use('/chatflows', chatflowsRouter)
 router.use('/chatflows-streaming', chatflowsStreamingRouter)
 router.use('/chatmessage', chatMessageRouter)
+router.use('/chat-files', chatFilesRouter)
+// flowise-embed downloads files through the path that this route used to have
+router.use('/openai-assistants-file', chatFilesRouter)
 router.use('/chatflows-uploads', chatflowsUploadsRouter)
 router.use('/components-credentials', componentsCredentialsRouter)
 router.use('/components-credentials-icon', componentsCredentialsIconRouter)

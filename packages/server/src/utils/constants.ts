@@ -15,6 +15,8 @@ export const WHITELIST_URLS = [
     '/api/v1/node-icon/',
     '/api/v1/components-credentials-icon/',
     '/api/v1/chatflows-streaming',
+    '/api/v1/chat-files/download',
+    '/api/v1/openai-assistants-file/download',
     '/api/v1/chatflows-uploads',
     '/api/v1/feedback',
     '/api/v1/leads',

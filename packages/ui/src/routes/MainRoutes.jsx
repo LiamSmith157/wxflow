@@ -7,26 +7,14 @@ import Loadable from '@/ui-component/loading/Loadable'
 import { DefaultRedirect } from '@/routes/DefaultRedirect'
 import { RequireAuth } from '@/routes/RequireAuth'
 
-// chatflows routing
-const Chatflows = Loadable(lazy(() => import('@/views/chatflows')))
-
 // agents routing
 const Agentflows = Loadable(lazy(() => import('@/views/agentflows')))
-
-// marketplaces routing
-const Marketplaces = Loadable(lazy(() => import('@/views/marketplaces')))
 
 // apikey routing
 const APIKey = Loadable(lazy(() => import('@/views/apikey')))
 
 // tools routing
 const Tools = Loadable(lazy(() => import('@/views/tools')))
-
-// assistants routing
-const Assistants = Loadable(lazy(() => import('@/views/assistants')))
-const OpenAIAssistantLayout = Loadable(lazy(() => import('@/views/assistants/openai/OpenAIAssistantLayout')))
-const CustomAssistantLayout = Loadable(lazy(() => import('@/views/assistants/custom/CustomAssistantLayout')))
-const CustomAssistantConfigurePreview = Loadable(lazy(() => import('@/views/assistants/custom/CustomAssistantConfigurePreview')))
 
 // credentials routing
 const Credentials = Loadable(lazy(() => import('@/views/credentials')))
@@ -81,14 +69,6 @@ const MainRoutes = {
             element: <DefaultRedirect />
         },
         {
-            path: '/chatflows',
-            element: (
-                <RequireAuth permission={'chatflows:view'}>
-                    <Chatflows />
-                </RequireAuth>
-            )
-        },
-        {
             path: '/agentflows',
             element: (
                 <RequireAuth permission={'agentflows:view'}>
@@ -105,14 +85,6 @@ const MainRoutes = {
             )
         },
         {
-            path: '/marketplaces',
-            element: (
-                <RequireAuth permission={'templates:marketplace,templates:custom'}>
-                    <Marketplaces />
-                </RequireAuth>
-            )
-        },
-        {
             path: '/apikey',
             element: (
                 <RequireAuth permission={'apikeys:view'}>
@@ -125,38 +97,6 @@ const MainRoutes = {
             element: (
                 <RequireAuth permission={'tools:view'}>
                     <Tools />
-                </RequireAuth>
-            )
-        },
-        {
-            path: '/assistants',
-            element: (
-                <RequireAuth permission={'assistants:view'}>
-                    <Assistants />
-                </RequireAuth>
-            )
-        },
-        {
-            path: '/assistants/custom',
-            element: (
-                <RequireAuth permission={'assistants:view'}>
-                    <CustomAssistantLayout />
-                </RequireAuth>
-            )
-        },
-        {
-            path: '/assistants/custom/:id',
-            element: (
-                <RequireAuth permission={'assistants:view'}>
-                    <CustomAssistantConfigurePreview />
-                </RequireAuth>
-            )
-        },
-        {
-            path: '/assistants/openai',
-            element: (
-                <RequireAuth permission={'assistants:view'}>
-                    <OpenAIAssistantLayout />
                 </RequireAuth>
             )
         },

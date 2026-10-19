@@ -14,7 +14,7 @@ import {
     TableRow,
     TableBody
 } from '@mui/material'
-import { IconHierarchy, IconUsersGroup, IconRobot } from '@tabler/icons-react'
+import { IconUsersGroup } from '@tabler/icons-react'
 
 import { useSelector } from 'react-redux'
 import { evaluators as evaluatorsOptions, numericOperators } from '../evaluators/evaluatorConstant'
@@ -38,19 +38,9 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
 
     const getFlowIcon = (index) => {
         if (index === undefined) {
-            return <IconHierarchy size={24} />
+            return <IconUsersGroup size={24} />
         }
-        if (dialogProps.additionalConfig.chatflowTypes) {
-            switch (dialogProps.additionalConfig.chatflowTypes[index]) {
-                case 'Chatflow':
-                    return <IconHierarchy size={20} />
-                case 'Custom Assistant':
-                    return <IconRobot size={20} />
-                case 'Agentflow v2':
-                    return <IconUsersGroup size={20} />
-            }
-        }
-        return <IconHierarchy />
+        return <IconUsersGroup size={20} />
     }
 
     return (

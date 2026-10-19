@@ -614,7 +614,7 @@ const DocumentStoreDetails = () => {
                                                 : '0 2px 14px 0 rgb(32 40 45 / 10%)'
                                         }}
                                         label={chatflowUsed.name}
-                                        onClick={() => navigate('/canvas/' + chatflowUsed.id)}
+                                        onClick={() => navigate('/v2/agentcanvas/' + chatflowUsed.id)}
                                     ></Chip>
                                 ))}
                             </Stack>

@@ -67,7 +67,6 @@ import { MonthDaysPicker } from '@/ui-component/picker/MonthDaysPicker'
 import { DatePicker } from '@/ui-component/picker/DatePicker'
 
 import ToolDialog from '@/views/tools/ToolDialog'
-import AssistantDialog from '@/views/assistants/openai/AssistantDialog'
 import FormatPromptValuesDialog from '@/ui-component/dialog/FormatPromptValuesDialog'
 import ExpandTextDialog from '@/ui-component/dialog/ExpandTextDialog'
 import ExpandRichInputDialog from '@/ui-component/dialog/ExpandRichInputDialog'
@@ -98,7 +97,7 @@ import useNotifier from '@/utils/useNotifier'
 import { baseURL, FLOWISE_CREDENTIAL_ID } from '@/store/constant'
 import { closeSnackbar as closeSnackbarAction, enqueueSnackbar as enqueueSnackbarAction, SET_CHATFLOW } from '@/store/actions'
 
-const EDITABLE_OPTIONS = ['selectedTool', 'selectedAssistant']
+const EDITABLE_OPTIONS = ['selectedTool']
 
 const CustomWidthTooltip = styled(({ className, ...props }) => <Tooltip {...props} classes={{ popper: className }} />)({
     [`& .${tooltipClasses.tooltip}`]: {
@@ -553,14 +552,6 @@ const NodeInputHandler = ({
                 confirmButtonName: 'Save',
                 toolId: inputValue
             })
-        } else if (inputParamName === 'selectedAssistant') {
-            setAsyncOptionEditDialogProps({
-                title: 'Edit Assistant',
-                type: 'EDIT',
-                cancelButtonName: 'Cancel',
-                confirmButtonName: 'Save',
-                assistantId: inputValue
-            })
         }
         setAsyncOptionEditDialog(inputParamName)
     }
@@ -569,13 +560,6 @@ const NodeInputHandler = ({
         if (inputParamName === 'selectedTool') {
             setAsyncOptionEditDialogProps({
                 title: 'Add New Tool',
-                type: 'ADD',
-                cancelButtonName: 'Cancel',
-                confirmButtonName: 'Add'
-            })
-        } else if (inputParamName === 'selectedAssistant') {
-            setAsyncOptionEditDialogProps({
-                title: 'Add New Assistant',
                 type: 'ADD',
                 cancelButtonName: 'Cancel',
                 confirmButtonName: 'Add'
@@ -1319,7 +1303,6 @@ const NodeInputHandler = ({
                                             getJSONValue(data.inputs['workerPrompt']) ||
                                             ''
                                         }
-                                        isSequentialAgent={data.category === 'Sequential Agents'}
                                         isDarkMode={customization.isDarkMode}
                                     />
                                 )}
@@ -1520,12 +1503,6 @@ const NodeInputHandler = ({
                 onCancel={() => setAsyncOptionEditDialog('')}
                 onConfirm={onConfirmAsyncOption}
             ></ToolDialog>
-            <AssistantDialog
-                show={showAsyncOptionDialog === 'selectedAssistant'}
-                dialogProps={asyncOptionEditDialogProps}
-                onCancel={() => setAsyncOptionEditDialog('')}
-                onConfirm={onConfirmAsyncOption}
-            ></AssistantDialog>
             <ExpandTextDialog
                 show={showExpandDialog}
                 dialogProps={expandDialogProps}

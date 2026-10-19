@@ -709,8 +709,6 @@ const AgentflowCanvas = () => {
                             handleSaveFlow={handleSaveFlow}
                             handleDeleteFlow={handleDeleteFlow}
                             handleLoadFlow={handleLoadFlow}
-                            isAgentCanvas={true}
-                            isAgentflowV2={true}
                         />
                     </Toolbar>
                 </AppBar>
@@ -778,13 +776,7 @@ const AgentflowCanvas = () => {
                                     }}
                                 />
                                 {isBackgroundEnabled && <Background color='#aaa' gap={16} />}
-                                <AddNodes
-                                    isAgentCanvas={true}
-                                    isAgentflowv2={true}
-                                    nodesData={getNodesApi.data}
-                                    node={selectedNode}
-                                    onFlowGenerated={triggerConfetti}
-                                />
+                                <AddNodes nodesData={getNodesApi.data} node={selectedNode} onFlowGenerated={triggerConfetti} />
                                 <EditNodeDialog
                                     show={editNodeDialogOpen}
                                     dialogProps={editNodeDialogProps}
@@ -815,9 +807,9 @@ const AgentflowCanvas = () => {
                                 ) : isWebhookFlow ? (
                                     <WebhookListenerFAB chatflowid={chatflowId} onOpenChange={setChatPopupOpen} />
                                 ) : (
-                                    <ChatPopUp isAgentCanvas={true} chatflowid={chatflowId} onOpenChange={setChatPopupOpen} />
+                                    <ChatPopUp chatflowid={chatflowId} onOpenChange={setChatPopupOpen} />
                                 )}
-                                {!chatPopupOpen && <ValidationPopUp isAgentCanvas={true} chatflowid={chatflowId} />}
+                                {!chatPopupOpen && <ValidationPopUp chatflowid={chatflowId} />}
                             </ReactFlow>
                         </div>
                     </div>

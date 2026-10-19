@@ -219,7 +219,7 @@ const ALL_SECTIONS = CONFIGURATION_GROUPS.flatMap((g) => g.sections)
 
 const SIDEBAR_WIDTH = 220
 
-const ChatflowConfigurationDialog = ({ show, isAgentCanvas, dialogProps, onCancel }) => {
+const ChatflowConfigurationDialog = ({ show, dialogProps, onCancel }) => {
     const portalElement = document.getElementById('portal')
     const theme = useTheme()
     const chatflow = useSelector((state) => state.canvas.chatflow)
@@ -229,13 +229,7 @@ const ChatflowConfigurationDialog = ({ show, isAgentCanvas, dialogProps, onCance
 
     const isDark = theme.palette.mode === 'dark' || customization?.isDarkMode
 
-    // Filter groups/sections based on agent canvas
-    const filteredGroups = useMemo(() => {
-        return CONFIGURATION_GROUPS.map((group) => ({
-            ...group,
-            sections: group.sections.filter((section) => !isAgentCanvas || !section.hideInAgentFlow)
-        })).filter((group) => group.sections.length > 0)
-    }, [isAgentCanvas])
+    const filteredGroups = CONFIGURATION_GROUPS
 
     // Get all section IDs for validation
     const allSectionIds = useMemo(() => {
@@ -506,7 +500,6 @@ const ChatflowConfigurationDialog = ({ show, isAgentCanvas, dialogProps, onCance
 
 ChatflowConfigurationDialog.propTypes = {
     show: PropTypes.bool,
-    isAgentCanvas: PropTypes.bool,
     dialogProps: PropTypes.object,
     onCancel: PropTypes.func
 }

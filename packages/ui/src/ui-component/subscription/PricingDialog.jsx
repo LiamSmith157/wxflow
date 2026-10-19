@@ -123,7 +123,7 @@ const PricingDialog = ({ open, onClose }) => {
             if (getAllAPIKeysApi.data?.length > 0) {
                 // Count API keys that have sharing permissions
                 const sharingKeysCount = getAllAPIKeysApi.data.filter((apiKey) => {
-                    return apiKey.permissions.includes('credentials:share') || apiKey.permissions.includes('templates:custom-share')
+                    return apiKey.permissions.includes('credentials:share')
                 }).length
 
                 setProAPIKeysCount(sharingKeysCount)

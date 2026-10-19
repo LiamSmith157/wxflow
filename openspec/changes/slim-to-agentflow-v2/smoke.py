@@ -360,6 +360,27 @@ def main():
         check(f'document-store 组件列表 {path} 非空', st == 200 and isinstance(items, list) and len(items) > 0,
               f"status={st} items={len(items) if isinstance(items, list) else items}")
 
+    # ---- 聊天文件:上传附件后通过下载接口取回(含 flowise-embed 使用的旧路径)----
+    call('PUT', f'/chatflows/{fid}', {'chatbotConfig': json.dumps({'fullFileUpload': {'status': True, 'allowedUploadFileTypes': 'text/plain'}})})
+    boundary = '----smokeboundary'
+    content = b'smoke file content 123'
+    multipart = (f'--{boundary}\r\nContent-Disposition: form-data; name="files"; filename="smoke.txt"\r\n'
+                 f'Content-Type: text/plain\r\n\r\n').encode() + content + f'\r\n--{boundary}--\r\n'.encode()
+    up_req = urllib.request.Request(BASE + f'/attachments/{fid}/smoke-chat', data=multipart, method='POST',
+                                    headers={'Content-Type': f'multipart/form-data; boundary={boundary}'})
+    try:
+        with urllib.request.urlopen(up_req, timeout=60) as r:
+            up_status = r.status
+    except urllib.error.HTTPError as e:
+        up_status = e.code
+    check('attachments 上传聊天文件', up_status == 200, f'status={up_status}')
+    for path in ('/chat-files/download', '/openai-assistants-file/download'):
+        st, body, ctype = call('POST', path, {'chatflowId': fid, 'chatId': 'smoke-chat', 'fileName': 'smoke.txt'}, internal=False, raw=True)
+        check(f'POST {path} 取回刚上传的文件', st == 200 and body.encode() == content or (st == 200 and content.decode() in body),
+              f'status={st} len={len(body)}')
+    st, _, ctype = call('POST', '/chat-files/download', {'chatflowId': '00000000-0000-0000-0000-000000000000', 'chatId': 'x', 'fileName': 'y'}, internal=False)
+    check('下载不存在的 flow 的文件返回 JSON 404', st == 404 and 'json' in ctype, f'status={st} type={ctype}')
+
     # ---- 将被删除/迁移的接口 ----
     removed = ['/assistants', '/marketplaces/templates', '/openai-assistants', '/openai-realtime', '/assistants/components/chatmodels']
     for p in removed:

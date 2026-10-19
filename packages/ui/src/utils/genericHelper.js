@@ -642,28 +642,6 @@ export const getAvailableNodesForVariable = (nodes, edges, target, targetHandle,
 
     const isAgentFlowV2 = nodes.find((nd) => nd.id === target)?.data?.category === 'Agent Flows'
 
-    const isSeqAgent = nodes.find((nd) => nd.id === target)?.data?.category === 'Sequential Agents'
-
-    function collectParentNodes(targetNodeId, nodes, edges) {
-        const inputEdges = edges.filter(
-            (edg) => edg.target === targetNodeId && edg.targetHandle.includes(`${targetNodeId}-input-sequentialNode`)
-        )
-
-        // Traverse each edge found
-        inputEdges.forEach((edge) => {
-            const parentNode = nodes.find((nd) => nd.id === edge.source)
-            if (!parentNode) return
-
-            // Recursive call to explore further up the tree
-            collectParentNodes(parentNode.id, nodes, edges)
-
-            // Check and add the parent node to the list if it does not include specific names
-            const excludeNodeNames = ['seqAgent', 'seqLLMNode', 'seqToolNode', 'seqCustomFunction', 'seqExecuteFlow']
-            if (excludeNodeNames.includes(parentNode.data.name)) {
-                parentNodes.push(parentNode)
-            }
-        })
-    }
     function collectAgentFlowV2ParentNodes(targetNodeId, nodes, edges) {
         const inputEdges = edges.filter((edg) => edg.target === targetNodeId && edg.targetHandle === targetNodeId)
 
@@ -683,10 +661,7 @@ export const getAvailableNodesForVariable = (nodes, edges, target, targetHandle,
         })
     }
 
-    if (isSeqAgent) {
-        collectParentNodes(target, nodes, edges)
-        return uniq(parentNodes)
-    } else if (isAgentFlowV2) {
+    if (isAgentFlowV2) {
         collectAgentFlowV2ParentNodes(target, nodes, edges)
         const parentNodeId = nodes.find((nd) => nd.id === target)?.parentNode
         if (parentNodeId) {
@@ -703,79 +678,6 @@ export const getAvailableNodesForVariable = (nodes, edges, target, targetHandle,
         }
         return parentNodes
     }
-}
-
-export const getUpsertDetails = (nodes, edges) => {
-    const vsNodes = nodes.filter(
-        (node) =>
-            node.data.category === 'Vector Stores' && !node.data.label.includes('Upsert') && !node.data.label.includes('Load Existing')
-    )
-    const vsNodeIds = vsNodes.map((vs) => vs.data.id)
-
-    const upsertNodes = []
-    const seenVsNodeIds = []
-    for (const edge of edges) {
-        if (vsNodeIds.includes(edge.source) || vsNodeIds.includes(edge.target)) {
-            const vsNode = vsNodes.find((node) => node.data.id === edge.source || node.data.id === edge.target)
-            if (!vsNode || seenVsNodeIds.includes(vsNode.data.id)) continue
-            seenVsNodeIds.push(vsNode.data.id)
-
-            // Found Vector Store Node, proceed to find connected Document Loader node
-            let connectedDocs = []
-
-            if (vsNode.data.inputs.document) connectedDocs = [...new Set(vsNode.data.inputs.document)]
-
-            if (connectedDocs.length) {
-                const innerNodes = [vsNode]
-
-                if (vsNode.data.inputs.embeddings) {
-                    const embeddingsId = vsNode.data.inputs.embeddings.replace(/{{|}}/g, '').split('.')[0]
-                    innerNodes.push(nodes.find((node) => node.data.id === embeddingsId))
-                }
-
-                if (vsNode.data.inputs.recordManager) {
-                    const recordManagerId = vsNode.data.inputs.recordManager.replace(/{{|}}/g, '').split('.')[0]
-                    innerNodes.push(nodes.find((node) => node.data.id === recordManagerId))
-                }
-
-                for (const doc of connectedDocs) {
-                    const docId = doc.replace(/{{|}}/g, '').split('.')[0]
-                    const docNode = nodes.find((node) => node.data.id === docId)
-                    if (docNode) innerNodes.push(docNode)
-
-                    // Found Document Loader Node, proceed to find connected Text Splitter node
-                    if (docNode && docNode.data.inputs.textSplitter) {
-                        const textSplitterId = docNode.data.inputs.textSplitter.replace(/{{|}}/g, '').split('.')[0]
-                        const textSplitterNode = nodes.find((node) => node.data.id === textSplitterId)
-                        if (textSplitterNode) innerNodes.push(textSplitterNode)
-                    }
-                }
-
-                upsertNodes.push({
-                    vectorNode: vsNode,
-                    nodes: innerNodes.reverse()
-                })
-            }
-        }
-    }
-    return upsertNodes
-}
-
-export const rearrangeToolsOrdering = (newValues, sourceNodeId) => {
-    // RequestsGet and RequestsPost have to be in order before other tools
-    newValues.push(`{{${sourceNodeId}.data.instance}}`)
-
-    const sortKey = (item) => {
-        if (item.includes('requestsGet') || item.includes('readFile')) {
-            return 0
-        } else if (item.includes('requestsPost') || item.includes('writeFile')) {
-            return 1
-        } else {
-            return 2
-        }
-    }
-
-    newValues.sort((a, b) => sortKey(a) - sortKey(b))
 }
 
 export const throttle = (func, limit) => {
@@ -1030,25 +932,6 @@ export const getOS = () => {
     }
 
     return os
-}
-
-export const formatBytes = (number) => {
-    if (number == null || number === undefined || number <= 0) {
-        return '0 Bytes'
-    }
-    var scaleCounter = 0
-    var scaleInitials = [' Bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB']
-    while (number >= 1024 && scaleCounter < scaleInitials.length - 1) {
-        number /= 1024
-        scaleCounter++
-    }
-    if (scaleCounter >= scaleInitials.length) scaleCounter = scaleInitials.length - 1
-    let compactNumber = number
-        .toFixed(2)
-        .replace(/\.?0+$/, '')
-        .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-    compactNumber += scaleInitials[scaleCounter]
-    return compactNumber.trim()
 }
 
 // Formatter from: https://stackoverflow.com/a/9462382

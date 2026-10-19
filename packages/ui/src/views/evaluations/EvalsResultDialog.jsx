@@ -47,17 +47,7 @@ const EvalsResultDialog = ({ show, dialogProps, onCancel, openDetailsDrawer }) =
         if (index === undefined) {
             return ''
         }
-        if (dialogProps.data?.additionalConfig?.chatflowTypes) {
-            switch (dialogProps.data.additionalConfig.chatflowTypes[index]) {
-                case 'Chatflow':
-                    return '/canvas/' + dialogProps.data.evaluation.chatflowId[index]
-                case 'Custom Assistant':
-                    return '/assistants/custom/' + dialogProps.data.evaluation.chatflowId[index]
-                case 'Agentflow v2':
-                    return '/v2/agentcanvas/' + dialogProps.data.evaluation.chatflowId[index]
-            }
-        }
-        return '/canvas/' + dialogProps.data.evaluation.chatflowId[index]
+        return '/v2/agentcanvas/' + dialogProps.data.evaluation.chatflowId[index]
     }
 
     const component = show ? (

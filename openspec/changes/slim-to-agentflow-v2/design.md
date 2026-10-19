@@ -105,6 +105,15 @@ UI 和 server 都按"先迁移,后删除"的顺序进行,保证每一步之后�
 -   **`components/dist` 不会自动清理。** `NodesPool` 扫描 `dist/nodes` 注册节点,只删源码而不清 `dist` 的话,旧节点仍会被加载。增量构建前必须先 `pnpm clean`;Docker 全新构建不受影响。
 -   `GET /nodes/:name` 对不存在的节点原本返回 500(内部抛出的 404 被外层 catch 包成了 500),改为透传 404。
 
+### D7b. UI 清理实施中的修正
+
+-   **聊天文件下载接口不能随 Assistants 一起删。** `POST /openai-assistants-file/download` 名字像是 Assistants 专用,实际是通用的聊天文件下载(按 flow、chat、文件名从存储读取)。v2 的 Agent 节点会产生文件附件,聊天面板、消息查看、执行详情三处靠它下载,外部的 `flowise-embed` 也用这个 URL。阶段 4 把它当 Assistants 路由删掉了,阶段 6 反查 UI 调用时才发现。已恢复为 `POST /chat-files/download`(中性名字),并在旧路径上保留别名;UI 改用新路径。教训:删除一个模块前,要按"接口 → 调用方"同时检查 UI、SDK 和外部 embed,而不是只看模块名。冒烟里加了"上传再下载"的真实往返。
+-   **`views/chatflows` 里有共享组件。** `APICodeDialog`、`ShareChatbot`、`EmbedChat` 是 v2 画布头部的 API 对话框用的,搬到 `views/agentflowsv2/` 之后才删除其余目录。
+-   v2 画布的节点面板只展示 `Agent Flows` 类别,`AddNodes` 里 v1 的黑名单、例外、LangChain / LlamaIndex / Utilities 页签都是死代码,已收敛(783 行 → 约 580 行)。
+-   `isAgentCanvas`、`isAgentflowV2` 在唯一的调用方里恒为 `true`,已从 `CanvasHeader`、`APICodeDialog`、`ShareChatbot`、`ChatMessage`、`ChatPopUp`、`ChatExpandDialog`、`ChatflowConfigurationDialog`、`FlowListMenu`、`FlowListTable` 里移除。仍留在共享组件里的少量 v1 逻辑记录在 `leftovers.md`。
+-   v2 画布上的 "Upsert History" 菜单项一并删除:chatflow 的向量 upsert 接口已删除,画布上的 flow 不可能再产生 upsert 历史。Document Store 自己的 upsert 历史侧边栏保留。
+-   UI 没有浏览器自动化,验收靠构建、lint、单元测试、后端冒烟加人工清单(`ui-checklist.md`)。
+
 ### D8. 依赖瘦身放在最后,并以构建通过为准
 
 所有代码删除都完成之后,再逐个包用 `depcheck` 或 `knip` 找出没有被引用的依赖,删除后重新执行 `pnpm install` 和 `pnpm build`。这一步和代码删除分开提交,出问题时可以只回退这一步。

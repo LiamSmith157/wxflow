@@ -7,18 +7,15 @@ import Account from '@/views/account'
 import Executions from '@/views/agentexecutions'
 import Agentflows from '@/views/agentflows'
 import APIKey from '@/views/apikey'
-import Assistants from '@/views/assistants'
 import Login from '@/views/auth/login'
 import LoginActivityPage from '@/views/auth/loginActivity'
 import SSOConfig from '@/views/auth/ssoConfig'
 import Unauthorized from '@/views/auth/unauthorized'
-import Chatflows from '@/views/chatflows'
 import Credentials from '@/views/credentials'
 import EvalDatasets from '@/views/datasets'
 import Documents from '@/views/docstore'
 import EvalEvaluation from '@/views/evaluations/index'
 import Evaluators from '@/views/evaluators'
-import Marketplaces from '@/views/marketplaces'
 import RolesPage from '@/views/roles'
 import Logs from '@/views/serverlogs'
 import Tools from '@/views/tools'
@@ -28,7 +25,7 @@ import Workspaces from '@/views/workspace'
 
 /**
  * Component that redirects users to the first accessible page based on their permissions
- * This prevents 403 errors when users don't have access to the default chatflows page
+ * This prevents 403 errors when users don't have access to the default agentflows page
  */
 export const DefaultRedirect = () => {
     const { hasPermission, hasDisplay } = useAuth()
@@ -38,11 +35,8 @@ export const DefaultRedirect = () => {
 
     // Define the order of routes to check (based on the menu order in dashboard.js)
     const routesToCheck = [
-        { component: Chatflows, permission: 'chatflows:view' },
         { component: Agentflows, permission: 'agentflows:view' },
         { component: Executions, permission: 'executions:view' },
-        { component: Assistants, permission: 'assistants:view' },
-        { component: Marketplaces, permission: 'templates:marketplace,templates:custom' },
         { component: Tools, permission: 'tools:view' },
         { component: Credentials, permission: 'credentials:view' },
         { component: Variables, permission: 'variables:view' },
@@ -68,14 +62,14 @@ export const DefaultRedirect = () => {
         return <Login />
     }
 
-    // For open source, show chatflows (no permission checks)
+    // For open source, show agentflows (no permission checks)
     if (isOpenSource) {
-        return <Chatflows />
+        return <Agentflows />
     }
 
-    // For global admins, show chatflows (they have access to everything)
+    // For global admins, show agentflows (they have access to everything)
     if (isGlobal) {
-        return <Chatflows />
+        return <Agentflows />
     }
 
     // Check each route in order and return the first accessible component

@@ -148,7 +148,7 @@ const ExpandTextDialog = ({ show, dialogProps, onCancel, onInputHintDialogClicke
                 </div>
                 {languageType === 'js' && !inputParam.hideCodeExecute && (
                     <PermissionLoadingButton
-                        permissionId='chatflows:create,chatflows:update,agentflows:create,agentflows:update'
+                        permissionId='agentflows:create,agentflows:update'
                         sx={{
                             mt: 2,
                             '&:hover': {

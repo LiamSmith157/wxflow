@@ -48,14 +48,14 @@
 
 ## 6. UI 清理
 
--   [ ] 6.1 删除 `views/chatflows`、`views/canvas`、`views/assistants`、`views/marketplaces`、`views/agentflowsv2/MarketplaceCanvas.jsx`,以及 `api/assistants.js`、`api/marketplaces.js` 和 `api/vectorstore.js` 中的 upsert 方法(保留 upsert-history 方法)。验证:ui 构建通过
--   [ ] 6.2 修改 `routes/MainRoutes.jsx`、`CanvasRoutes.jsx`、`DefaultRedirect.jsx` 和 `menu-items/*`:删掉 console-navigation spec 中列出的路由和菜单项,`DefaultRedirect` 的候选列表以 Agentflows 开头。验证:按 spec 中的场景手动检查菜单、根路径和已删除的路由
--   [ ] 6.3 把 `views/agentflows` 改成只有 v2 的列表页:删掉版本切换、v1 废弃提示和 `MULTIAGENT` 查询,新建按钮跳转到 `/v2/agentcanvas`。验证:按 spec 中的场景手动检查
--   [ ] 6.4 删掉 `ExportAsTemplateDialog`,以及 `FlowListMenu`、v2 `CanvasHeader`、`ToolDialog` 中与模板相关的入口。验证:`grep -rn "ExportAsTemplate\|marketplace" ui/src -i` 没有结果
--   [ ] 6.5 删掉 `CreateEvaluationDialog` 中的 Chatflow 和 Custom Assistant 选项,以及 `ChatMessage.jsx` 中的 RAG 上传分支。验证:按 spec 中的场景手动检查评估创建和文件上传(阶段 4 反查发现,UI 里 Custom Assistant 的引用还包括 `EvaluationResult`、`EvaluationResultSideDrawer`、`EvalsResultDialog`,以及 `views/settings/index.jsx` 与 `menu-items/customassistant.js`,这些在本任务一并处理)
--   [ ] 6.6 grep `isAgentCanvas`、`isAgentflowV2`、`'CHATFLOW'`、`'MULTIAGENT'`、`'ASSISTANT'`,删掉已经不可能走到的分支;无法安全删除的记录到 `openspec/changes/slim-to-agentflow-v2/leftovers.md`。验证:ui 构建通过,并且 `pnpm --filter flowise-ui test` 通过
--   [ ] 6.7 删除 server 中 cypress e2e 里覆盖已删页面的用例。验证:剩下的 cypress 用例能运行
--   [ ] 6.8 提交本阶段改动,并重跑完整的 v2 冒烟清单。验证:与基线结果一致
+-   [x] 6.1 删除 `views/chatflows`、`views/canvas`、`views/assistants`、`views/marketplaces`、`views/agentflowsv2/MarketplaceCanvas.jsx`,以及 `api/assistants.js`、`api/marketplaces.js` 和 `api/vectorstore.js` 中的 upsert 方法(保留 upsert-history 方法)。验证:ui 构建通过(实施时 `views/chatflows` 里的 `APICodeDialog`、`ShareChatbot`、`EmbedChat` 先搬到 `views/agentflowsv2/`;同时删除了无人使用的 `VectorStorePopUp`、`VectorStoreDialog`、`UpsertHistoryDialog`,见 design D7b)
+-   [x] 6.2 修改 `routes/MainRoutes.jsx`、`CanvasRoutes.jsx`、`DefaultRedirect.jsx` 和 `menu-items/*`:删掉 console-navigation spec 中列出的路由和菜单项,`DefaultRedirect` 的候选列表以 Agentflows 开头。验证:按 spec 中的场景手动检查菜单、根路径和已删除的路由(`config.js` 的 `defaultPath` 同步改为 `/agentflows`,否则点 logo 会回到已删除的 `/chatflows`)
+-   [x] 6.3 把 `views/agentflows` 改成只有 v2 的列表页:删掉版本切换、v1 废弃提示和 `MULTIAGENT` 查询,新建按钮跳转到 `/v2/agentcanvas`。验证:按 spec 中的场景手动检查
+-   [x] 6.4 删掉 `ExportAsTemplateDialog`,以及 `FlowListMenu`、v2 `CanvasHeader`、`ToolDialog` 中与模板相关的入口。验证:`grep -rn "ExportAsTemplate\|marketplace" ui/src -i` 没有结果(同时删除了 `ToolDialog` 里只有 Marketplace 会触发的 `TEMPLATE` 模式,以及 v2 画布设置菜单里的 Upsert History)
+-   [x] 6.5 删掉 `CreateEvaluationDialog` 中的 Chatflow 和 Custom Assistant 选项,以及 `ChatMessage.jsx` 中的 RAG 上传分支。验证:按 spec 中的场景手动检查评估创建和文件上传(阶段 4 反查发现,UI 里 Custom Assistant 的引用还包括 `EvaluationResult`、`EvaluationResultSideDrawer`、`EvalsResultDialog`,以及 `views/settings/index.jsx` 与 `menu-items/customassistant.js`,这些在本任务一并处理)
+-   [x] 6.6 grep `isAgentCanvas`、`isAgentflowV2`、`'CHATFLOW'`、`'MULTIAGENT'`、`'ASSISTANT'`,删掉已经不可能走到的分支;无法安全删除的记录到 `openspec/changes/slim-to-agentflow-v2/leftovers.md`。验证:ui 构建通过,并且 `pnpm --filter flowise-ui test` 通过
+-   [x] 6.7 删除 server 中 cypress e2e 里覆盖已删页面的用例。验证:剩下的 cypress 用例能运行(核查结果:现有 cypress 用例只有 `apikey` 和 `variables` 两个,不涉及已删页面,没有需要删除的用例;本机未安装 cypress 二进制,无法运行)
+-   [x] 6.8 提交本阶段改动,并重跑完整的 v2 冒烟清单。验证:与基线结果一致(验收:构建、lint、UI 65 个与 server 1056 个测试、后端冒烟 70 项全过;浏览器里的交互见 `ui-checklist.md`,需要人工完成;阶段 6 同时发现并修复了阶段 4 误删的聊天文件下载接口)
 
 ## 7. 包与依赖瘦身
 

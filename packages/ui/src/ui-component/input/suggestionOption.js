@@ -192,10 +192,7 @@ export const suggestionOptions = (
             return {
                 id: `${node.id}`,
                 mentionLabel: node.data.inputs.chainName ?? node.data.inputs.functionName ?? node.data.inputs.variableName ?? node.data.id,
-                description:
-                    node.data.name === 'ifElseFunction'
-                        ? node.data.description
-                        : `${selectedOutputAnchor?.label ?? 'Output'} from ${node.data.label}`,
+                description: `${selectedOutputAnchor?.label ?? 'Output'} from ${node.data.label}`,
                 category: 'Node Outputs'
             }
         })

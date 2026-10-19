@@ -681,10 +681,31 @@ query({
     }
 
     const getMultiConfigCodeWithFormData = (codeLang) => {
-        if (dialogProps.isAgentflowV2) {
-            if (codeLang === 'Python') {
-                return `# Specify multiple values for a config parameter by specifying the node id
+        if (codeLang === 'Python') {
+            return `# Specify multiple values for a config parameter by specifying the node id
 body_data = {
+"agentModelConfig": {
+    "agentAgentflow_0": {
+        "openAIApiKey": "sk-my-openai-1st-key"
+    },
+    "agentAgentflow_1": {
+        "openAIApiKey": "sk-my-openai-2nd-key"
+    }
+}
+}`
+        } else if (codeLang === 'JavaScript') {
+            return `// Specify multiple values for a config parameter by specifying the node id
+formData.append("agentModelConfig[agentAgentflow_0][openAIApiKey]", "sk-my-openai-1st-key")
+formData.append("agentModelConfig[agentAgentflow_1][openAIApiKey]", "sk-my-openai-2nd-key")`
+        } else if (codeLang === 'cURL') {
+            return `-F "agentModelConfig[agentAgentflow_0][openAIApiKey]=sk-my-openai-1st-key" \\
+-F "agentModelConfig[agentAgentflow_1][openAIApiKey]=sk-my-openai-2nd-key" \\`
+        }
+    }
+
+    const getMultiConfigCode = () => {
+        return `{
+"overrideConfig": {
     "agentModelConfig": {
         "agentAgentflow_0": {
             "openAIApiKey": "sk-my-openai-1st-key"
@@ -693,59 +714,8 @@ body_data = {
             "openAIApiKey": "sk-my-openai-2nd-key"
         }
     }
+}
 }`
-            } else if (codeLang === 'JavaScript') {
-                return `// Specify multiple values for a config parameter by specifying the node id
-formData.append("agentModelConfig[agentAgentflow_0][openAIApiKey]", "sk-my-openai-1st-key")
-formData.append("agentModelConfig[agentAgentflow_1][openAIApiKey]", "sk-my-openai-2nd-key")`
-            } else if (codeLang === 'cURL') {
-                return `-F "agentModelConfig[agentAgentflow_0][openAIApiKey]=sk-my-openai-1st-key" \\
--F "agentModelConfig[agentAgentflow_1][openAIApiKey]=sk-my-openai-2nd-key" \\`
-            }
-        } else {
-            if (codeLang === 'Python') {
-                return `# Specify multiple values for a config parameter by specifying the node id
-body_data = {
-    "openAIApiKey": {
-        "chatOpenAI_0": "sk-my-openai-1st-key",
-        "openAIEmbeddings_0": "sk-my-openai-2nd-key"
-    }
-}`
-            } else if (codeLang === 'JavaScript') {
-                return `// Specify multiple values for a config parameter by specifying the node id
-formData.append("openAIApiKey[chatOpenAI_0]", "sk-my-openai-1st-key")
-formData.append("openAIApiKey[openAIEmbeddings_0]", "sk-my-openai-2nd-key")`
-            } else if (codeLang === 'cURL') {
-                return `-F "openAIApiKey[chatOpenAI_0]=sk-my-openai-1st-key" \\
--F "openAIApiKey[openAIEmbeddings_0]=sk-my-openai-2nd-key" \\`
-            }
-        }
-    }
-
-    const getMultiConfigCode = () => {
-        if (dialogProps.isAgentflowV2) {
-            return `{
-    "overrideConfig": {
-        "agentModelConfig": {
-            "agentAgentflow_0": {
-                "openAIApiKey": "sk-my-openai-1st-key"
-            },
-            "agentAgentflow_1": {
-                "openAIApiKey": "sk-my-openai-2nd-key"
-            }
-        }
-    }
-}`
-        } else {
-            return `{
-    "overrideConfig": {
-        "openAIApiKey": {
-            "chatOpenAI_0": "sk-my-openai-1st-key",
-            "openAIEmbeddings_0": "sk-my-openai-2nd-key"
-        }
-    }
-}`
-        }
     }
 
     useEffect(() => {
@@ -855,7 +825,7 @@ formData.append("openAIApiKey[openAIEmbeddings_0]", "sk-my-openai-2nd-key")`
                                 </Tabs>
                             </div>
                             <div style={{ flex: 20 }}>
-                                <Available permission={'chatflows:update,agentflows:update'}>
+                                <Available permission={'agentflows:update'}>
                                     <Dropdown
                                         name='SelectKey'
                                         disableClearable={true}
@@ -1083,7 +1053,7 @@ formData.append("openAIApiKey[openAIEmbeddings_0]", "sk-my-openai-2nd-key")`
                                     </>
                                 )}
                                 {codeLang === 'Share Chatbot' && !chatflowApiKeyId && (
-                                    <ShareChatbot isSessionMemory={dialogProps.isSessionMemory} isAgentCanvas={dialogProps.isAgentCanvas} />
+                                    <ShareChatbot isSessionMemory={dialogProps.isSessionMemory} />
                                 )}
                             </TabPanel>
                         ))}

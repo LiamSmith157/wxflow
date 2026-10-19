@@ -44,7 +44,7 @@ const ChatbotFull = () => {
             const chatflowType = chatflowData.type
             if (chatflowData.chatbotConfig) {
                 let parsedConfig = {}
-                if (chatflowType === 'MULTIAGENT' || chatflowType === 'AGENTFLOW') {
+                if (chatflowType === 'AGENTFLOW') {
                     parsedConfig.showAgentMessages = true
                 }
 
@@ -63,7 +63,7 @@ const ChatbotFull = () => {
                     setChatbotTheme(parsedConfig)
                     setChatbotOverrideConfig({})
                 }
-            } else if (chatflowType === 'MULTIAGENT' || chatflowType === 'AGENTFLOW') {
+            } else if (chatflowType === 'AGENTFLOW') {
                 setChatbotTheme({ showAgentMessages: true })
             }
         }

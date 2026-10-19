@@ -25,7 +25,7 @@ import {
 import { useTheme } from '@mui/material/styles'
 import moment from 'moment'
 import PaidIcon from '@mui/icons-material/Paid'
-import { IconHierarchy, IconUsersGroup, IconRobot } from '@tabler/icons-react'
+import { IconUsersGroup } from '@tabler/icons-react'
 import LLMIcon from '@mui/icons-material/ModelTraining'
 import AlarmIcon from '@mui/icons-material/AlarmOn'
 import TokensIcon from '@mui/icons-material/AutoAwesomeMotion'
@@ -331,17 +331,7 @@ const EvalEvaluationRows = () => {
         if (outdated?.errors?.length > 0 && outdated.errors.find((e) => e.id === id)) {
             return undefined
         }
-        if (additionalConfig.chatflowTypes) {
-            switch (additionalConfig.chatflowTypes[index]) {
-                case 'Chatflow':
-                    return '/canvas/' + evaluation.chatflowId[index]
-                case 'Custom Assistant':
-                    return '/assistants/custom/' + evaluation.chatflowId[index]
-                case 'Agentflow v2':
-                    return '/v2/agentcanvas/' + evaluation.chatflowId[index]
-            }
-        }
-        return '/canvas/' + evaluation.chatflowId[index]
+        return '/v2/agentcanvas/' + evaluation.chatflowId[index]
     }
 
     const openFlow = (index) => {
@@ -351,22 +341,7 @@ const EvalEvaluationRows = () => {
         }
     }
 
-    const getFlowIcon = (index) => {
-        if (index === undefined) {
-            return <IconHierarchy size={17} />
-        }
-        if (additionalConfig.chatflowTypes) {
-            switch (additionalConfig.chatflowTypes[index]) {
-                case 'Chatflow':
-                    return <IconHierarchy size={17} />
-                case 'Custom Assistant':
-                    return <IconRobot size={17} />
-                case 'Agentflow v2':
-                    return <IconUsersGroup size={17} />
-            }
-        }
-        return <IconHierarchy />
-    }
+    const getFlowIcon = () => <IconUsersGroup size={17} />
     return (
         <>
             <MainCard>
@@ -482,16 +457,7 @@ const EvalEvaluationRows = () => {
                                                         }}
                                                         variant='outlined'
                                                         label={chatflow.chatflowName}
-                                                        onClick={() =>
-                                                            window.open(
-                                                                chatflow.chatflowType === 'Chatflow'
-                                                                    ? '/canvas/' + chatflow.chatflowId
-                                                                    : chatflow.chatflowType === 'Custom Assistant'
-                                                                    ? '/assistants/custom/' + chatflow.chatflowId
-                                                                    : '/v2/agentcanvas/' + chatflow.chatflowId,
-                                                                '_blank'
-                                                            )
-                                                        }
+                                                        onClick={() => window.open('/v2/agentcanvas/' + chatflow.chatflowId, '_blank')}
                                                     ></Chip>
                                                 ))}
                                             </Stack>

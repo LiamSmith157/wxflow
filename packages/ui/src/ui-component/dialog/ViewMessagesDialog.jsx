@@ -22,8 +22,6 @@ import {
     Card,
     CardMedia,
     CardContent,
-    FormControlLabel,
-    Checkbox,
     DialogActions,
     Pagination,
     Typography,
@@ -129,10 +127,8 @@ const messageImageStyle = {
 
 const ConfirmDeleteMessageDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     const portalElement = document.getElementById('portal')
-    const [hardDelete, setHardDelete] = useState(false)
-
     const onSubmit = () => {
-        onConfirm(hardDelete)
+        onConfirm()
     }
 
     const component = show ? (
@@ -149,12 +145,6 @@ const ConfirmDeleteMessageDialog = ({ show, dialogProps, onCancel, onConfirm }) 
             </DialogTitle>
             <DialogContent>
                 <span style={{ marginTop: '20px', marginBottom: '20px' }}>{dialogProps.description}</span>
-                {dialogProps.isChatflow && (
-                    <FormControlLabel
-                        control={<Checkbox checked={hardDelete} onChange={(event) => setHardDelete(event.target.checked)} />}
-                        label='Remove messages from 3rd party Memory Node'
-                    />
-                )}
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancel}>{dialogProps.cancelButtonName}</Button>
@@ -278,17 +268,16 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
             title: 'Delete Messages',
             description: 'Are you sure you want to delete messages? This action cannot be undone.',
             confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel',
-            isChatflow: dialogProps.isChatflow
+            cancelButtonName: 'Cancel'
         })
         setHardDeleteDialogOpen(true)
     }
 
-    const deleteMessages = async (hardDelete) => {
+    const deleteMessages = async () => {
         setHardDeleteDialogOpen(false)
         const chatflowid = dialogProps.chatflow.id
         try {
-            const obj = { chatflowid, isClearFromViewMessageDialog: true }
+            const obj = { chatflowid }
 
             let _chatTypeFilter = chatTypeFilter
             if (typeof chatTypeFilter === 'string' && chatTypeFilter.startsWith('[') && chatTypeFilter.endsWith(']')) {
@@ -308,7 +297,6 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
 
             if (startDate) obj.startDate = startDate
             if (endDate) obj.endDate = endDate
-            if (hardDelete) obj.hardDelete = true
 
             await chatmessageApi.deleteChatmessage(chatflowid, obj)
             enqueueSnackbar({
@@ -425,7 +413,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
         const chatflowid = dialogProps.chatflow.id
         if (isConfirmed) {
             try {
-                const obj = { chatflowid, isClearFromViewMessageDialog: true }
+                const obj = { chatflowid }
                 if (chatmsg.chatId) obj.chatId = chatmsg.chatId
                 if (chatmsg.chatType) obj.chatType = chatmsg.chatType
                 if (chatmsg.memoryType) obj.memoryType = chatmsg.memoryType
@@ -626,7 +614,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
     const downloadFile = async (fileAnnotation) => {
         try {
             const response = await axios.post(
-                `${baseURL}/api/v1/openai-assistants-file/download`,
+                `${baseURL}/api/v1/chat-files/download`,
                 { fileName: fileAnnotation.fileName, chatflowId: dialogProps.chatflow.id, chatId: selectedChatId },
                 { responseType: 'blob' }
             )
@@ -1626,7 +1614,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                         show={hardDeleteDialogOpen}
                         dialogProps={hardDeleteDialogProps}
                         onCancel={() => setHardDeleteDialogOpen(false)}
-                        onConfirm={(hardDelete) => deleteMessages(hardDelete)}
+                        onConfirm={() => deleteMessages()}
                     />
                 </>
             </DialogContent>

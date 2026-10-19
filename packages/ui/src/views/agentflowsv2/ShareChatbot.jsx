@@ -45,7 +45,7 @@ const defaultConfig = {
     }
 }
 
-const ShareChatbot = ({ isSessionMemory, isAgentCanvas }) => {
+const ShareChatbot = ({ isSessionMemory }) => {
     const dispatch = useDispatch()
     const theme = useTheme()
     const chatflow = useSelector((state) => state.canvas.chatflow)
@@ -78,7 +78,7 @@ const ShareChatbot = ({ isSessionMemory, isAgentCanvas }) => {
         if (chatbotConfig?.showAgentMessages !== undefined) {
             return chatbotConfig?.showAgentMessages
         } else {
-            return isAgentCanvas ? true : undefined
+            return true
         }
     }
     const [showAgentMessages, setShowAgentMessages] = useState(getShowAgentMessagesStatus())
@@ -162,13 +162,11 @@ const ShareChatbot = ({ isSessionMemory, isAgentCanvas }) => {
             obj.renderHTML = false
         }
 
-        if (isAgentCanvas) {
-            // if showAgentMessages is undefined, default to true
-            if (showAgentMessages === undefined || showAgentMessages === null) {
-                obj.showAgentMessages = true
-            } else {
-                obj.showAgentMessages = showAgentMessages
-            }
+        // if showAgentMessages is undefined, default to true
+        if (showAgentMessages === undefined || showAgentMessages === null) {
+            obj.showAgentMessages = true
+        } else {
+            obj.showAgentMessages = showAgentMessages
         }
 
         return {
@@ -445,7 +443,7 @@ const ShareChatbot = ({ isSessionMemory, isAgentCanvas }) => {
                     <IconArrowUpRightCircle />
                 </IconButton>
                 <div style={{ flex: 1 }} />
-                <Available permission={'chatflows:update,agentflows:update'}>
+                <Available permission={'agentflows:update'}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <Switch
                             checked={isPublicChatflow}
@@ -488,7 +486,7 @@ const ShareChatbot = ({ isSessionMemory, isAgentCanvas }) => {
                 {colorField(backgroundColor, 'backgroundColor', 'Background Color')}
                 {textField(fontSize, 'fontSize', 'Font Size', 'number')}
                 {colorField(poweredByTextColor, 'poweredByTextColor', 'PoweredBy TextColor')}
-                {isAgentCanvas && booleanField(showAgentMessages, 'showAgentMessages', 'Show agent reasonings when using Agentflow')}
+                {booleanField(showAgentMessages, 'showAgentMessages', 'Show agent reasonings when using Agentflow')}
                 {booleanField(renderHTML, 'renderHTML', 'Render HTML on the chat')}
                 {isSessionMemory &&
                     booleanField(generateNewSession, 'generateNewSession', 'Start new session when chatbot link is opened or refreshed')}
@@ -537,7 +535,7 @@ const ShareChatbot = ({ isSessionMemory, isAgentCanvas }) => {
             </Card>
 
             <StyledPermissionButton
-                permissionId={'chatflows:update,agentflows:update'}
+                permissionId={'agentflows:update'}
                 fullWidth
                 style={{
                     borderRadius: 20,
@@ -587,8 +585,7 @@ const ShareChatbot = ({ isSessionMemory, isAgentCanvas }) => {
 }
 
 ShareChatbot.propTypes = {
-    isSessionMemory: PropTypes.bool,
-    isAgentCanvas: PropTypes.bool
+    isSessionMemory: PropTypes.bool
 }
 
 export default ShareChatbot
