@@ -1,0 +1,66 @@
+{
+    "announcement": {
+        "sunset": "Flowise 即将停止维护。",
+        "learnMore": "了解更多"
+    },
+    "header": {
+        "star": "Star",
+        "loggingOut": "正在退出登录..."
+    },
+    "sidebar": {
+        "documentation": "文档",
+        "logout": "退出登录"
+    },
+    "trial": {
+        "daysLeft": "您的试用期还剩 <highlight>{{days}} 天</highlight>。",
+        "updatePaymentHint": "请更新支付方式以避免服务中断。",
+        "updatePayment": "更新支付方式"
+    },
+    "workspace": {
+        "switchFailed": "切换工作空间失败",
+        "switching": "正在切换工作空间...",
+        "switchingOrganization": "正在切换组织...",
+        "organization": "组织",
+        "workspace": "工作空间",
+        "unavailableTitle": "工作空间不可用",
+        "unavailableSelect": "当前工作空间已不可用,请选择其他工作空间以继续。",
+        "unavailableSelectOrg": "工作空间已不可用,请选择其他组织/工作空间以继续。",
+        "select": "选择工作空间",
+        "selectOrganization": "选择组织",
+        "switchErrorTitle": "工作空间切换错误",
+        "contactAdmin": "请联系管理员获取帮助。",
+        "orgOf": "{{name}} 的组织"
+    },
+    "profile": {
+        "selectDataToExport": "选择要导出的数据",
+        "exporting": "正在导出..",
+        "exportWait": "导出数据可能需要一些时间",
+        "export": "导出",
+        "import": "导入",
+        "importing": "正在导入...",
+        "importWait": "导入数据可能需要一些时间",
+        "importSuccess": "全部导入成功",
+        "invalidImportFile": "导入文件无效",
+        "importFailed": "导入失败:{{error}}",
+        "exportAllFailed": "全部导出失败:{{error}}",
+        "internalServerError": "服务器内部错误",
+        "exportFailed": "导出失败:{{error}}",
+        "user": "用户",
+        "version": "版本",
+        "exportItems": {
+            "Agentflows": "Agentflows",
+            "Agentflows V2": "Agentflows V2",
+            "Assistants Custom": "自定义助手",
+            "Assistants OpenAI": "OpenAI 助手",
+            "Assistants Azure": "Azure 助手",
+            "Chatflows": "Chatflows",
+            "Chat Messages": "聊天消息",
+            "Chat Feedbacks": "聊天反馈",
+            "Custom Templates": "自定义模板",
+            "Document Stores": "文档库",
+            "Executions": "执行记录",
+            "Tools": "工具",
+            "Variables": "变量"
+        }
+    }
+}

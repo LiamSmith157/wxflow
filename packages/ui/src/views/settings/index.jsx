@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 
@@ -19,6 +20,7 @@ import { useAuth } from '@/hooks/useAuth'
 // ==============================|| SETTINGS ||============================== //
 
 const Settings = ({ chatflow, isSettingsOpen, anchorEl, onSettingsItemClick, onUploadFile, onClose }) => {
+    const { t } = useTranslation()
     const theme = useTheme()
     const [settingsMenu, setSettingsMenu] = useState([])
     const customization = useSelector((state) => state.customization)
@@ -91,7 +93,7 @@ const Settings = ({ chatflow, isSettingsOpen, anchorEl, onSettingsItemClick, onU
                 }}
             >
                 <ListItemIcon sx={{ my: 'auto', minWidth: !menu?.icon ? 18 : 36 }}>{itemIcon}</ListItemIcon>
-                <ListItemText primary={<Typography color='inherit'>{menu.title}</Typography>} />
+                <ListItemText primary={<Typography color='inherit'>{t(menu.title)}</Typography>} />
             </ListItemButton>
         )
     })

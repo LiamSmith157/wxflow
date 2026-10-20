@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import { useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { IconButton, Box, OutlinedInput, Toolbar, Typography } from '@mui/material'
@@ -22,7 +23,7 @@ const ViewHeader = ({
     filters = null,
     onSearchChange,
     search,
-    searchPlaceholder = 'Search',
+    searchPlaceholder,
     title,
     description,
     isBackButton,
@@ -31,6 +32,7 @@ const ViewHeader = ({
     onEdit
 }) => {
     const theme = useTheme()
+    const { t } = useTranslation()
     const searchInputRef = useRef()
     useSearchShortcut(searchInputRef)
 
@@ -47,7 +49,7 @@ const ViewHeader = ({
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
                     {isBackButton && (
-                        <StyledFab sx={{ mr: 3 }} size='small' color='secondary' aria-label='back' title='Back' onClick={onBack}>
+                        <StyledFab sx={{ mr: 3 }} size='small' color='secondary' aria-label='back' title={t('back')} onClick={onBack}>
                             <IconArrowLeft />
                         </StyledFab>
                     )}
@@ -88,7 +90,7 @@ const ViewHeader = ({
                         )}
                     </Box>
                     {isEditButton && (
-                        <IconButton sx={{ ml: 3 }} color='secondary' title='Edit' onClick={onEdit}>
+                        <IconButton sx={{ ml: 3 }} color='secondary' title={t('edit')} onClick={onEdit}>
                             <IconEdit />
                         </IconButton>
                     )}
@@ -109,7 +111,7 @@ const ViewHeader = ({
                                 }
                             }}
                             variant='outlined'
-                            placeholder={`${searchPlaceholder} ${isDesktop ? keyboardShortcut : ''}`}
+                            placeholder={`${searchPlaceholder ?? t('search')} ${isDesktop ? keyboardShortcut : ''}`}
                             onChange={onSearchChange}
                             startAdornment={
                                 <Box

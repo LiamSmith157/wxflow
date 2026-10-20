@@ -1,4 +1,5 @@
 import { createTheme } from '@mui/material/styles'
+import { zhCN } from '@mui/material/locale'
 
 // assets
 import colors from '@/assets/scss/_themes-vars.module.scss'
@@ -11,9 +12,12 @@ import themeTypography from './typography'
 /**
  * Represent theme style and structure as per Material-UI
  * @param {JsonObject} customization customization parameter object
+ * @param {string} language active UI language, used to localise MUI built-in text
  */
 
-export const theme = (customization) => {
+const muiLocales = { 'zh-CN': zhCN }
+
+export const theme = (customization, language) => {
     const color = colors
 
     const themeOption = customization.isDarkMode
@@ -58,13 +62,13 @@ export const theme = (customization) => {
                 }
             }
         },
-        typography: themeTypography(themeOption)
+        typography: themeTypography(themeOption),
+        components: componentStyleOverrides(themeOption)
     }
 
-    const themes = createTheme(themeOptions)
-    themes.components = componentStyleOverrides(themeOption)
-
-    return themes
+    // The locale is deep-merged after our overrides so both the project's component defaults
+    // and MUI's localised text (pagination, autocomplete...) are kept
+    return createTheme(themeOptions, muiLocales[language])
 }
 
 export default theme

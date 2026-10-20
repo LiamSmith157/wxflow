@@ -1,7 +1,7 @@
 module.exports = {
     roots: ['<rootDir>/src'],
     testEnvironment: 'node',
-    testMatch: ['<rootDir>/src/**/*.test.js'],
+    testMatch: ['<rootDir>/src/**/*.test.{js,jsx}'],
     testPathIgnorePatterns: ['/node_modules/', '/build/'],
     moduleNameMapper: {
         '\\.(css|less|scss|sass|svg|png|jpg|jpeg|gif|webp)$': '<rootDir>/src/__mocks__/styleMock.js',

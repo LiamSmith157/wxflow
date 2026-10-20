@@ -1,0 +1,66 @@
+{
+    "announcement": {
+        "sunset": "We're sunsetting Flowise.",
+        "learnMore": "Learn more"
+    },
+    "header": {
+        "star": "Star",
+        "loggingOut": "Logging out..."
+    },
+    "sidebar": {
+        "documentation": "Documentation",
+        "logout": "Logout"
+    },
+    "trial": {
+        "daysLeft": "There are <highlight>{{days}} days left</highlight> in your trial.",
+        "updatePaymentHint": "Update your payment method to avoid service interruption.",
+        "updatePayment": "Update Payment Method"
+    },
+    "workspace": {
+        "switchFailed": "Failed to switch workspace",
+        "switching": "Switching workspace...",
+        "switchingOrganization": "Switching organization...",
+        "organization": "Organization",
+        "workspace": "Workspace",
+        "unavailableTitle": "Workspace Unavailable",
+        "unavailableSelect": "Your current workspace is no longer available. Please select another workspace to continue.",
+        "unavailableSelectOrg": "Workspace is no longer available. Please select a different organization/workspace to continue.",
+        "select": "Select Workspace",
+        "selectOrganization": "Select Organization",
+        "switchErrorTitle": "Workspace Switch Error",
+        "contactAdmin": "Please contact your administrator for assistance.",
+        "orgOf": "{{name}}'s Organization"
+    },
+    "profile": {
+        "selectDataToExport": "Select Data to Export",
+        "exporting": "Exporting..",
+        "exportWait": "Exporting data might take a while",
+        "export": "Export",
+        "import": "Import",
+        "importing": "Importing...",
+        "importWait": "Importing data might take a while",
+        "importSuccess": "Import All successful",
+        "invalidImportFile": "Invalid Imported File",
+        "importFailed": "Failed to import: {{error}}",
+        "exportAllFailed": "Failed to export all: {{error}}",
+        "internalServerError": "Internal Server Error",
+        "exportFailed": "Failed to export: {{error}}",
+        "user": "User",
+        "version": "Version",
+        "exportItems": {
+            "Agentflows": "Agentflows",
+            "Agentflows V2": "Agentflows V2",
+            "Assistants Custom": "Assistants Custom",
+            "Assistants OpenAI": "Assistants OpenAI",
+            "Assistants Azure": "Assistants Azure",
+            "Chatflows": "Chatflows",
+            "Chat Messages": "Chat Messages",
+            "Chat Feedbacks": "Chat Feedbacks",
+            "Custom Templates": "Custom Templates",
+            "Document Stores": "Document Stores",
+            "Executions": "Executions",
+            "Tools": "Tools",
+            "Variables": "Variables"
+        }
+    }
+}

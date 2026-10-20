@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types'
 import { useSelector, useDispatch } from 'react-redux'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { Button, Avatar, Box, ButtonBase, Switch, Typography, Link } from '@mui/material'
@@ -9,6 +10,7 @@ import { useTheme, styled, darken } from '@mui/material/styles'
 // project imports
 import LogoSection from '../LogoSection'
 import ProfileSection from './ProfileSection'
+import LanguageSwitcher from './LanguageSwitcher'
 import WorkspaceSwitcher from '@/layout/MainLayout/Header/WorkspaceSwitcher'
 import OrgWorkspaceBreadcrumbs from '@/layout/MainLayout/Header/OrgWorkspaceBreadcrumbs'
 
@@ -80,6 +82,7 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
 
 const GitHubStarButton = ({ starCount, isDark }) => {
     const theme = useTheme()
+    const { t } = useTranslation('layout')
 
     const formattedStarCount = starCount.toLocaleString()
 
@@ -115,7 +118,7 @@ const GitHubStarButton = ({ starCount, isDark }) => {
                         ></path>
                     </svg>
                     <Typography variant='caption' sx={{ fontWeight: 600, color: isDark ? 'white' : theme.palette.text.primary }}>
-                        Star
+                        {t('header.star')}
                     </Typography>
                 </Box>
                 <Box
@@ -142,6 +145,7 @@ GitHubStarButton.propTypes = {
 
 const Header = ({ handleLeftDrawerToggle }) => {
     const theme = useTheme()
+    const { t } = useTranslation('layout')
 
     const customization = useSelector((state) => state.customization)
     const logoutApi = useApi(accountApi.logout)
@@ -166,7 +170,7 @@ const Header = ({ handleLeftDrawerToggle }) => {
     const signOutClicked = () => {
         logoutApi.request()
         enqueueSnackbar({
-            message: 'Logging out...',
+            message: t('header.loggingOut'),
             options: {
                 key: new Date().getTime() + Math.random(),
                 variant: 'success',
@@ -266,6 +270,7 @@ const Header = ({ handleLeftDrawerToggle }) => {
             {isEnterpriseLicensed && isAuthenticated && <WorkspaceSwitcher />}
             {isCloud && isAuthenticated && <OrgWorkspaceBreadcrumbs />}
             <MaterialUISwitch checked={isDark} onChange={changeDarkMode} />
+            <LanguageSwitcher />
             <Box sx={{ ml: 2 }}></Box>
             <ProfileSection handleLogout={signOutClicked} />
         </>
