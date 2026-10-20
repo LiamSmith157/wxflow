@@ -114,6 +114,18 @@ UI 和 server 都按"先迁移,后删除"的顺序进行,保证每一步之后�
 -   v2 画布上的 "Upsert History" 菜单项一并删除:chatflow 的向量 upsert 接口已删除,画布上的 flow 不可能再产生 upsert 历史。Document Store 自己的 upsert 历史侧边栏保留。
 -   UI 没有浏览器自动化,验收靠构建、lint、单元测试、后端冒烟加人工清单(`ui-checklist.md`)。
 
+### D8a. 依赖瘦身实施中的修正
+
+-   **判断一个依赖能不能删,不能只看 depcheck。** 仓库设置了 `shamefully-hoist = true`,所有包都被提升到根 `node_modules`,任何一个包都可能在没声明的情况下用到别人的依赖。所以每个候选依赖都要同时满足:基线里有引用、现在全仓库(所有包的 `src`、`nodes`、`evaluation`、配置)没有引用。
+-   **两个明确不能删的"误报"**:
+    -   `ioredis`(components 声明)——server 的 `CachePool`、Redis 会话、限流都在 `import 'ioredis'`,server 自己没有声明,靠提升拿到。
+    -   `mysql2`(server 声明)——TypeORM 在 `DATABASE_TYPE=mysql` 时按名字动态加载,源码里不会出现。
+        这两个都已保留。以后如果要整理依赖声明,应该先给 server 补上 `ioredis`。
+-   实际移除了 components 的 4 个依赖:`llamaindex`(重量级,lockfile 减少约 2300 行)、`@mem0/community`、`fast-json-patch`、`jsonrepair`;同时删除了只服务于 LlamaIndex 评估追踪的 `evaluation/EvaluationRunTracerLlama.ts` 和 `handler.ts` 里依赖 `options.llamaIndex` 的分支。
+-   保留了 `@langchain/langgraph`:它虽然不再被节点使用,但仍在自定义函数沙箱的可用模块白名单里(`components/src/utils.ts`),删掉会让用户代码里 `require` 它失败。
+-   比预期少得多:大部分 LangChain 系列包保留的节点(聊天模型、向量库、文档加载器)仍在使用,所以只删节点目录并不会让依赖树明显变小。
+-   `packages/observe` 删除时同步清理了 `build:docker` 过滤条件、`publish-observe.yml` 工作流和 `agentflow` 里两处"与 observe 保持同步"的注释。`pnpm-workspace.yaml` 用 `packages/*` 通配,不需要改。
+
 ### D8. 依赖瘦身放在最后,并以构建通过为准
 
 所有代码删除都完成之后,再逐个包用 `depcheck` 或 `knip` 找出没有被引用的依赖,删除后重新执行 `pnpm install` 和 `pnpm build`。这一步和代码删除分开提交,出问题时可以只回退这一步。

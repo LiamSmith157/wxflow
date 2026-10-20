@@ -23,6 +23,21 @@ English | [繁體中文](./i18n/README-TW.md) | [简体中文](./i18n/README-ZH.
 <a href="https://github.com/FlowiseAI/Flowise">
 <img width="100%" src="https://github.com/FlowiseAI/Flowise/blob/main/images/flowise_agentflow.gif?raw=true"></a>
 
+## 关于本仓库
+
+本仓库基于 [Flowise](https://github.com/FlowiseAI/Flowise) 3.1.4(上游提交 `9291856`)裁剪而来,**只保留 Agentflow v2**,许可证沿用 Apache-2.0(见 `LICENSE.md`)。它不再跟随上游合并。
+
+**已移除**:Chatflow、Agentflow v1(MULTIAGENT)、Assistants(Custom 与 OpenAI)、Marketplace 与自定义模板、LlamaIndex 节点、所有 v1 节点类别(Chains、Agents、Memory、Cache、Retrievers 等)、`packages/observe`。
+
+**保留**:Agentflow v2 画布与执行引擎(含 Human Input、Iteration、Loop、Execute Flow)、Executions、Document Stores、Tools 与 Custom MCP Servers、Credentials、Variables、API Keys、Schedule 与 Webhook、MCP Endpoint、Evaluations、公开分享与 embed、AI 生成 flow,以及可嵌入的编辑器 SDK `packages/agentflow`。flow 仍然存放在 `chat_flow` 表、通过 `/chatflows` 接口访问,且只接受 `type = AGENTFLOW`。
+
+下面的 Quick Start 与 Docker 章节是上游文档,`npm install -g flowise` 安装的是**上游发布的包,不是本仓库**。请按"Developers"一节从源码构建:
+
+-   需要 Node.js `^24` 与 pnpm `^10.26`(见 `.nvmrc` 与 `package.json` 的 `engines`)。
+-   构建在内存紧张的机器上需要 `NODE_OPTIONS=--max-old-space-size=4096`,并且建议串行(`turbo run build --concurrency=1`)。
+-   `packages/components` 的 `tsc` 不会清理 `dist`,而服务启动时按 `dist/nodes` 注册节点;删除或改名节点后,增量构建前先执行 `pnpm clean`。
+-   裁剪的方案、决策和验收记录在 `openspec/changes/slim-to-agentflow-v2/`。
+
 ## 📚 Table of Contents
 
 -   [⚡ Quick Start](#-quick-start)
@@ -85,12 +100,13 @@ Download and Install [NodeJS](https://nodejs.org/en/download) >= 20.0.0
 
 ## 👨‍💻 Developers
 
-Flowise has 3 different modules in a single mono repository.
+Flowise has several modules in a single mono repository.
 
 -   `server`: Node backend to serve API logics
 -   `ui`: React frontend
 -   `components`: Third-party nodes integrations
 -   `api-documentation`: Auto-generated swagger-ui API docs from express
+-   `agentflow`: Embeddable Agentflow v2 editor SDK (`@flowiseai/agentflow`)
 
 ### Prerequisite
 

@@ -59,10 +59,10 @@
 
 ## 7. 包与依赖瘦身
 
--   [ ] 7.1 删除 `packages/observe`,并从根目录 `package.json` 的 `build:docker` 过滤条件和 `pnpm-workspace.yaml` 中删掉相关配置(如果有)。验证:`pnpm install` 和 `pnpm build` 通过
--   [ ] 7.2 对 server、components、ui 分别运行 `depcheck`(或 `knip`),删掉不再使用的依赖,例如 LangChain 的 chains/agents、LlamaIndex,以及只被已删节点使用的 SDK。验证:重新执行 `pnpm install`、`pnpm build`、`pnpm test`,全部通过
--   [ ] 7.3 修改根目录 `README.md`,删掉 Chatflow、Assistants、Marketplace 的介绍。验证:README 中没有这些已删功能的说明
--   [ ] 7.4 提交本阶段改动。验证:`git status` 是干净的
+-   [x] 7.1 删除 `packages/observe`,并从根目录 `package.json` 的 `build:docker` 过滤条件和 `pnpm-workspace.yaml` 中删掉相关配置(如果有)。验证:`pnpm install` 和 `pnpm build` 通过
+-   [x] 7.2 对 server、components、ui 分别运行 `depcheck`(或 `knip`),删掉不再使用的依赖,例如 LangChain 的 chains/agents、LlamaIndex,以及只被已删节点使用的 SDK。验证:重新执行 `pnpm install`、`pnpm build`、`pnpm test`,全部通过(实施时只移除了 components 的 llamaindex、@mem0/community、fast-json-patch、jsonrepair 四个依赖;ioredis 和 mysql2 看起来无人引用但不能删,见 design D8a)
+-   [x] 7.3 修改根目录 `README.md`,删掉 Chatflow、Assistants、Marketplace 的介绍。验证:README 中没有这些已删功能的说明(上游 README 本来就没有这些功能的介绍;实际改动是增加"关于本仓库"一节,说明保留/移除的内容和从源码构建的方式,并指出 Quick Start 里的 `npm install -g flowise` 安装的是上游包)
+-   [x] 7.4 提交本阶段改动。验证:`git status` 是干净的
 
 ## 8. 集成验收
 
