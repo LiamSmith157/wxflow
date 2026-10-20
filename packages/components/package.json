@@ -15,7 +15,7 @@
         }
     },
     "scripts": {
-        "build": "tsc && gulp",
+        "build": "rimraf dist && tsc && gulp",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "clean": "rimraf dist",
         "nuke": "pnpm clean && rimraf node_modules .turbo",
