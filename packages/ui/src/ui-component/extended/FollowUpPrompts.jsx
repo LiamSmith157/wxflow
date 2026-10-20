@@ -27,6 +27,7 @@ import { AsyncDropdown } from '@/ui-component/dropdown/AsyncDropdown'
 // Icons
 import { IconX } from '@tabler/icons-react'
 import { Dropdown } from '@/ui-component/dropdown/Dropdown'
+import { useNodeT } from '@/i18n/nodes'
 
 const promptDescription =
     'Prompt to generate questions based on the conversation history. You can use variable {history} to refer to the conversation history.'
@@ -304,6 +305,7 @@ const followUpPromptsOptionsRaw = {
 }
 
 const FollowUpPrompts = ({ dialogProps }) => {
+    const tNode = useNodeT()
     const followUpPromptsOptions = useTranslatedConfig(followUpPromptsOptionsRaw)
     const { t } = useTranslation('components')
     const dispatch = useDispatch()
@@ -497,7 +499,7 @@ const FollowUpPrompts = ({ dialogProps }) => {
                             >
                                 {Object.values(followUpPromptsOptions).map((provider) => (
                                     <MenuItem key={provider.name} value={provider.name}>
-                                        {provider.label}
+                                        {tNode(provider.label)}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -539,10 +541,10 @@ const FollowUpPrompts = ({ dialogProps }) => {
                                     <Box key={index} sx={{ px: 2, width: '100%' }}>
                                         <div style={{ display: 'flex', flexDirection: 'row' }}>
                                             <Typography>
-                                                {inputParam.label}
+                                                {tNode(inputParam.label)}
                                                 {!inputParam.optional && <span style={{ color: 'red' }}>&nbsp;*</span>}
                                                 {inputParam.description && (
-                                                    <TooltipWithParser style={{ marginLeft: 10 }} title={inputParam.description} />
+                                                    <TooltipWithParser style={{ marginLeft: 10 }} title={tNode(inputParam.description)} />
                                                 )}
                                             </Typography>
                                         </div>

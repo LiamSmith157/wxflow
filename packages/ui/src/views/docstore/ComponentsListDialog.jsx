@@ -13,8 +13,10 @@ import { IconSearch, IconX } from '@tabler/icons-react'
 import { baseURL } from '@/store/constant'
 import { HIDE_CANVAS_DIALOG, SHOW_CANVAS_DIALOG } from '@/store/actions'
 import useApi from '@/hooks/useApi'
+import { useNodeT } from '@/i18n/nodes'
 
 const ComponentsListDialog = ({ show, dialogProps, onCancel, apiCall, onSelected }) => {
+    const tNode = useNodeT()
     const { t } = useTranslation('docstore')
     const portalElement = document.getElementById('portal')
     const customization = useSelector((state) => state.customization)
@@ -174,7 +176,7 @@ const ComponentsListDialog = ({ show, dialogProps, onCancel, apiCall, onSelected
                                     src={`${baseURL}/api/v1/node-icon/${loader.name}`}
                                 />
                             </div>
-                            <Typography>{loader.label}</Typography>
+                            <Typography>{tNode(loader.label)}</Typography>
                         </ListItemButton>
                     ))}
                 </List>

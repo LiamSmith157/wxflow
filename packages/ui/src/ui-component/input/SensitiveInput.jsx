@@ -5,11 +5,13 @@ import { FormControl, OutlinedInput, InputAdornment, IconButton, CircularProgres
 import { useTheme } from '@mui/material/styles'
 import { IconEye, IconEyeOff } from '@tabler/icons-react'
 import { REDACTED_CREDENTIAL_VALUE } from '@/store/constant'
+import { useNodeT } from '@/i18n/nodes'
 
 const MASKED_CHARS = '\u2022\u2022\u2022\u2022\u2022\u2022'
 const MULTILINE_DOTS = '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022'
 
 export const SensitiveInput = ({ inputParam, value, onChange, disabled = false, onReveal }) => {
+    const tNode = useNodeT()
     const { t } = useTranslation('components')
     const theme = useTheme()
     const [myValue, setMyValue] = useState(value ?? '')
@@ -52,7 +54,7 @@ export const SensitiveInput = ({ inputParam, value, onChange, disabled = false, 
                     size='small'
                     disabled={disabled}
                     type='text'
-                    placeholder={inputParam.placeholder}
+                    placeholder={tNode(inputParam.placeholder)}
                     value={myValue}
                     name={inputParam.name}
                     onChange={(e) => {
@@ -73,7 +75,7 @@ export const SensitiveInput = ({ inputParam, value, onChange, disabled = false, 
                     size='small'
                     disabled={disabled}
                     type={isUrl ? (isVisible || isMaskedUrl ? 'text' : 'password') : 'password'}
-                    placeholder={inputParam.placeholder}
+                    placeholder={tNode(inputParam.placeholder)}
                     multiline={isMultilinePassword}
                     rows={isMultilinePassword ? inputParam.rows ?? 1 : undefined}
                     value={isRedactedMultiline ? MULTILINE_DOTS : myValue}

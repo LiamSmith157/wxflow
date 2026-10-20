@@ -24,8 +24,10 @@ import StatsCard from '@/ui-component/cards/StatsCard'
 
 // const
 import { baseURL } from '@/store/constant'
+import { useNodeT } from '@/i18n/nodes'
 
 const UpsertHistoryDetailsDialog = ({ show, dialogProps, onCancel }) => {
+    const tNode = useNodeT()
     const { t } = useTranslation('docstore')
     const portalElement = document.getElementById('portal')
     const [nodeConfigExpanded, setNodeConfigExpanded] = useState({})
@@ -103,7 +105,7 @@ const UpsertHistoryDetailsDialog = ({ show, dialogProps, onCancel }) => {
                                                                         src={`${baseURL}/api/v1/node-icon/${node.name}`}
                                                                     />
                                                                 </div>
-                                                                <Typography variant='h5'>{node.label}</Typography>
+                                                                <Typography variant='h5'>{tNode(node.label)}</Typography>
                                                                 <div
                                                                     style={{
                                                                         display: 'flex',

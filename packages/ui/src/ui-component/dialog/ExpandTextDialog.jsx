@@ -22,8 +22,10 @@ import nodesApi from '@/api/nodes'
 import useApi from '@/hooks/useApi'
 
 import './ExpandTextDialog.css'
+import { useNodeT } from '@/i18n/nodes'
 
 const ExpandTextDialog = ({ show, dialogProps, onCancel, onInputHintDialogClicked, onConfirm }) => {
+    const tNode = useNodeT()
     const { t } = useTranslation('components')
     const portalElement = document.getElementById('portal')
 
@@ -99,7 +101,7 @@ const ExpandTextDialog = ({ show, dialogProps, onCancel, onInputHintDialogClicke
                     {inputParam && (inputParam.type === 'string' || inputParam.type === 'code') && (
                         <div style={{ flex: 70 }}>
                             <div style={{ marginBottom: '10px', display: 'flex', flexDirection: 'row' }}>
-                                <Typography variant='h4'>{inputParam.label}</Typography>
+                                <Typography variant='h4'>{tNode(inputParam.label)}</Typography>
                                 <div style={{ flex: 1 }} />
                                 {inputParam.hint && (
                                     <Button
@@ -110,7 +112,7 @@ const ExpandTextDialog = ({ show, dialogProps, onCancel, onInputHintDialogClicke
                                             onInputHintDialogClicked(inputParam.hint)
                                         }}
                                     >
-                                        {inputParam.hint.label}
+                                        {tNode(inputParam.hint.label)}
                                     </Button>
                                 )}
                             </div>
@@ -131,7 +133,7 @@ const ExpandTextDialog = ({ show, dialogProps, onCancel, onInputHintDialogClicke
                                     height={languageType === 'js' ? 'calc(100vh - 250px)' : 'calc(100vh - 220px)'}
                                     theme={customization.isDarkMode ? 'dark' : 'light'}
                                     lang={languageType}
-                                    placeholder={inputParam.placeholder}
+                                    placeholder={tNode(inputParam.placeholder)}
                                     basicSetup={
                                         languageType !== 'js'
                                             ? {

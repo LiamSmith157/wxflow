@@ -2,8 +2,10 @@ import { createPortal } from 'react-dom'
 import PropTypes from 'prop-types'
 import { MemoizedReactMarkdown } from '@/ui-component/markdown/MemoizedReactMarkdown'
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
+import { useNodeT } from '@/i18n/nodes'
 
 const InputHintDialog = ({ show, dialogProps, onCancel }) => {
+    const tNode = useNodeT()
     const portalElement = document.getElementById('portal')
 
     const component = show ? (
@@ -16,7 +18,7 @@ const InputHintDialog = ({ show, dialogProps, onCancel }) => {
             aria-describedby='alert-dialog-description'
         >
             <DialogTitle sx={{ fontSize: '1rem' }} id='alert-dialog-title'>
-                {dialogProps.label}
+                {tNode(dialogProps.label)}
             </DialogTitle>
             <DialogContent>
                 <MemoizedReactMarkdown>{dialogProps?.value}</MemoizedReactMarkdown>

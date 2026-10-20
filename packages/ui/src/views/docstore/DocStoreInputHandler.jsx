@@ -26,11 +26,13 @@ import { flowContext } from '@/store/context/ReactFlowContext'
 
 // const
 import { FLOWISE_CREDENTIAL_ID } from '@/store/constant'
+import { useNodeT } from '@/i18n/nodes'
 
 // ===========================|| DocStoreInputHandler ||=========================== //
 
 const DocStoreInputHandler = ({ inputParam, data, disabled = false, onNodeDataChange }) => {
     const { t } = useTranslation('docstore')
+    const tNode = useNodeT()
     const customization = useSelector((state) => state.customization)
     const flowContextValue = useContext(flowContext)
     const nodeDataChangeHandler = onNodeDataChange || flowContextValue?.onNodeDataChange
@@ -99,9 +101,11 @@ const DocStoreInputHandler = ({ inputParam, data, disabled = false, onNodeDataCh
                     <Box sx={{ p: 2 }}>
                         <div style={{ display: 'flex', flexDirection: 'row' }}>
                             <Typography>
-                                {inputParam.label}
+                                {tNode(inputParam.label)}
                                 {!inputParam.optional && <span style={{ color: 'red' }}>&nbsp;*</span>}
-                                {inputParam.description && <TooltipWithParser style={{ marginLeft: 10 }} title={inputParam.description} />}
+                                {inputParam.description && (
+                                    <TooltipWithParser style={{ marginLeft: 10 }} title={tNode(inputParam.description)} />
+                                )}
                             </Typography>
                             <div style={{ flexGrow: 1 }}></div>
                             {((inputParam.type === 'string' && inputParam.rows) || inputParam.type === 'code') && (
@@ -188,7 +192,7 @@ const DocStoreInputHandler = ({ inputParam, data, disabled = false, onNodeDataCh
                                         height={inputParam.rows ? '100px' : '200px'}
                                         theme={customization.isDarkMode ? 'dark' : 'light'}
                                         lang={'js'}
-                                        placeholder={inputParam.placeholder}
+                                        placeholder={tNode(inputParam.placeholder)}
                                         onValueChange={(code) => (data.inputs[inputParam.name] = code)}
                                         basicSetup={{ highlightActiveLine: false, highlightActiveLineGutter: false }}
                                     />

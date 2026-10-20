@@ -28,6 +28,7 @@ import useNotifier from '@/utils/useNotifier'
 
 // API
 import chatflowsApi from '@/api/chatflows'
+import { useNodeT } from '@/i18n/nodes'
 
 // If implementing a new provider, this must be updated in
 // components/src/speechToText.ts as well
@@ -242,6 +243,7 @@ const speechToTextProvidersRaw = {
 }
 
 const SpeechToText = ({ dialogProps, onConfirm }) => {
+    const tNode = useNodeT()
     const speechToTextProviders = useTranslatedConfig(speechToTextProvidersRaw)
     const { t } = useTranslation('components')
     const dispatch = useDispatch()
@@ -369,7 +371,7 @@ const SpeechToText = ({ dialogProps, onConfirm }) => {
                         <MenuItem value='none'>{t('none')}</MenuItem>
                         {Object.values(speechToTextProviders).map((provider) => (
                             <MenuItem key={provider.name} value={provider.name}>
-                                {provider.label}
+                                {tNode(provider.label)}
                             </MenuItem>
                         ))}
                     </Select>
@@ -425,10 +427,10 @@ const SpeechToText = ({ dialogProps, onConfirm }) => {
                         <Box key={index} sx={{ p: 2 }}>
                             <div style={{ display: 'flex', flexDirection: 'row' }}>
                                 <Typography>
-                                    {inputParam.label}
+                                    {tNode(inputParam.label)}
                                     {!inputParam.optional && <span style={{ color: 'red' }}>&nbsp;*</span>}
                                     {inputParam.description && (
-                                        <TooltipWithParser style={{ marginLeft: 10 }} title={inputParam.description} />
+                                        <TooltipWithParser style={{ marginLeft: 10 }} title={tNode(inputParam.description)} />
                                     )}
                                 </Typography>
                             </div>

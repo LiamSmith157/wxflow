@@ -10,9 +10,11 @@ import DocStoreInputHandler from '@/views/docstore/DocStoreInputHandler'
 import { showHideInputs } from '@/utils/genericHelper'
 import { cloneDeep } from 'lodash'
 import { flowContext } from '@/store/context/ReactFlowContext'
+import { useNodeT } from '@/i18n/nodes'
 
 export const ArrayRenderer = ({ inputParam, data, disabled, isDocStore = false }) => {
     const { t } = useTranslation('components')
+    const tNode = useNodeT()
     const [arrayItems, setArrayItems] = useState([]) // these are the actual values. Ex: [{name: 'John', age: 30}, {name: 'Jane', age: 25}]
     const [itemParameters, setItemParameters] = useState([]) // these are the input parameters for each array item. Ex: [{label: t('common:name'), type: 'string', display: true}, {label: 'age', type: 'number', display: false}]
     const theme = useTheme()
@@ -270,7 +272,7 @@ export const ArrayRenderer = ({ inputParam, data, disabled, isDocStore = false }
                 startIcon={<IconPlus />}
                 onClick={handleAddItem}
             >
-                Add {inputParam.label}
+                {t('addParam', { label: tNode(inputParam.label) })}
             </Button>
         </>
     )

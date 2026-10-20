@@ -42,7 +42,20 @@ const MyView = ({ name }) => {
 注意:
 
 -   模块级配置(服务商表单、标签页列表等)在加载时无法调用 `t`。请在配置中保留英文文案,并在渲染处用 `useTranslatedConfig(config)` 或 `td(text)` 翻译(词条放在 `dynamic` 命名空间中,以英文原文为 key)。
--   agentflow 画布库、节点目录文案和服务端错误消息不在翻译范围内。
+-   agentflow 画布库和服务端错误消息不在翻译范围内。
+
+### 节点目录文案
+
+节点名称、描述、参数名/描述/占位符和下拉选项来自 `packages/components`,由 API 返回。它们在渲染时通过 `useNodeT()`(`src/i18n/nodes.js`)提供的 `tNode(text)` 翻译:以英文原文为 key 在 `nodes` 命名空间中查找,找不到就显示英文原文。只有显示文本经过它,节点的 `name` 和选项取值不会被翻译。
+
+节点定义变化后更新翻译(先构建 `packages/components`):
+
+```bash
+pnpm --filter flowise-ui i18n:nodes-coverage -- --list   # 列出未翻译的文案和多余的 key
+pnpm --filter flowise-ui i18n:extract-nodes out.json     # 导出带类别的英文文案全集
+```
+
+把译文加入 `src/i18n/locales/zh-CN/nodes.json`(`"English text": "中文"`,`en/nodes.json` 保持为空)。需要保持英文的品牌名和标识符记在 `scripts/node-keep-english.json`。CI 中可加 `--strict`,有未翻译或多余条目时失败。
 
 ## 许可证
 

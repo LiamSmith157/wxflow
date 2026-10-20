@@ -280,5 +280,9 @@
     "on": "ON",
     "rateLimit": "Rate Limit",
     "share": "Share",
-    "outputFromLabel": "{{output}} from {{label}}"
+    "outputFromLabel": "{{output}} from {{label}}",
+    "addParam": "Add {{label}}",
+    "nodeParameters": "{{label}} Parameters",
+    "chooseFileToUpload": "Choose a file to upload",
+    "uploadFile": "Upload File"
 }

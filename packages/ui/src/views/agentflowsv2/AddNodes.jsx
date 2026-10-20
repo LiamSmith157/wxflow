@@ -42,6 +42,7 @@ import { IconPlus, IconSearch, IconMinus, IconX, IconSparkles } from '@tabler/ic
 // const
 import { baseURL, AGENTFLOW_ICONS } from '@/store/constant'
 import { SET_COMPONENT_NODES } from '@/store/actions'
+import { tn, useNodeT } from '@/i18n/nodes'
 
 // ==============================|| ADD NODES||============================== //
 // The node palette of the agentflow canvas only offers the agentflow nodes
@@ -49,6 +50,7 @@ const AGENTFLOW_CATEGORY = 'Agent Flows'
 
 const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
     const { t } = useTranslation('agentflows')
+    const tNode = useNodeT()
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const dispatch = useDispatch()
@@ -158,7 +160,8 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
         // Calculate fuzzy scores for each node
         const nodesWithScores = nodes.map((nd) => {
             const nameScore = fuzzyScore(searchValue, nd.name)
-            const labelScore = fuzzyScore(searchValue, nd.label)
+            // match the English label as well as the label shown in the current language
+            const labelScore = Math.max(fuzzyScore(searchValue, nd.label), fuzzyScore(searchValue, tn(nd.label)))
             const categoryScore = fuzzyScore(searchValue, nd.category) * 0.5 // Lower weight for category
             const maxScore = Math.max(nameScore, labelScore, categoryScore)
 
@@ -428,7 +431,9 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
                                                                             alignItems: 'center'
                                                                         }}
                                                                     >
-                                                                        <Typography variant='h5'>{category.split(';')[0]}</Typography>
+                                                                        <Typography variant='h5'>
+                                                                            {tNode(category.split(';')[0])}
+                                                                        </Typography>
                                                                         &nbsp;
                                                                         <Chip
                                                                             sx={{
@@ -449,7 +454,7 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
                                                                         />
                                                                     </div>
                                                                 ) : (
-                                                                    <Typography variant='h5'>{category}</Typography>
+                                                                    <Typography variant='h5'>{tNode(category)}</Typography>
                                                                 )}
                                                             </AccordionSummary>
                                                             <AccordionDetails>
@@ -515,7 +520,7 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
                                                                                                     alignItems: 'center'
                                                                                                 }}
                                                                                             >
-                                                                                                <span>{node.label}</span>
+                                                                                                <span>{tNode(node.label)}</span>
                                                                                                 &nbsp;
                                                                                                 {node.badge && (
                                                                                                     <Chip
@@ -551,7 +556,7 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
                                                                                             )}
                                                                                         </>
                                                                                     }
-                                                                                    secondary={node.description}
+                                                                                    secondary={tNode(node.description)}
                                                                                 />
                                                                             </ListItem>
                                                                         </ListItemButton>

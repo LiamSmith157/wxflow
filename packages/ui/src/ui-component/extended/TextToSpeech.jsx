@@ -40,6 +40,7 @@ import useNotifier from '@/utils/useNotifier'
 // API
 import chatflowsApi from '@/api/chatflows'
 import ttsApi from '@/api/tts'
+import { useNodeT } from '@/i18n/nodes'
 
 const TextToSpeechType = {
     OPENAI_TTS: 'openai',
@@ -95,6 +96,7 @@ const textToSpeechProvidersRaw = {
 }
 
 const TextToSpeech = ({ dialogProps }) => {
+    const tNode = useNodeT()
     const textToSpeechProviders = useTranslatedConfig(textToSpeechProvidersRaw)
     const { t } = useTranslation('components')
     const dispatch = useDispatch()
@@ -438,7 +440,7 @@ const TextToSpeech = ({ dialogProps }) => {
                         <MenuItem value='none'>{t('none')}</MenuItem>
                         {Object.values(textToSpeechProviders).map((provider) => (
                             <MenuItem key={provider.name} value={provider.name}>
-                                {provider.label}
+                                {tNode(provider.label)}
                             </MenuItem>
                         ))}
                     </Select>
@@ -494,10 +496,10 @@ const TextToSpeech = ({ dialogProps }) => {
                         <Box key={`${selectedProvider}-${inputParam.name}`} sx={{ p: 2 }}>
                             <div style={{ display: 'flex', flexDirection: 'row' }}>
                                 <Typography>
-                                    {inputParam.label}
+                                    {tNode(inputParam.label)}
                                     {!inputParam.optional && <span style={{ color: 'red' }}>&nbsp;*</span>}
                                     {inputParam.description && (
-                                        <TooltipWithParser style={{ marginLeft: 10 }} title={inputParam.description} />
+                                        <TooltipWithParser style={{ marginLeft: 10 }} title={tNode(inputParam.description)} />
                                     )}
                                 </Typography>
                             </div>

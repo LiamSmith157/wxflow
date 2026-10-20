@@ -93,6 +93,7 @@ import {
     getAvailableNodesForVariable
 } from '@/utils/genericHelper'
 import useNotifier from '@/utils/useNotifier'
+import { useNodeT } from '@/i18n/nodes'
 
 // const
 import { baseURL, FLOWISE_CREDENTIAL_ID } from '@/store/constant'
@@ -140,6 +141,7 @@ const NodeInputHandler = ({
     onCustomDataChange
 }) => {
     const { t } = useTranslation('components')
+    const tNode = useNodeT()
     const { id: chatflowIdFromParams } = useParams()
     const canvasChatflow = useSelector((state) => state.canvas.chatflow)
     const chatflowId = chatflowIdFromParams || canvasChatflow?.id
@@ -850,9 +852,11 @@ const NodeInputHandler = ({
                     </CustomWidthTooltip>
                     <Box sx={{ p: 2 }}>
                         <Typography>
-                            {inputAnchor.label}
+                            {tNode(inputAnchor.label)}
                             {!inputAnchor.optional && <span style={{ color: 'red' }}>&nbsp;*</span>}
-                            {inputAnchor.description && <TooltipWithParser style={{ marginLeft: 10 }} title={inputAnchor.description} />}
+                            {inputAnchor.description && (
+                                <TooltipWithParser style={{ marginLeft: 10 }} title={tNode(inputAnchor.description)} />
+                            )}
                         </Typography>
                     </Box>
                 </>
@@ -921,9 +925,11 @@ const NodeInputHandler = ({
                         )}
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                             <Typography>
-                                {inputParam.label}
+                                {tNode(inputParam.label)}
                                 {!inputParam.optional && <span style={{ color: 'red' }}>&nbsp;*</span>}
-                                {inputParam.description && <TooltipWithParser style={{ marginLeft: 10 }} title={inputParam.description} />}
+                                {inputParam.description && (
+                                    <TooltipWithParser style={{ marginLeft: 10 }} title={tNode(inputParam.description)} />
+                                )}
                             </Typography>
                             <div style={{ flexGrow: 1 }}></div>
                             {inputParam.hint && !isAdditionalParams && (
@@ -933,7 +939,7 @@ const NodeInputHandler = ({
                                         height: 25,
                                         width: 25
                                     }}
-                                    title={inputParam.hint.label}
+                                    title={tNode(inputParam.hint.label)}
                                     color='secondary'
                                     onClick={() => onInputHintDialogClicked(inputParam.hint)}
                                 >
@@ -950,7 +956,7 @@ const NodeInputHandler = ({
                                     }}
                                     startIcon={<IconBulb size={17} />}
                                 >
-                                    {inputParam.hint.label}
+                                    {tNode(inputParam.hint.label)}
                                 </Button>
                             )}
                             {inputParam.acceptVariable && inputParam.type === 'string' && (
@@ -1047,7 +1053,7 @@ const NodeInputHandler = ({
                                 >
                                     <TabsList>
                                         {inputParam.tabs.map((inputChildParam, index) => (
-                                            <Tab key={index}>{inputChildParam.label}</Tab>
+                                            <Tab key={index}>{tNode(inputChildParam.label)}</Tab>
                                         ))}
                                     </TabsList>
                                 </Tabs>
@@ -1121,7 +1127,7 @@ const NodeInputHandler = ({
                                         height={inputParam.rows ? '100px' : '200px'}
                                         theme={customization.isDarkMode ? 'dark' : 'light'}
                                         lang={'js'}
-                                        placeholder={inputParam.placeholder}
+                                        placeholder={tNode(inputParam.placeholder)}
                                         onValueChange={(code) => (data.inputs[inputParam.name] = code)}
                                         basicSetup={{ highlightActiveLine: false, highlightActiveLineGutter: false }}
                                     />
@@ -1271,7 +1277,7 @@ const NodeInputHandler = ({
                             (window.location.href.includes('v2/agentcanvas') || window.location.href.includes('v2/marketplace')) ? (
                                 <RichInput
                                     key={data.inputs[inputParam.name]}
-                                    placeholder={inputParam.placeholder}
+                                    placeholder={tNode(inputParam.placeholder)}
                                     disabled={disabled}
                                     inputParam={inputParam}
                                     onChange={(newValue) => (data.inputs[inputParam.name] = newValue)}
@@ -1283,7 +1289,7 @@ const NodeInputHandler = ({
                             ) : (
                                 <Input
                                     key={data.inputs[inputParam.name]}
-                                    placeholder={inputParam.placeholder}
+                                    placeholder={tNode(inputParam.placeholder)}
                                     disabled={disabled}
                                     inputParam={inputParam}
                                     onChange={(newValue) => (data.inputs[inputParam.name] = newValue)}
@@ -1321,7 +1327,7 @@ const NodeInputHandler = ({
                                             disabled={disabled}
                                             onClick={() => onEditJSONClicked(data.inputs[inputParam.name] ?? '', inputParam)}
                                         >
-                                            {inputParam.label}
+                                            {tNode(inputParam.label)}
                                         </Button>
                                         <FormatPromptValuesDialog
                                             show={showFormatPromptValuesDialog}
@@ -1404,7 +1410,7 @@ const NodeInputHandler = ({
                             <TimePicker
                                 disabled={disabled}
                                 value={data.inputs[inputParam.name] ?? inputParam.default ?? ''}
-                                placeholder={inputParam.placeholder}
+                                placeholder={tNode(inputParam.placeholder)}
                                 onChange={(newValue) => handleDataChange({ inputParam, newValue })}
                             />
                         )}
@@ -1427,7 +1433,7 @@ const NodeInputHandler = ({
                             <DatePicker
                                 disabled={disabled}
                                 value={data.inputs[inputParam.name] ?? inputParam.default ?? ''}
-                                placeholder={inputParam.placeholder}
+                                placeholder={tNode(inputParam.placeholder)}
                                 onChange={(newValue) => handleDataChange({ inputParam, newValue })}
                             />
                         )}
@@ -1445,7 +1451,7 @@ const NodeInputHandler = ({
                                     variant='outlined'
                                     onClick={() => onConditionDialogClicked(inputParam)}
                                 >
-                                    {inputParam.label}
+                                    {tNode(inputParam.label)}
                                 </Button>
                             </>
                         )}

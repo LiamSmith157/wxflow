@@ -28,6 +28,7 @@ import { useAuth } from '@/hooks/useAuth'
 
 import MoreItemsTooltip from '../tooltip/MoreItemsTooltip'
 import ScheduleStatusBadge from '@/ui-component/extended/ScheduleStatusBadge'
+import { useNodeT } from '@/i18n/nodes'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     borderColor: theme.palette.grey[900] + 25,
@@ -64,6 +65,7 @@ export const FlowListTable = ({
     currentPage,
     pageLimit
 }) => {
+    const tNode = useNodeT()
     const { t } = useTranslation('components')
     const { hasPermission } = useAuth()
     const isActionsAvailable = hasPermission('agentflows:update,agentflows:delete,agentflows:config,agentflows:domains,agentflows:export')
@@ -250,7 +252,7 @@ export const FlowListTable = ({
                                                     ]
                                                         .slice(0, 5)
                                                         .map((item, index) => (
-                                                            <Tooltip key={item.imageSrc || index} title={item.label} placement='top'>
+                                                            <Tooltip key={item.imageSrc || index} title={tNode(item.label)} placement='top'>
                                                                 {item.type === 'image' ? (
                                                                     <Box
                                                                         sx={{

@@ -5,8 +5,10 @@ import { useTheme } from '@mui/material/styles'
 import { IconEye, IconEyeOff } from '@tabler/icons-react'
 import SelectVariable from '@/ui-component/json/SelectVariable'
 import { getAvailableNodesForVariable } from '@/utils/genericHelper'
+import { useNodeT } from '@/i18n/nodes'
 
 export const Input = ({ inputParam, value, nodes, edges, nodeId, onChange, onBlur, disabled = false }) => {
+    const tNode = useNodeT()
     const theme = useTheme()
     const [myValue, setMyValue] = useState(value ?? '')
     const [anchorEl, setAnchorEl] = useState(null)
@@ -88,7 +90,7 @@ export const Input = ({ inputParam, value, nodes, edges, nodeId, onChange, onBlu
                         size='small'
                         disabled={disabled}
                         type={getInputType(inputParam.type)}
-                        placeholder={inputParam.placeholder}
+                        placeholder={tNode(inputParam.placeholder)}
                         multiline={!!inputParam.rows}
                         minRows={inputParam.rows ?? 1}
                         value={myValue}
@@ -127,7 +129,7 @@ export const Input = ({ inputParam, value, nodes, edges, nodeId, onChange, onBlu
                         size='small'
                         disabled={disabled}
                         type={hasPasswordToggle ? (isPasswordVisible ? 'text' : 'password') : getInputType(inputParam.type)}
-                        placeholder={inputParam.placeholder}
+                        placeholder={tNode(inputParam.placeholder)}
                         multiline={!!inputParam.rows}
                         rows={inputParam.rows ?? 1}
                         value={myValue}

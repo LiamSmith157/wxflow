@@ -92,5 +92,8 @@
     "failedToUpdateVectorStore": "更新向量库配置失败:{{errorData}}",
     "failedToDeleteDocumentStore2": "删除文档库失败:{{errorMessage}}",
     "deleteNameThisProcessCannot": "确定删除 {{name}} 吗?此操作无法撤销。",
-    "retrievedDocuments": "检索到的文档"
+    "retrievedDocuments": "检索到的文档",
+    "loaderNameShort": "{{label}}名称",
+    "loaderName": "{{label}}名称",
+    "selectTextSplitter": "选择文本切分器"
 }

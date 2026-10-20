@@ -92,5 +92,8 @@
     "failedToUpdateVectorStore": "Failed to update vector store config: {{errorData}}",
     "failedToDeleteDocumentStore2": "Failed to delete Document Store: {{errorMessage}}",
     "deleteNameThisProcessCannot": "Delete {{name}}? This process cannot be undone.",
-    "retrievedDocuments": "Retrieved Documents"
+    "retrievedDocuments": "Retrieved Documents",
+    "loaderNameShort": "{{label}} name",
+    "loaderName": "{{label}} Loader Name",
+    "selectTextSplitter": "Select Text Splitter"
 }

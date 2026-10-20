@@ -30,6 +30,7 @@ const lowlight = createLowlight(common)
 
 // Store
 import { HIDE_CANVAS_DIALOG, SHOW_CANVAS_DIALOG } from '@/store/actions'
+import { useNodeT } from '@/i18n/nodes'
 
 // Styled editor content for preview mode
 const StyledEditorContent = styled(EditorContent)(({ theme, rows, disabled, isDarkMode }) => ({
@@ -146,6 +147,7 @@ const extensions = (availableNodesForVariable, availableState, acceptNodeOutputA
 ]
 
 const ExpandRichInputDialog = ({ show, dialogProps, onCancel, onInputHintDialogClicked, onConfirm }) => {
+    const tNode = useNodeT()
     const { t } = useTranslation('components')
     const portalElement = document.getElementById('portal')
 
@@ -291,7 +293,7 @@ const ExpandRichInputDialog = ({ show, dialogProps, onCancel, onInputHintDialogC
                     {inputParam && (
                         <div style={{ flex: 70, width: '100%' }}>
                             <div style={{ marginBottom: '10px', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                <Typography variant='h4'>{inputParam.label}</Typography>
+                                <Typography variant='h4'>{tNode(inputParam.label)}</Typography>
                                 <div style={{ flex: 1 }} />
                                 <ToggleButtonGroup
                                     value={viewMode}
@@ -326,7 +328,7 @@ const ExpandRichInputDialog = ({ show, dialogProps, onCancel, onInputHintDialogC
                                             onInputHintDialogClicked(inputParam.hint)
                                         }}
                                     >
-                                        {inputParam.hint.label}
+                                        {tNode(inputParam.hint.label)}
                                     </Button>
                                 )}
                             </div>

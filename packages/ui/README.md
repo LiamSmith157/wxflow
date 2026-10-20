@@ -42,7 +42,20 @@ Add a new language or namespace:
 Notes:
 
 -   Module-level config (provider forms, tab lists...) cannot call `t` at load time. Keep the English text in the config and translate it where it is rendered with `useTranslatedConfig(config)` or `td(text)` (entries live in the `dynamic` namespace, keyed by the English text).
--   The agentflow canvas library, node catalog texts and server error messages are not translated.
+-   The agentflow canvas library and server error messages are not translated.
+
+### Node catalog texts
+
+Node names, descriptions, parameter labels/descriptions/placeholders and dropdown options come from `packages/components` through the API. They are translated at render time with `tNode(text)` from `useNodeT()` (`src/i18n/nodes.js`), which looks the exact English text up in the `nodes` namespace and falls back to the English text. Only display text goes through it, never a node `name` or an option value.
+
+To update the translations after the node definitions change (build `packages/components` first):
+
+```bash
+pnpm --filter flowise-ui i18n:nodes-coverage -- --list   # untranslated strings and stale keys
+pnpm --filter flowise-ui i18n:extract-nodes out.json     # full English catalog with categories
+```
+
+Add the translation to `src/i18n/locales/zh-CN/nodes.json` (`"English text": "中文"`; `en/nodes.json` stays empty). Brand names and identifiers that should stay English go in `scripts/node-keep-english.json`. Use `--strict` in CI to fail on untranslated or stale entries.
 
 ## License
 

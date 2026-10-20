@@ -34,6 +34,7 @@ import useNotifier from '@/utils/useNotifier'
 import { baseURL } from '@/store/constant'
 import { initNode, showHideInputParams } from '@/utils/genericHelper'
 import { closeSnackbar as closeSnackbarAction, enqueueSnackbar as enqueueSnackbarAction } from '@/store/actions'
+import { useNodeT } from '@/i18n/nodes'
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     background: theme.palette.card.main,
@@ -55,6 +56,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 }))
 
 const VectorStoreQuery = () => {
+    const tNode = useNodeT()
     const { t } = useTranslation('docstore')
     const customization = useSelector((state) => state.customization)
     const navigate = useNavigate()
@@ -360,7 +362,7 @@ const VectorStoreQuery = () => {
                                                             )}
                                                         </div>
                                                         <Typography sx={{ ml: 2 }} variant='h3'>
-                                                            {selectedVectorStoreProvider.label}
+                                                            {tNode(selectedVectorStoreProvider.label)}
                                                         </Typography>
                                                         <div style={{ flex: 1 }}></div>
                                                     </Box>

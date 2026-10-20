@@ -15,6 +15,7 @@ import MainCard from '@/ui-component/cards/MainCard'
 
 // const
 import { flowContext } from '@/store/context/ReactFlowContext'
+import { useNodeT } from '@/i18n/nodes'
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     background: theme.palette.card.main,
@@ -35,6 +36,7 @@ const StyledNodeToolbar = styled(NodeToolbar)(({ theme }) => ({
 }))
 
 const StickyNote = ({ data }) => {
+    const tNode = useNodeT()
     const { t } = useTranslation('agentflows')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
@@ -117,7 +119,7 @@ const StickyNote = ({ data }) => {
                 <Box>
                     <Input
                         key={data.id}
-                        placeholder={inputParam.placeholder}
+                        placeholder={tNode(inputParam.placeholder)}
                         inputParam={inputParam}
                         onChange={(newValue) => (data.inputs[inputParam.name] = newValue)}
                         value={data.inputs[inputParam.name] ?? inputParam.default ?? ''}

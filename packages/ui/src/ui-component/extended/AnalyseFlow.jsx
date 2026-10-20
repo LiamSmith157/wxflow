@@ -40,6 +40,7 @@ import useNotifier from '@/utils/useNotifier'
 
 // API
 import chatflowsApi from '@/api/chatflows'
+import { useNodeT } from '@/i18n/nodes'
 
 const analyticProvidersRaw = [
     {
@@ -223,6 +224,7 @@ const analyticProvidersRaw = [
 ]
 
 const AnalyseFlow = ({ dialogProps }) => {
+    const tNode = useNodeT()
     const analyticProviders = useTranslatedConfig(analyticProvidersRaw)
     const { t } = useTranslation('components')
     const dispatch = useDispatch()
@@ -343,7 +345,7 @@ const AnalyseFlow = ({ dialogProps }) => {
                             </ListItemAvatar>
                             <ListItemText
                                 sx={{ ml: 1 }}
-                                primary={provider.label}
+                                primary={tNode(provider.label)}
                                 secondary={
                                     <a
                                         target='_blank'
@@ -388,10 +390,10 @@ const AnalyseFlow = ({ dialogProps }) => {
                             <Box key={index} sx={{ p: 2 }}>
                                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                                     <Typography>
-                                        {inputParam.label}
+                                        {tNode(inputParam.label)}
                                         {!inputParam.optional && <span style={{ color: 'red' }}>&nbsp;*</span>}
                                         {inputParam.description && (
-                                            <TooltipWithParser style={{ marginLeft: 10 }} title={inputParam.description} />
+                                            <TooltipWithParser style={{ marginLeft: 10 }} title={tNode(inputParam.description)} />
                                         )}
                                     </Typography>
                                 </div>

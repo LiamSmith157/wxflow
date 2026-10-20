@@ -16,8 +16,10 @@ import NodeInputHandler from '@/ui-component/input-handlers/NodeInputHandler'
 
 // Store
 import { HIDE_CANVAS_DIALOG, SHOW_CANVAS_DIALOG } from '@/store/actions'
+import { useNodeT } from '@/i18n/nodes'
 
 const ConditionDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
+    const tNode = useNodeT()
     const portalElement = document.getElementById('portal')
 
     const dispatch = useDispatch()
@@ -54,7 +56,7 @@ const ConditionDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                             <Tabs value={tabValue} onChange={(event, val) => setTabValue(val)} aria-label='tabs' variant='fullWidth'>
                                 <TabsList>
                                     {inputParam.tabs.map((inputChildParam, index) => (
-                                        <Tab key={index}>{inputChildParam.label}</Tab>
+                                        <Tab key={index}>{tNode(inputChildParam.label)}</Tab>
                                     ))}
                                 </TabsList>
                             </Tabs>

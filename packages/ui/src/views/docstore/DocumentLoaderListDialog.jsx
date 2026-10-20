@@ -14,8 +14,10 @@ import documentStoreApi from '@/api/documentstore'
 import { baseURL } from '@/store/constant'
 import { HIDE_CANVAS_DIALOG, SHOW_CANVAS_DIALOG } from '@/store/actions'
 import useApi from '@/hooks/useApi'
+import { useNodeT } from '@/i18n/nodes'
 
 const DocumentLoaderListDialog = ({ show, dialogProps, onCancel, onDocLoaderSelected }) => {
+    const tNode = useNodeT()
     const { t } = useTranslation('docstore')
     const portalElement = document.getElementById('portal')
     const dispatch = useDispatch()
@@ -174,7 +176,7 @@ const DocumentLoaderListDialog = ({ show, dialogProps, onCancel, onDocLoaderSele
                                     src={`${baseURL}/api/v1/node-icon/${documentLoader.name}`}
                                 />
                             </div>
-                            <Typography>{documentLoader.label}</Typography>
+                            <Typography>{tNode(documentLoader.label)}</Typography>
                         </ListItemButton>
                     ))}
                 </List>

@@ -99,7 +99,8 @@ describe('i18n', () => {
                 value && typeof value === 'object' ? flatten(value, `${prefix}${key}.`) : [[`${prefix}${key}`, value]]
             )
 
-        it.each(Object.keys(resources.en))('%s has the same keys in en and zh-CN, none empty', (ns) => {
+        // `nodes` is keyed by the English text itself and may be translated in part, see the dedicated test below
+        it.each(Object.keys(resources.en).filter((ns) => ns !== 'nodes'))('%s has the same keys in en and zh-CN, none empty', (ns) => {
             const en = flatten(resources.en[ns])
             const zh = flatten(resources['zh-CN'][ns])
             expect([...new Set(zh.map(([k]) => baseKey(k)))].sort()).toEqual([...new Set(en.map(([k]) => baseKey(k)))].sort())
@@ -109,6 +110,15 @@ describe('i18n', () => {
                 expect([key, placeholders(Object.fromEntries(zh)[key])]).toEqual([key, placeholders(text)])
             )
             ;[...en, ...zh].forEach(([key, value]) => expect([key, typeof value === 'string' && value.length > 0]).toEqual([key, true]))
+        })
+
+        it('nodes translations are non-empty and keep interpolation placeholders', () => {
+            const placeholders = (text) => (text.match(/\{\{\s*[^}]*\}\}/g) || []).sort()
+            expect(Object.keys(resources.en.nodes)).toEqual([])
+            Object.entries(resources['zh-CN'].nodes).forEach(([text, translated]) => {
+                expect([text, typeof translated === 'string' && translated.trim().length > 0]).toEqual([text, true])
+                expect([text, placeholders(translated)]).toEqual([text, placeholders(text)])
+            })
         })
     })
 })

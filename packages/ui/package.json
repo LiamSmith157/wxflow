@@ -116,6 +116,8 @@
         "start": "vite",
         "build": "vite build",
         "test": "jest",
+        "i18n:extract-nodes": "node scripts/extract-node-strings.js",
+        "i18n:nodes-coverage": "node scripts/nodes-coverage.js",
         "clean": "rimraf build",
         "nuke": "pnpm clean && rimraf node_modules .turbo"
     },

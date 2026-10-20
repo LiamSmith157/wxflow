@@ -17,8 +17,10 @@ import { baseURL, AGENTFLOW_ICONS } from '@/store/constant'
 // API
 import configApi from '@/api/config'
 import useApi from '@/hooks/useApi'
+import { useNodeT } from '@/i18n/nodes'
 
 const NodeInfoDialog = ({ show, dialogProps, onCancel }) => {
+    const tNode = useNodeT()
     const { t } = useTranslation('components')
     const portalElement = document.getElementById('portal')
     const dispatch = useDispatch()
@@ -104,7 +106,7 @@ const NodeInfoDialog = ({ show, dialogProps, onCancel }) => {
                             </div>
                         )}
                         <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 10 }}>
-                            {dialogProps.data.label}
+                            {tNode(dialogProps.data.label)}
                             <div style={{ display: 'flex', flexDirection: 'row' }}>
                                 <div
                                     style={{
@@ -223,7 +225,7 @@ const NodeInfoDialog = ({ show, dialogProps, onCancel }) => {
                             marginBottom: 10
                         }}
                     >
-                        <span>{dialogProps.data.description}</span>
+                        <span>{tNode(dialogProps.data.description)}</span>
                     </div>
                 )}
                 {getNodeConfigApi.data && getNodeConfigApi.data.length > 0 && (

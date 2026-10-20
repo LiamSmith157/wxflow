@@ -43,11 +43,13 @@ import DynamicFeed from '@mui/icons-material/Filter1'
 // utils
 import { initNode, showHideInputParams, getFileName } from '@/utils/genericHelper'
 import useNotifier from '@/utils/useNotifier'
+import { useNodeT } from '@/i18n/nodes'
 
 // const
 const steps = ['Embeddings', 'Vector Store', 'Record Manager']
 
 const VectorStoreConfigure = () => {
+    const tNode = useNodeT()
     const { t } = useTranslation('docstore')
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -646,7 +648,7 @@ const VectorStoreConfigure = () => {
                                                                     )}
                                                                 </div>
                                                                 <Typography sx={{ ml: 2 }} variant='h3'>
-                                                                    {selectedEmbeddingsProvider.label}
+                                                                    {tNode(selectedEmbeddingsProvider.label)}
                                                                 </Typography>
                                                                 <div style={{ flex: 1 }}></div>
                                                                 <div
@@ -764,7 +766,7 @@ const VectorStoreConfigure = () => {
                                                                     )}
                                                                 </div>
                                                                 <Typography sx={{ ml: 2 }} variant='h3'>
-                                                                    {selectedVectorStoreProvider.label}
+                                                                    {tNode(selectedVectorStoreProvider.label)}
                                                                 </Typography>
                                                                 <div style={{ flex: 1 }}></div>
                                                                 <div
@@ -890,7 +892,7 @@ const VectorStoreConfigure = () => {
                                                                     )}
                                                                 </div>
                                                                 <Typography sx={{ ml: 2 }} variant='h3'>
-                                                                    {selectedRecordManagerProvider.label}
+                                                                    {tNode(selectedRecordManagerProvider.label)}
                                                                 </Typography>
                                                                 <div style={{ flex: 1 }}></div>
                                                                 <div

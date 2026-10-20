@@ -20,6 +20,7 @@ import { baseURL, FLOWISE_CREDENTIAL_ID } from '@/store/constant'
 import { initNode, showHideInputParams } from '@/utils/genericHelper'
 import DocStoreInputHandler from '@/views/docstore/DocStoreInputHandler'
 import useApi from '@/hooks/useApi'
+import { useNodeT } from '@/i18n/nodes'
 
 const defaultInstructionsRaw = [
     {
@@ -39,6 +40,7 @@ const defaultInstructionsRaw = [
 const AgentflowGeneratorDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     const defaultInstructions = useTranslatedConfig(defaultInstructionsRaw)
     const { t } = useTranslation('components')
+    const tNode = useNodeT()
     const portalElement = document.getElementById('portal')
     const [customAssistantInstruction, setCustomAssistantInstruction] = useState('')
     const [generatedInstruction, setGeneratedInstruction] = useState('')
@@ -113,16 +115,16 @@ const AgentflowGeneratorDialog = ({ show, dialogProps, onCancel, onConfirm }) =>
                     // Check for credential in both possible locations
                     const credential = selectedChatModel.credential || selectedChatModel.inputs?.[FLOWISE_CREDENTIAL_ID]
                     if (!credential) {
-                        missingFields.push(inputParam.label || 'Credential')
+                        missingFields.push(tNode(inputParam.label) || 'Credential')
                     }
                 } else if (isMissingRequiredValue(selectedChatModel.inputs?.[inputParam.name])) {
-                    missingFields.push(inputParam.label || inputParam.name)
+                    missingFields.push(tNode(inputParam.label) || inputParam.name)
                 }
             }
         }
 
         return { isValid: missingFields.length === 0, missingFields }
-    }, [selectedChatModel])
+    }, [selectedChatModel, tNode])
 
     const displayWarning = (message) => {
         enqueueSnackbar({

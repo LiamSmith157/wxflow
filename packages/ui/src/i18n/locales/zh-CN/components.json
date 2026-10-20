@@ -280,5 +280,9 @@
     "on": "开",
     "rateLimit": "限流",
     "share": "分享",
-    "outputFromLabel": "来自 {{label}} 的 {{output}}"
+    "outputFromLabel": "来自 {{label}} 的 {{output}}",
+    "addParam": "添加{{label}}",
+    "nodeParameters": "{{label}} 参数",
+    "chooseFileToUpload": "选择要上传的文件",
+    "uploadFile": "上传文件"
 }

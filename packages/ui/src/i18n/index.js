@@ -18,6 +18,7 @@ import enEvaluations from './locales/en/evaluations.json'
 import enAdmin from './locales/en/admin.json'
 import enAuth from './locales/en/auth.json'
 import enMisc from './locales/en/misc.json'
+import enNodes from './locales/en/nodes.json'
 import zhCommon from './locales/zh-CN/common.json'
 import zhLayout from './locales/zh-CN/layout.json'
 import zhMenu from './locales/zh-CN/menu.json'
@@ -34,6 +35,7 @@ import zhEvaluations from './locales/zh-CN/evaluations.json'
 import zhAdmin from './locales/zh-CN/admin.json'
 import zhAuth from './locales/zh-CN/auth.json'
 import zhMisc from './locales/zh-CN/misc.json'
+import zhNodes from './locales/zh-CN/nodes.json'
 
 export const FALLBACK_LANGUAGE = 'en'
 export const LANGUAGE_STORAGE_KEY = 'lang'
@@ -61,7 +63,8 @@ export const resources = {
         evaluations: enEvaluations,
         admin: enAdmin,
         auth: enAuth,
-        misc: enMisc
+        misc: enMisc,
+        nodes: enNodes
     },
     'zh-CN': {
         common: zhCommon,
@@ -79,7 +82,8 @@ export const resources = {
         evaluations: zhEvaluations,
         admin: zhAdmin,
         auth: zhAuth,
-        misc: zhMisc
+        misc: zhMisc,
+        nodes: zhNodes
     }
 }
 

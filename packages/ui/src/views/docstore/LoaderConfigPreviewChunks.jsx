@@ -38,6 +38,7 @@ import { useError } from '@/store/context/ErrorContext'
 // Utils
 import { initNode, showHideInputParams } from '@/utils/genericHelper'
 import useNotifier from '@/utils/useNotifier'
+import { useNodeT } from '@/i18n/nodes'
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     background: theme.palette.card.main,
@@ -62,6 +63,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 const LoaderConfigPreviewChunks = () => {
     const { t } = useTranslation('docstore')
+    const tNode = useNodeT()
     const customization = useSelector((state) => state.customization)
     const navigate = useNavigate()
     const theme = useTheme()
@@ -150,10 +152,10 @@ const LoaderConfigPreviewChunks = () => {
                     !selectedDocumentLoader.inputs['FLOWISE_CREDENTIAL_ID']
                 ) {
                     canSubmit = false
-                    missingFields.push(inputParam.label || inputParam.name)
+                    missingFields.push(tNode(inputParam.label) || inputParam.name)
                 } else if (inputParam.type !== 'credential' && !selectedDocumentLoader.inputs[inputParam.name]) {
                     canSubmit = false
-                    missingFields.push(inputParam.label || inputParam.name)
+                    missingFields.push(tNode(inputParam.label) || inputParam.name)
                 }
             }
         }
@@ -409,7 +411,7 @@ const LoaderConfigPreviewChunks = () => {
                                         <IconArrowLeft />
                                     </StyledFab>
                                     <Typography sx={{ ml: 2, mr: 2 }} variant='h3'>
-                                        {selectedDocumentLoader?.label}
+                                        {tNode(selectedDocumentLoader?.label)}
                                     </Typography>
                                     <div
                                         style={{
@@ -467,11 +469,12 @@ const LoaderConfigPreviewChunks = () => {
                                                 fullWidth
                                                 sx={{ mt: 1 }}
                                                 size='small'
-                                                label={
+                                                label={t(
                                                     selectedDocumentLoader?.label?.toLowerCase().includes('loader')
-                                                        ? selectedDocumentLoader.label + ' name'
-                                                        : selectedDocumentLoader?.label + ' Loader Name'
-                                                }
+                                                        ? 'loaderNameShort'
+                                                        : 'loaderName',
+                                                    { label: tNode(selectedDocumentLoader?.label) }
+                                                )}
                                                 value={loaderName}
                                                 onChange={(e) => setLoaderName(e.target.value)}
                                             />
@@ -494,7 +497,7 @@ const LoaderConfigPreviewChunks = () => {
                                                     <Typography sx={{ mr: 2 }} variant='h3'>
                                                         {(splitterOptions ?? []).find(
                                                             (splitter) => splitter.name === selectedTextSplitter?.name
-                                                        )?.label ?? 'Select Text Splitter'}
+                                                        )?.label ?? t('selectTextSplitter')}
                                                     </Typography>
                                                     <div
                                                         style={{

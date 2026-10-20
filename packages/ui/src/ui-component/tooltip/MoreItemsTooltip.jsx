@@ -1,6 +1,7 @@
 import { Tooltip, Typography } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import PropTypes from 'prop-types'
+import { useNodeT } from '@/i18n/nodes'
 
 const StyledOl = styled('ol')(() => ({
     paddingLeft: 20,
@@ -12,6 +13,7 @@ const StyledLi = styled('li')(() => ({
 }))
 
 const MoreItemsTooltip = ({ images, children }) => {
+    const tNode = useNodeT()
     if (!images || images.length === 0) return children
 
     return (
@@ -20,7 +22,7 @@ const MoreItemsTooltip = ({ images, children }) => {
                 <StyledOl>
                     {images.map((img) => (
                         <StyledLi key={img.imageSrc || img.label}>
-                            <Typography>{img.label}</Typography>
+                            <Typography>{tNode(img.label)}</Typography>
                         </StyledLi>
                     ))}
                 </StyledOl>
