@@ -1,4 +1,4 @@
-import { filterAllowedUploadMimeTypes, validateMimeTypeAndExtensionMatch } from 'flowise-components'
+import { filterAllowedUploadMimeTypes, validateMimeTypeAndExtensionMatch } from 'wxflow-components'
 import { InternalFlowiseError } from '../errors/internalFlowiseError'
 import { StatusCodes } from 'http-status-codes'
 import { getErrorMessage } from '../errors/utils'

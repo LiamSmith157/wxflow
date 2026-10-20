@@ -158,8 +158,8 @@ If in doubt, use `type: 'password'`. The only cost is that the field must be re-
     Or from the repo root using `--filter`:
 
     ```bash
-    pnpm --filter flowise-components test
-    pnpm --filter @flowiseai/agentflow test
+    pnpm --filter wxflow-components test
+    pnpm --filter @wxflow/agentflow test
     pnpm --filter "./packages/server" test # root and server share the same package name.
     ```
 

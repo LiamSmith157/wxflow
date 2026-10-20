@@ -1,6 +1,6 @@
-# @flowiseai/agentflow Examples
+# @wxflow/agentflow Examples
 
-This folder demonstrates various usage patterns of the `@flowiseai/agentflow` package.
+This folder demonstrates various usage patterns of the `@wxflow/agentflow` package.
 
 ## Setup
 

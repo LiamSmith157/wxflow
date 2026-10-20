@@ -11,7 +11,7 @@
     "keyName": "Key Name",
     "noApiKeysYet": "No API Keys Yet",
     "createKey": "Create Key",
-    "flowiseApiSdkAuthenticationKeys": "Flowise API & SDK authentication keys",
+    "flowiseApiSdkAuthenticationKeys": "wxflow API & SDK authentication keys",
     "apiKeys": "API Keys",
     "apiKeyDeleted": "API key deleted",
     "editApiKey": "Edit API Key",

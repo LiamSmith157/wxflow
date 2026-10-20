@@ -11,7 +11,7 @@
     "keyName": "密钥名称",
     "noApiKeysYet": "还没有 API 密钥",
     "createKey": "创建密钥",
-    "flowiseApiSdkAuthenticationKeys": "Flowise API 与 SDK 的认证密钥",
+    "flowiseApiSdkAuthenticationKeys": "wxflow API 与 SDK 的认证密钥",
     "apiKeys": "API 密钥",
     "apiKeyDeleted": "API 密钥已删除",
     "editApiKey": "编辑 API 密钥",

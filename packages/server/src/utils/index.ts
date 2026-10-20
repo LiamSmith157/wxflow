@@ -30,7 +30,7 @@ import {
     IDatabaseEntity,
     IMessage,
     StorageProviderFactory
-} from 'flowise-components'
+} from 'wxflow-components'
 import { randomBytes } from 'crypto'
 import { AES, enc } from 'crypto-js'
 

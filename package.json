@@ -1,6 +1,6 @@
 {
-    "name": "flowise",
-    "version": "3.1.4",
+    "name": "wxflow",
+    "version": "0.0.1",
     "private": true,
     "homepage": "https://flowiseai.com",
     "workspaces": [
@@ -12,7 +12,7 @@
     ],
     "scripts": {
         "build": "turbo run build",
-        "build:docker": "turbo run build --filter=!@flowiseai/agentflow",
+        "build:docker": "turbo run build --filter=!@wxflow/agentflow",
         "build-force": "pnpm clean && turbo run build --force",
         "dev": "turbo run dev --parallel --no-cache",
         "start": "run-script-os",

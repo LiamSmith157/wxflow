@@ -9,7 +9,7 @@ on:
     workflow_call:
         inputs:
             package_name:
-                description: 'NPM package name (e.g. @flowiseai/agentflow)'
+                description: 'NPM package name (e.g. @wxflow/agentflow)'
                 required: true
                 type: string
             package_path:

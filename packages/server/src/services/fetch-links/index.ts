@@ -1,4 +1,4 @@
-import { webCrawl, xmlScrape, checkDenyList } from 'flowise-components'
+import { webCrawl, xmlScrape, checkDenyList } from 'wxflow-components'
 import { StatusCodes } from 'http-status-codes'
 import { InternalFlowiseError } from '../../errors/internalFlowiseError'
 import { getErrorMessage } from '../../errors/utils'

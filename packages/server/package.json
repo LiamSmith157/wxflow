@@ -1,11 +1,11 @@
 {
-    "name": "flowise",
-    "version": "3.1.4",
+    "name": "wxflow-server",
+    "version": "0.0.1",
     "description": "Flowiseai Server",
     "main": "dist/index",
     "types": "dist/index.d.ts",
     "bin": {
-        "flowise": "./bin/run"
+        "wxflow": "./bin/run"
     },
     "files": [
         "bin",
@@ -16,7 +16,7 @@
         "oauth2.html"
     ],
     "oclif": {
-        "bin": "flowise",
+        "bin": "wxflow",
         "commands": "./dist/commands"
     },
     "scripts": {
@@ -135,9 +135,9 @@
         "express-mysql-session": "^3.0.3",
         "express-rate-limit": "^6.9.0",
         "express-session": "^1.18.1",
-        "flowise-components": "workspace:^",
+        "wxflow-components": "workspace:^",
         "flowise-nim-container-manager": "^1.0.11",
-        "flowise-ui": "workspace:^",
+        "wxflow-ui": "workspace:^",
         "geoip-lite": "^1.4.10",
         "global-agent": "^3.0.0",
         "gulp": "^4.0.2",

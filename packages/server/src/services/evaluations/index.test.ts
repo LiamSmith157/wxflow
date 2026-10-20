@@ -1,4 +1,4 @@
-jest.mock('flowise-components', () => ({ EvaluationRunner: class EvaluationRunner {} }))
+jest.mock('wxflow-components', () => ({ EvaluationRunner: class EvaluationRunner {} }))
 jest.mock('../../utils', () => ({ getAppVersion: jest.fn() }))
 jest.mock('../../utils/getRunningExpressApp', () => ({ getRunningExpressApp: jest.fn() }))
 jest.mock('../../utils/stripProtectedFields', () => ({ stripProtectedFields: jest.fn((x: unknown) => x) }))

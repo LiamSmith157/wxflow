@@ -1,6 +1,6 @@
 {
-    "name": "flowise-api",
-    "version": "1.0.3",
+    "name": "wxflow-api",
+    "version": "0.0.1",
     "description": "Flowise API documentation server",
     "scripts": {
         "build": "tsc",

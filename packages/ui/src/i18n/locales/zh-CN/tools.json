@@ -28,7 +28,7 @@
     "mustReturnAStringValue": "函数末尾必须返回字符串",
     "youCanGetDefaultFlow": "你可以获取默认的 flow 配置:",
     "youCanUsePropertiesSpecified": "你可以把输入 Schema 中定义的属性当作变量使用,需加 $ 前缀:",
-    "youCanUseAnyLibraries": "你可以使用 Flowise 中已引入的任意库",
+    "youCanUseAnyLibraries": "你可以使用 wxflow 中已引入的任意库",
     "howToUseFunction": "函数使用方法",
     "seeExample": "查看示例",
     "pasteJsonSchema": "粘贴 JSON Schema",

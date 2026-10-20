@@ -77,8 +77,8 @@ const REMOVED_NODE_NAMES = [
 const componentsDist = require('path').resolve(__dirname, '..', '..', 'components', 'dist', 'nodes')
 const componentsBuilt = require('fs').existsSync(componentsDist)
 if (!componentsBuilt) console.warn(`Skipping the node registry tests: ${componentsDist} does not exist, build packages/components first`)
-;(componentsBuilt ? describe : describe.skip)('node registry built from flowise-components', () => {
-    // required lazily so that a missing build skips the suite instead of failing while importing flowise-components
+;(componentsBuilt ? describe : describe.skip)('node registry built from wxflow-components', () => {
+    // required lazily so that a missing build skips the suite instead of failing while importing wxflow-components
     let nodesService: typeof import('./services/nodes').default
     let getRunningExpressApp: jest.Mock
     let pool: NodesPoolType

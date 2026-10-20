@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import { removeFolderFromStorage } from 'flowise-components'
+import { removeFolderFromStorage } from 'wxflow-components'
 import { StatusCodes } from 'http-status-codes'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import moment from 'moment'

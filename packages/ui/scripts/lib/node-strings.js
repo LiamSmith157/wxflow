@@ -55,7 +55,7 @@ const collectParams = (strings, params) => {
 const extractNodeStrings = (distDir = DEFAULT_DIST) => {
     if (!fs.existsSync(distDir)) {
         throw new Error(
-            `Node definitions not found at ${distDir}. Build packages/components first (pnpm --filter flowise-components build).`
+            `Node definitions not found at ${distDir}. Build packages/components first (pnpm --filter wxflow-components build).`
         )
     }
     const strings = {}

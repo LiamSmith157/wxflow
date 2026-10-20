@@ -1,6 +1,6 @@
 {
-    "short_name": "Flowise",
-    "name": "Flowise App",
+    "short_name": "wxflow",
+    "name": "wxflow App",
     "icons": [
         {
             "src": "favicon.ico",

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { StorageProviderFactory } from 'flowise-components'
+import { StorageProviderFactory } from 'wxflow-components'
 import * as fs from 'fs'
 import { createLogger, format, transports } from 'winston'
 import config from './config' // should be replaced by node-config or similar

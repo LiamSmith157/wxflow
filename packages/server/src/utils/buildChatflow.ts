@@ -12,7 +12,7 @@ import {
     mapExtToInputField,
     getFileFromUpload,
     removeSpecificFileFromUpload
-} from 'flowise-components'
+} from 'wxflow-components'
 import { StatusCodes } from 'http-status-codes'
 import { IncomingInput, ChatType, IExecuteFlowParams, MODE } from '../Interface'
 import { InternalFlowiseError } from '../errors/internalFlowiseError'

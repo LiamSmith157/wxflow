@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 
-jest.mock('flowise-components', () => ({
+jest.mock('wxflow-components', () => ({
     convertSpeechToText: jest.fn(),
     addSingleFileToStorage: jest.fn(),
     addArrayFilesToStorage: jest.fn(),

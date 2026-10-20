@@ -7,7 +7,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import type { FlowData } from '@flowiseai/agentflow'
+import type { FlowData } from '@wxflow/agentflow'
 
 type FlowStatePanelTab = 'live' | 'saved'
 

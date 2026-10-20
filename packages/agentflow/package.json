@@ -1,6 +1,6 @@
 {
-    "name": "@flowiseai/agentflow",
-    "version": "0.0.0-dev.14",
+    "name": "@wxflow/agentflow",
+    "version": "0.0.1",
     "description": "Embeddable React component for building and visualizing AI agent workflows",
     "license": "Apache-2.0",
     "repository": {
@@ -35,7 +35,7 @@
             "require": "./dist/index.umd.js",
             "types": "./dist/index.d.ts"
         },
-        "./flowise.css": "./dist/flowise.css"
+        "./wxflow.css": "./dist/wxflow.css"
     },
     "files": [
         "dist"

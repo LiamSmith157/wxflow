@@ -1,6 +1,6 @@
-# @flowiseai/agentflow
+# @wxflow/agentflow
 
-[![Version](https://img.shields.io/npm/v/@flowiseai/agentflow)](https://www.npmjs.com/package/@flowiseai/agentflow)
+[![Version](https://img.shields.io/npm/v/@wxflow/agentflow)](https://www.npmjs.com/package/@wxflow/agentflow)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/FlowiseAI/Flowise/blob/main/LICENSE.md)
 
 > Embeddable React component for building and visualizing AI agent workflows
@@ -23,7 +23,7 @@ This package is functional and has comprehensive test coverage, but the public A
 
 ## Overview
 
-`@flowiseai/agentflow` is a React-based flow editor for creating AI agent workflows. It provides a visual canvas built on ReactFlow for connecting AI agents, LLMs, tools, and logic nodes.
+`@wxflow/agentflow` is a React-based flow editor for creating AI agent workflows. It provides a visual canvas built on ReactFlow for connecting AI agents, LLMs, tools, and logic nodes.
 
 ## Features
 
@@ -45,7 +45,7 @@ This package is functional and has comprehensive test coverage, but the public A
 ## Installation
 
 ```bash
-pnpm add @flowiseai/agentflow
+pnpm add @wxflow/agentflow
 ```
 
 **Peer Dependencies:**
@@ -57,9 +57,9 @@ pnpm add react react-dom @mui/material @mui/icons-material @emotion/react @emoti
 ## Basic Usage
 
 ```tsx
-import { Agentflow } from '@flowiseai/agentflow'
+import { Agentflow } from '@wxflow/agentflow'
 
-import '@flowiseai/agentflow/flowise.css'
+import '@wxflow/agentflow/wxflow.css'
 
 export default function App() {
     return (
@@ -75,9 +75,9 @@ export default function App() {
 ```tsx
 import { useRef } from 'react'
 
-import { Agentflow, type AgentFlowInstance, type FlowData } from '@flowiseai/agentflow'
+import { Agentflow, type AgentFlowInstance, type FlowData } from '@wxflow/agentflow'
 
-import '@flowiseai/agentflow/flowise.css'
+import '@wxflow/agentflow/wxflow.css'
 
 export default function App() {
     const ref = useRef<AgentFlowInstance>(null)
@@ -239,7 +239,7 @@ Visit the [examples](./examples) directory for more usage patterns. See [TESTS.m
 ### Theme Issues
 
 -   **Dark mode not applying** — Pass `isDarkMode={true}` as a prop. The component uses its own design tokens and does not inherit from the host app's theme.
--   **Style conflicts** — Ensure `@flowiseai/agentflow/flowise.css` is imported. The component's CSS variables are scoped to avoid collisions.
+-   **Style conflicts** — Ensure `@wxflow/agentflow/wxflow.css` is imported. The component's CSS variables are scoped to avoid collisions.
 
 ### Variables Not Resolving
 

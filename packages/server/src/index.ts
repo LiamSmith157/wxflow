@@ -364,7 +364,7 @@ export class App {
 
         this.app.use('/api', apiNotFoundMiddleware)
 
-        const packagePath = getNodeModulesPackagePath('flowise-ui')
+        const packagePath = getNodeModulesPackagePath('wxflow-ui')
         const uiBuildPath = path.join(packagePath, 'build')
         const uiHtmlPath = path.join(packagePath, 'build', 'index.html')
 

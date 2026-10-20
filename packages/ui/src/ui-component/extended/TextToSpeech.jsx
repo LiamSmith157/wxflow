@@ -613,7 +613,7 @@ const TextToSpeech = ({ dialogProps }) => {
                         </Typography>
 
                         <Typography variant='body2' color='textSecondary' sx={{ mb: 2 }}>
-                            Test text: &quot;Today is a wonderful day to build something with Flowise!&quot;
+                            Test text: &quot;Today is a wonderful day to build something with wxflow!&quot;
                         </Typography>
 
                         <AudioWaveform

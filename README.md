@@ -17,13 +17,17 @@ English | [繁體中文](./i18n/README-TW.md) | [简体中文](./i18n/README-ZH.
 
 </div>
 
-<h2>Flowise has been archived. Refer to [Future of Flowise](https://github.com/FlowiseAI/Flowise/discussions/6727)</h2>
+<h1>wxflow <sub>v0.0.1</sub></h1>
+
+> wxflow 基于 [Flowise](https://github.com/FlowiseAI/Flowise) 开发。
 
 <h3>Build AI Agents, Visually</h3>
 <a href="https://github.com/FlowiseAI/Flowise">
 <img width="100%" src="https://github.com/FlowiseAI/Flowise/blob/main/images/flowise_agentflow.gif?raw=true"></a>
 
 ## 关于本仓库
+
+**wxflow v0.0.1**,使用 Flowise 开发。
 
 本仓库基于 [Flowise](https://github.com/FlowiseAI/Flowise) 3.1.4(上游提交 `9291856`)裁剪而来,**只保留 Agentflow v2**,许可证沿用 Apache-2.0(见 `LICENSE.md`)。它不再跟随上游合并。
 
@@ -106,7 +110,7 @@ Flowise has several modules in a single mono repository.
 -   `ui`: React frontend
 -   `components`: Third-party nodes integrations
 -   `api-documentation`: Auto-generated swagger-ui API docs from express
--   `agentflow`: Embeddable Agentflow v2 editor SDK (`@flowiseai/agentflow`)
+-   `agentflow`: Embeddable Agentflow v2 editor SDK (`@wxflow/agentflow`)
 
 ### Prerequisite
 

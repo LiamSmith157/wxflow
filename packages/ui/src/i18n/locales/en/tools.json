@@ -28,7 +28,7 @@
     "mustReturnAStringValue": "Must return a string value at the end of function",
     "youCanGetDefaultFlow": "You can get default flow config:",
     "youCanUsePropertiesSpecified": "You can use properties specified in Input Schema as variables with prefix $:",
-    "youCanUseAnyLibraries": "You can use any libraries imported in Flowise",
+    "youCanUseAnyLibraries": "You can use any libraries imported in wxflow",
     "howToUseFunction": "How To Use Function",
     "seeExample": "See Example",
     "pasteJsonSchema": "Paste JSON Schema",

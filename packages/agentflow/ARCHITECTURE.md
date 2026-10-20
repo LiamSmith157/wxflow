@@ -1,6 +1,6 @@
-# @flowiseai/agentflow - Architecture
+# @wxflow/agentflow - Architecture
 
-This document describes the internal architecture of the `@flowiseai/agentflow` package.
+This document describes the internal architecture of the `@wxflow/agentflow` package.
 
 ## Overview
 

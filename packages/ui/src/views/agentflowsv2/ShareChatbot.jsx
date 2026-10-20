@@ -471,7 +471,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
                 <Stack sx={{ mt: 1, mb: 2, alignItems: 'center' }} direction='row' spacing={2}>
                     <Typography variant='h4'>{t('titleSettings')}</Typography>
                 </Stack>
-                {textField(title, 'title', 'Title', 'string', 'Flowise Assistant')}
+                {textField(title, 'title', 'Title', 'string', 'wxflow Assistant')}
                 {textField(
                     titleAvatarSrc,
                     'titleAvatarSrc',

@@ -3,7 +3,7 @@ import * as path from 'path'
 
 const mockGenerate = jest.fn()
 
-jest.mock('flowise-components', () => ({
+jest.mock('wxflow-components', () => ({
     generateAgentflowv2: (...args: unknown[]) => mockGenerate(...args),
     extractResponseContent: jest.fn(),
     ICommonObject: {}

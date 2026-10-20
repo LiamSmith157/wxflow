@@ -8,7 +8,7 @@ export default defineConfig({
     resolve: {
         alias: {
             // Use the source files directly for development
-            '@flowiseai/agentflow': path.resolve(__dirname, '../src'),
+            '@wxflow/agentflow': path.resolve(__dirname, '../src'),
             '@': path.resolve(__dirname, '../src')
         }
     },

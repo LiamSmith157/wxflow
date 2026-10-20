@@ -577,7 +577,7 @@ describe('validateSQLitePath', () => {
         })
 
         it('should reject path to frontend build directory (XSS attack vector)', () => {
-            expect(() => validateSQLitePath('/usr/local/lib/node_modules/flowise/node_modules/flowise-ui/build/xss.html')).toThrow(
+            expect(() => validateSQLitePath('/usr/local/lib/node_modules/flowise/node_modules/wxflow-ui/build/xss.html')).toThrow(
                 /Invalid SQLite path:/
             )
         })

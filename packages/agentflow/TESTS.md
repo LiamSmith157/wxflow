@@ -1,4 +1,4 @@
-# @flowiseai/agentflow — Testing Guide
+# @wxflow/agentflow — Testing Guide
 
 ## Running Tests
 

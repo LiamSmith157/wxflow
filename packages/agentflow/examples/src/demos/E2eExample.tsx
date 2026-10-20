@@ -11,8 +11,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import type { AgentFlowInstance, FlowData, HeaderRenderProps } from '@flowiseai/agentflow'
-import { Agentflow } from '@flowiseai/agentflow'
+import type { AgentFlowInstance, FlowData, HeaderRenderProps } from '@wxflow/agentflow'
+import { Agentflow } from '@wxflow/agentflow'
 import { Button, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab } from '@mui/material'
 import { IconDeviceFloppy, IconPlayerPlay, IconTrash } from '@tabler/icons-react'
 

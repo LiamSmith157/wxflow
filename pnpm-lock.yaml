@@ -933,13 +933,13 @@ importers:
       express-session:
         specifier: ^1.18.1
         version: 1.18.1
-      flowise-components:
+      wxflow-components:
         specifier: workspace:^
         version: link:../components
       flowise-nim-container-manager:
         specifier: ^1.0.11
         version: 1.0.11
-      flowise-ui:
+      wxflow-ui:
         specifier: workspace:^
         version: link:../ui
       geoip-lite:

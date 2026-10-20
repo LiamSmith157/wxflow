@@ -58,7 +58,7 @@
 
 import axios from 'axios'
 import express, { NextFunction, Request, Response } from 'express'
-import { secureAxiosRequest } from 'flowise-components'
+import { secureAxiosRequest } from 'wxflow-components'
 import { StatusCodes } from 'http-status-codes'
 import { Credential } from '../../database/entities/Credential'
 import { WorkspaceShared } from '../../enterprise/database/entities/EnterpriseEntities'

@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes'
 
 const mockStreamStorageFile = jest.fn()
 
-jest.mock('flowise-components', () => ({ streamStorageFile: (...args: unknown[]) => mockStreamStorageFile(...args) }))
+jest.mock('wxflow-components', () => ({ streamStorageFile: (...args: unknown[]) => mockStreamStorageFile(...args) }))
 jest.mock('../../utils/getRunningExpressApp', () => ({ getRunningExpressApp: jest.fn() }))
 
 import chatFilesController from './index'

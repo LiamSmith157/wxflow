@@ -8,7 +8,7 @@
 
 import { useState } from 'react'
 
-import type { ExecutionStatus } from '@flowiseai/agentflow'
+import type { ExecutionStatus } from '@wxflow/agentflow'
 import MarkdownIt from 'markdown-it'
 
 import { apiBaseUrl, token } from './config'

@@ -11,7 +11,7 @@ Flowise 的应用集成。包含节点和凭据。
 安装：
 
 ```bash
-npm i flowise-components
+npm i wxflow-components
 ```
 
 ## 许可证

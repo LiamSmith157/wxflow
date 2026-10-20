@@ -11,7 +11,7 @@ Flowise 的 React 前端界面。
 安装：
 
 ```bash
-npm i flowise-ui
+npm i wxflow-ui
 ```
 
 ## 国际化 (i18n)
@@ -51,8 +51,8 @@ const MyView = ({ name }) => {
 节点定义变化后更新翻译(先构建 `packages/components`):
 
 ```bash
-pnpm --filter flowise-ui i18n:nodes-coverage -- --list   # 列出未翻译的文案和多余的 key
-pnpm --filter flowise-ui i18n:extract-nodes out.json     # 导出带类别的英文文案全集
+pnpm --filter wxflow-ui i18n:nodes-coverage -- --list   # 列出未翻译的文案和多余的 key
+pnpm --filter wxflow-ui i18n:extract-nodes out.json     # 导出带类别的英文文案全集
 ```
 
 把译文加入 `src/i18n/locales/zh-CN/nodes.json`(`"English text": "中文"`,`en/nodes.json` 保持为空)。需要保持英文的品牌名和标识符记在 `scripts/node-keep-english.json`。CI 中可加 `--strict`,有未翻译或多余条目时失败。

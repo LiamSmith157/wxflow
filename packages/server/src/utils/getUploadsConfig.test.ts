@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 
-jest.mock('flowise-components', () => ({}))
+jest.mock('wxflow-components', () => ({}))
 jest.mock('../utils/getRunningExpressApp', () => ({ getRunningExpressApp: jest.fn() }))
 
 import { utilGetUploadsConfig } from './getUploadsConfig'

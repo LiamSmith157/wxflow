@@ -11,7 +11,7 @@ React frontend ui for Flowise.
 Install:
 
 ```bash
-npm i flowise-ui
+npm i wxflow-ui
 ```
 
 ## Internationalization (i18n)
@@ -51,8 +51,8 @@ Node names, descriptions, parameter labels/descriptions/placeholders and dropdow
 To update the translations after the node definitions change (build `packages/components` first):
 
 ```bash
-pnpm --filter flowise-ui i18n:nodes-coverage -- --list   # untranslated strings and stale keys
-pnpm --filter flowise-ui i18n:extract-nodes out.json     # full English catalog with categories
+pnpm --filter wxflow-ui i18n:nodes-coverage -- --list   # untranslated strings and stale keys
+pnpm --filter wxflow-ui i18n:extract-nodes out.json     # full English catalog with categories
 ```
 
 Add the translation to `src/i18n/locales/zh-CN/nodes.json` (`"English text": "中文"`; `en/nodes.json` stays empty). Brand names and identifiers that should stay English go in `scripts/node-keep-english.json`. Use `--strict` in CI to fail on untranslated or stale entries.

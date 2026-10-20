@@ -1,4 +1,4 @@
-import { convertTextToSpeechStream, ICommonObject, IServerSideEventStreamer } from 'flowise-components'
+import { convertTextToSpeechStream, ICommonObject, IServerSideEventStreamer } from 'wxflow-components'
 import logger from './logger'
 import { getErrorMessage } from '../errors/utils'
 

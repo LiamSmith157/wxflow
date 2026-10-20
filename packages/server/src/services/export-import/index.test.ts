@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 
-jest.mock('flowise-components', () => ({ getStoragePath: jest.fn(), parseJsonBody: jest.fn() }))
+jest.mock('wxflow-components', () => ({ getStoragePath: jest.fn(), parseJsonBody: jest.fn() }))
 jest.mock('../chatflows', () => ({ __esModule: true, default: { getAllChatflows: jest.fn() } }))
 jest.mock('../chat-messages', () => ({ __esModule: true, default: {} }))
 jest.mock('../documentstore', () => ({ __esModule: true, default: {} }))

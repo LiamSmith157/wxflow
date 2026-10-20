@@ -8,7 +8,7 @@ import {
     INodeExecutionData,
     INodeParams,
     IServerSideEventStreamer
-} from 'flowise-components'
+} from 'wxflow-components'
 import { DataSource } from 'typeorm'
 import { CachePool } from './CachePool'
 import { Telemetry } from './utils/telemetry'
