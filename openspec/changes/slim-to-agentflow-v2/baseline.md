@@ -139,3 +139,13 @@ Iteration(3 项数组逐项执行)、Loop(`maxLoopCount` 到达后输出 fallbac
 | 画布交互、聊天面板、HITL 审批界面、embed          | 需要浏览器         |
 | Schedule / Webhook / MCP endpoint 的触发          | 本次脚本未覆盖     |
 | `packages/agentflow/examples` 能否加载保存        | 需要浏览器         |
+
+## 阶段 8 集成验收结果
+
+| 项目              | 环境                                                                                                                                      | 结果                                                                                                                                                                               |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 8.1 干净克隆构建  | 本机没有 Docker,按 Dockerfile 的步骤在干净克隆里执行 `pnpm install --frozen-lockfile` 和 `turbo run build --filter=!@flowiseai/agentflow` | 安装与构建都成功(4 个包,约 5 分钟);用该产物从空 sqlite 库启动,UI 返回 200,`smoke.py --phase after` 70 通过 / 0 失败                                                                |
+| 8.2 postgres 空库 | PG 13,库 `flowise_fresh`(预置 `uuid_generate_v4` 兼容函数)                                                                                | 61 条 migration 全部执行,`assistant`、`custom_template` 表不存在;`smoke.py --phase after` 70 通过 / 0 失败,库里只有 `AGENTFLOW` 类型的 flow                                        |
+| 8.3 SDK examples  | 需要浏览器                                                                                                                                | 未执行。API 层面 SDK 依赖的 62 个路径前缀已验证全部挂载,`chatflows` 增改、`/nodes/category/Chat Models`、`/agentflowv2-generator` 都在冒烟里覆盖;界面操作见 `ui-checklist.md` 末尾 |
+
+没有验证的部分:真正的 `docker build`(Alpine 镜像、非 root 用户)。

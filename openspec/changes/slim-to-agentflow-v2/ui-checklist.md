@@ -42,3 +42,12 @@
 
 -   [ ] 新建评估时,"选择要评估的 flows"下拉里只有 Agentflows,没有类型勾选框,也没有重复条目
 -   [ ] 评估结果页里 flow 名称的链接指向 `/v2/agentcanvas/<id>`
+
+## SDK 示例应用(任务 8.3)
+
+在 `packages/agentflow/examples` 里 `npm install && npm run dev`,设置 `VITE_INSTANCE_URL` 指向裁剪后的 server,`VITE_API_TOKEN` 用一个 API Key。
+
+-   [ ] 加载:能打开已有的 flow(设置 `VITE_FLOW_ID`)并渲染画布
+-   [ ] 编辑:拖入一个 Agent Flows 节点、改参数,节点的模型下拉列表非空
+-   [ ] 保存:保存后在 Agentflows 列表里能看到更新
+-   [ ] AI 生成:生成对话框能选择 chat model(需要真实模型 key 才能出结果)
