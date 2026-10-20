@@ -1,7 +1,7 @@
 {
     "name": "wxflow-server",
     "version": "0.0.1",
-    "description": "Flowiseai Server",
+    "description": "wxflow Server",
     "main": "dist/index",
     "types": "dist/index.d.ts",
     "bin": {
@@ -52,11 +52,6 @@
         "test:coverage": "jest --coverage"
     },
     "keywords": [],
-    "homepage": "https://flowiseai.com",
-    "author": {
-        "name": "Henry Heng",
-        "email": "henryheng@flowiseai.com"
-    },
     "engines": {
         "node": "^24"
     },

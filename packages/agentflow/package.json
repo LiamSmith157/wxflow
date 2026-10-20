@@ -3,18 +3,7 @@
     "version": "0.0.1",
     "description": "Embeddable React component for building and visualizing AI agent workflows",
     "license": "Apache-2.0",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/FlowiseAI/Flowise.git",
-        "directory": "packages/agentflow"
-    },
-    "homepage": "https://github.com/FlowiseAI/Flowise/tree/main/packages/agentflow#readme",
-    "bugs": {
-        "url": "https://github.com/FlowiseAI/Flowise/issues"
-    },
     "keywords": [
-        "flowise",
-        "flowiseai",
         "agentflow",
         "react",
         "llm",

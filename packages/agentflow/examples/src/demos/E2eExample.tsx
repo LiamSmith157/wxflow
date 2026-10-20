@@ -1,7 +1,7 @@
 /**
  * E2E Example
  *
- * Demonstrates a full end-to-end integration with a live Flowise instance:
+ * Demonstrates a full end-to-end integration with a live wxflow instance:
  * - Load a saved flow from the database via VITE_FLOW_ID
  * - Editable flow title (synced to DB on save)
  * - Save flow to DB (creates new chatflow if no ID is configured)

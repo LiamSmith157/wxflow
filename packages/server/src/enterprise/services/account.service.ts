@@ -841,7 +841,7 @@ export class AccountService {
 
         // Step 5: Anonymize User Record (GDPR Compliance)
         user.name = UserStatus.DELETED
-        user.email = `deleted_${user.id}_${Date.now()}@deleted.flowise`
+        user.email = `deleted_${user.id}_${Date.now()}@deleted.wxflow`
         user.status = UserStatus.DELETED
         user.credential = null
         user.tokenExpiry = null

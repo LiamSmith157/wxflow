@@ -1,8 +1,4 @@
 {
-    "announcement": {
-        "sunset": "Flowise 即将停止维护。",
-        "learnMore": "了解更多"
-    },
     "header": {
         "star": "Star",
         "loggingOut": "正在退出登录..."

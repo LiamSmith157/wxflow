@@ -1,7 +1,7 @@
 {
     "name": "wxflow-components",
     "version": "0.0.1",
-    "description": "Flowiseai Components",
+    "description": "wxflow Components",
     "main": "dist/src/index",
     "types": "dist/src/index.d.ts",
     "exports": {
@@ -24,11 +24,6 @@
         "test:coverage": "jest --coverage"
     },
     "keywords": [],
-    "homepage": "https://flowiseai.com",
-    "author": {
-        "name": "Henry Heng",
-        "email": "henryheng@flowiseai.com"
-    },
     "license": "SEE LICENSE IN LICENSE.md",
     "overrides": {
         "prebuild-install": "7.1.3",

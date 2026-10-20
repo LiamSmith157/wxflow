@@ -39,8 +39,8 @@ export const resetTracingEnvCache = (): void => {
 
 /**
  * Env var flags that activate LangChain's built-in auto-tracer (see @langchain/core
- * `isTracingEnabled()`). Once Flowise adopts the tracing config, these must be cleared from
- * `process.env` so the auto-tracer doesn't emit duplicate top-level runs alongside Flowise's
+ * `isTracingEnabled()`). Once wxflow adopts the tracing config, these must be cleared from
+ * `process.env` so the auto-tracer doesn't emit duplicate top-level runs alongside wxflow's
  * manual `onLLMStart`/`onToolStart` child RunTrees.
  */
 const LANGCHAIN_TRACING_FLAG_VARS = ['LANGSMITH_TRACING', 'LANGCHAIN_TRACING_V2', 'LANGSMITH_TRACING_V2', 'LANGCHAIN_TRACING'] as const
@@ -50,7 +50,7 @@ const LANGCHAIN_TRACING_FLAG_VARS = ['LANGSMITH_TRACING', 'LANGCHAIN_TRACING_V2'
  * Returns a config object if tracing is enabled and an API key is present; otherwise undefined.
  *
  * Side effect: on a successful read, the four LangChain tracing-flag env vars are deleted from
- * `process.env`. Flowise owns tracing emission from this point on; leaving the flags set would let
+ * `process.env`. wxflow owns tracing emission from this point on; leaving the flags set would let
  * LangChain's auto-tracer fire on every `.invoke()`/`.call()` and produce orphan top-level runs
  * next to the manually-emitted parent/child RunTree.
  */
@@ -64,7 +64,7 @@ export const getLangSmithEnvConfig = (): { apiKey: string; endpoint?: string; pr
     const endpoint = getEnvironmentVariable('LANGSMITH_ENDPOINT') ?? getEnvironmentVariable('LANGCHAIN_ENDPOINT')
     const projectName = getEnvironmentVariable('LANGSMITH_PROJECT') ?? getEnvironmentVariable('LANGCHAIN_PROJECT')
 
-    // the four LangChain tracing-flag env vars are deleted from `process.env`. Flowise owns tracing
+    // the four LangChain tracing-flag env vars are deleted from `process.env`. wxflow owns tracing
     // emission from this point on; leaving the flags set would letLangChain's auto-tracer fire on
     // every `.invoke()`/`.call()` and produce orphan top-level runs next to the manually-emitted
     // parent/child RunTree.

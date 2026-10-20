@@ -2,8 +2,8 @@ import { CommonType, ICommonObject, ICondition, INode, INodeData, INodeOutputsVa
 import removeMarkdown from 'remove-markdown'
 
 /**
- * Unescapes a regex pattern that was escaped by Flowise input handling.
- * Flowise escapes these characters: \ → \\, [ → \[, ] → \], * → \*
+ * Unescapes a regex pattern that was escaped by wxflow input handling.
+ * wxflow escapes these characters: \ → \\, [ → \[, ] → \], * → \*
  * We reverse this to get the user's intended regex pattern.
  */
 const unescapeRegexPattern = (escaped: string): string => {

@@ -1,7 +1,7 @@
 {
     "name": "wxflow-worker-healthcheck",
     "version": "0.0.1",
-    "description": "Simple healthcheck server for Flowise worker",
+    "description": "Simple healthcheck server for wxflow worker",
     "main": "healthcheck.js",
     "private": true,
     "scripts": {

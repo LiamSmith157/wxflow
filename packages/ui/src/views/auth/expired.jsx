@@ -2,7 +2,6 @@ import MainCard from '@/ui-component/cards/MainCard'
 import { useTranslation } from 'react-i18next'
 import { Box, Stack, Typography } from '@mui/material'
 import contactSupport from '@/assets/images/contact_support.svg'
-import { StyledButton } from '@/ui-component/button/StyledButton'
 
 // ==============================|| License Expired Page ||============================== //
 
@@ -35,9 +34,6 @@ const LicenseExpired = () => {
                         <Typography variant='body1' component='div' sx={{ mb: 2 }}>
                             {t('pleaseContactOurSupportTeam')}
                         </Typography>
-                        <a href='mailto:support@flowiseai.com'>
-                            <StyledButton sx={{ px: 2, py: 1 }}>{t('contactSupport')}</StyledButton>
-                        </a>
                     </Stack>
                 </Box>
             </MainCard>

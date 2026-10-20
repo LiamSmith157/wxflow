@@ -1,8 +1,8 @@
 version: '3.1'
 
 services:
-    flowise:
-        image: flowiseai/flowise:latest
+    wxflow:
+        image: wxflow:latest
         restart: always
         environment:
             - PORT=${PORT}
@@ -21,7 +21,7 @@ services:
             # SECRET KEYS
             - SECRETKEY_STORAGE_TYPE=${SECRETKEY_STORAGE_TYPE}
             - SECRETKEY_PATH=${SECRETKEY_PATH}
-            - FLOWISE_SECRETKEY_OVERWRITE=${FLOWISE_SECRETKEY_OVERWRITE}
+            - WXFLOW_SECRETKEY_OVERWRITE=${WXFLOW_SECRETKEY_OVERWRITE:-${FLOWISE_SECRETKEY_OVERWRITE:-}}
             - SECRETKEY_AWS_ACCESS_KEY=${SECRETKEY_AWS_ACCESS_KEY}
             - SECRETKEY_AWS_SECRET_KEY=${SECRETKEY_AWS_SECRET_KEY}
             - SECRETKEY_AWS_REGION=${SECRETKEY_AWS_REGION}
@@ -63,11 +63,11 @@ services:
             - CORS_ORIGINS=${CORS_ORIGINS}
             - MCP_CORS_ORIGINS=${MCP_CORS_ORIGINS}
             - IFRAME_ORIGINS=${IFRAME_ORIGINS}
-            - FLOWISE_FILE_SIZE_LIMIT=${FLOWISE_FILE_SIZE_LIMIT}
+            - WXFLOW_FILE_SIZE_LIMIT=${WXFLOW_FILE_SIZE_LIMIT:-${FLOWISE_FILE_SIZE_LIMIT:-}}
             - CUSTOM_MCP_TOOLS_MAX_BYTES=${CUSTOM_MCP_TOOLS_MAX_BYTES}
             - CUSTOM_MCP_AUTHORIZE_TIMEOUT_MS=${CUSTOM_MCP_AUTHORIZE_TIMEOUT_MS}
             - SHOW_COMMUNITY_NODES=${SHOW_COMMUNITY_NODES}
-            - DISABLE_FLOWISE_TELEMETRY=${DISABLE_FLOWISE_TELEMETRY}
+            - DISABLE_WXFLOW_TELEMETRY=${DISABLE_WXFLOW_TELEMETRY:-${DISABLE_FLOWISE_TELEMETRY:-}}
             - DISABLED_NODES=${DISABLED_NODES}
             - MODEL_LIST_CONFIG_JSON=${MODEL_LIST_CONFIG_JSON}
 
@@ -97,7 +97,7 @@ services:
 
             # ENTERPRISE
             - LICENSE_URL=${LICENSE_URL}
-            - FLOWISE_EE_LICENSE_KEY=${FLOWISE_EE_LICENSE_KEY}
+            - WXFLOW_EE_LICENSE_KEY=${WXFLOW_EE_LICENSE_KEY:-${FLOWISE_EE_LICENSE_KEY:-}}
             - OFFLINE=${OFFLINE}
             - INVITE_TOKEN_EXPIRY_IN_HOURS=${INVITE_TOKEN_EXPIRY_IN_HOURS}
             - WORKSPACE_INVITE_TEMPLATE_PATH=${WORKSPACE_INVITE_TEMPLATE_PATH}
@@ -161,6 +161,6 @@ services:
             start_period: 30s
         volumes:
             # Container now runs as the non-root `node` user, whose home is /home/node.
-            # Ensure the host directory is writable by that user (e.g. `chown -R 1000:1000 ~/.flowise` on Linux hosts).
-            - ~/.flowise:/home/node/.flowise
-        entrypoint: /bin/sh -c "sleep 3; flowise start"
+            # Ensure the host directory is writable by that user (e.g. `chown -R 1000:1000 ~/.wxflow` on Linux hosts).
+            - ~/.wxflow:/home/node/.wxflow
+        entrypoint: /bin/sh -c "sleep 3; wxflow start"

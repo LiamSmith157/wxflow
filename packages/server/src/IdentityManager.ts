@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2023-present FlowiseAI, Inc.
  *
- * The Enterprise and Cloud versions of Flowise are licensed under the [Commercial License](https://github.com/FlowiseAI/Flowise/tree/main/packages/server/src/enterprise/LICENSE.md).
+ * The Enterprise and Cloud versions of wxflow are licensed under the [Commercial License](https://github.com/FlowiseAI/Flowise/tree/main/packages/server/src/enterprise/LICENSE.md).
  * Unauthorized copying, modification, distribution, or use of the Enterprise and Cloud versions is strictly prohibited without a valid license agreement from FlowiseAI, Inc.
  *
  * The Open Source version is licensed under the Apache License, Version 2.0 (the "License")
@@ -10,6 +10,7 @@
  * security@flowiseai.com
  */
 
+import { getEnv } from 'wxflow-components'
 import axios from 'axios'
 import express, { Application, NextFunction, Request, Response } from 'express'
 import * as fs from 'fs'
@@ -101,7 +102,7 @@ export class IdentityManager {
 
     private _validateLicenseKey = async () => {
         const LICENSE_URL = process.env.LICENSE_URL
-        const FLOWISE_EE_LICENSE_KEY = process.env.FLOWISE_EE_LICENSE_KEY
+        const FLOWISE_EE_LICENSE_KEY = getEnv('EE_LICENSE_KEY')
 
         // First check if license key is missing
         if (!FLOWISE_EE_LICENSE_KEY) {

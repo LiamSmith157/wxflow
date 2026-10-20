@@ -56,18 +56,17 @@ body:
       id: method
       attributes:
           label: Use Method
-          description: How did you use Flowise?
+          description: How did you use wxflow?
           options:
-              - Flowise Cloud
               - Docker
-              - npx flowise start
+              - wxflow start
               - pnpm start
 
     - type: input
       id: version
       attributes:
-          label: Flowise Version
-          description: What version of Flowise are you running?
+          label: wxflow Version
+          description: What version of wxflow are you running?
           placeholder: e.g., 1.2.11
 
     - type: dropdown

@@ -477,7 +477,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
                     'titleAvatarSrc',
                     'Title Avatar Link',
                     'string',
-                    `https://raw.githubusercontent.com/FlowiseAI/Flowise/main/assets/FloWiseAI_dark.png`
+                    `https://example.com/avatar.png`
                 )}
                 {colorField(titleBackgroundColor, 'titleBackgroundColor', 'Title Background Color')}
                 {colorField(titleTextColor, 'titleTextColor', 'Title TextColor')}

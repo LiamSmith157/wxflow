@@ -34,7 +34,7 @@ export interface DropdownProps {
 
 /**
  * Autocomplete-based dropdown with search, image, and description support.
- * Mirrors the original Flowise Dropdown component.
+ * Mirrors the original wxflow Dropdown component.
  */
 export function Dropdown({
     name,

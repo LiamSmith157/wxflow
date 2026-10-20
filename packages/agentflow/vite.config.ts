@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
         build: {
             lib: {
                 entry: resolve(__dirname, 'src/index.ts'),
-                name: 'FlowiseAgentflow',
+                name: 'WxflowAgentflow',
                 formats: ['es', 'umd'],
                 fileName: (format) => `index.${format === 'es' ? 'js' : 'umd.js'}`
             },

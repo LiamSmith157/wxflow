@@ -1,5 +1,6 @@
 import { ICommonObject, INode, INodeData, INodeParams } from '../../../src/Interface'
-import { getBaseClasses, getUserHome } from '../../../src/utils'
+import { getBaseClasses } from '../../../src/utils'
+import { getDefaultDataDir } from '../../../src/wxflowEnv'
 import { ListKeyOptions, RecordManagerInterface, UpdateOptions } from '@langchain/community/indexes/base'
 import { DataSource } from 'typeorm'
 import path from 'path'
@@ -33,7 +34,7 @@ class SQLiteRecordManager_RecordManager implements INode {
                 label: 'Database File Path',
                 name: 'databaseFilePath',
                 type: 'string',
-                placeholder: 'C:\\Users\\User\\.flowise\\database.sqlite'
+                placeholder: 'C:\\Users\\User\\.wxflow\\database.sqlite'
             },*/
             {
                 label: 'Additional Connection Configuration',
@@ -121,7 +122,7 @@ class SQLiteRecordManager_RecordManager implements INode {
             additionalConfiguration = sanitizeDataSourceOptions(additionalConfiguration)
         }
 
-        const database = validateSQLitePath(path.join(process.env.DATABASE_PATH ?? path.join(getUserHome(), '.flowise'), 'database.sqlite'))
+        const database = validateSQLitePath(path.join(process.env.DATABASE_PATH ?? getDefaultDataDir(), 'database.sqlite'))
 
         const sqliteOptions = mergeDataSourceOptions(
             {

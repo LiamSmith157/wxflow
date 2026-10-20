@@ -22,6 +22,7 @@ import { z } from 'zod/v3'
 import { checkDenyList, secureAxiosRequest, secureFetch } from './httpSecurity'
 import { ICommonObject, IDatabaseEntity, IFileUpload, IMessage, INodeData, IVariable, MessageContentImageUrl } from './Interface'
 import { getFileFromStorage } from './storageUtils'
+import { getDefaultDataDir, getEnv } from './wxflowEnv'
 
 export const numberOrExpressionRegex = '^(\\d+\\.?\\d*|{{.*}})$' //return true if string consists only numbers OR expression {{}}
 export const notEmptyRegex = '(.|\\s)*\\S(.|\\s)*' //return true if string is not empty or blank
@@ -559,7 +560,7 @@ const getEncryptionKeyFilePath = (): string => {
         path.join(__dirname, '..', '..', '..', '..', 'server', 'encryption.key'),
         path.join(__dirname, '..', '..', '..', '..', '..', 'encryption.key'),
         path.join(__dirname, '..', '..', '..', '..', '..', 'server', 'encryption.key'),
-        path.join(getUserHome(), '.flowise', 'encryption.key')
+        path.join(getDefaultDataDir(), 'encryption.key')
     ]
     for (const checkPath of checkPaths) {
         if (fs.existsSync(checkPath)) {
@@ -578,8 +579,9 @@ export const getEncryptionKeyPath = (): string => {
  * @returns {Promise<string>}
  */
 const getEncryptionKey = async (): Promise<string> => {
-    if (process.env.FLOWISE_SECRETKEY_OVERWRITE !== undefined && process.env.FLOWISE_SECRETKEY_OVERWRITE !== '') {
-        return process.env.FLOWISE_SECRETKEY_OVERWRITE
+    const secretKeyOverwrite = getEnv('SECRETKEY_OVERWRITE')
+    if (secretKeyOverwrite !== undefined) {
+        return secretKeyOverwrite
     }
     try {
         if (USE_AWS_SECRETS_MANAGER && secretsManagerClient) {

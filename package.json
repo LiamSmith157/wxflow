@@ -2,10 +2,8 @@
     "name": "wxflow",
     "version": "0.0.1",
     "private": true,
-    "homepage": "https://flowiseai.com",
     "workspaces": [
         "packages/*",
-        "flowise",
         "ui",
         "components",
         "api-documentation"

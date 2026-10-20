@@ -2,7 +2,7 @@ import Redis from 'ioredis'
 import { RedisStore } from 'connect-redis'
 import { getDatabaseSSLFromEnv } from '../../../DataSource'
 import path from 'path'
-import { getUserHome } from '../../../utils'
+import { getDefaultDataDir } from 'wxflow-components'
 import type { Store } from 'express-session'
 import { LoginSession } from '../../database/entities/login-session.entity'
 import { getRunningExpressApp } from '../../../utils/getRunningExpressApp'
@@ -89,7 +89,7 @@ export const initializeDBClientAndStore: any = () => {
         case 'sqlite': {
             const expressSession = require('express-session')
             const sqlSession = require('connect-sqlite3')(expressSession)
-            let flowisePath = path.join(getUserHome(), '.flowise')
+            let flowisePath = getDefaultDataDir()
             const homePath = process.env.DATABASE_PATH ?? flowisePath
             dbStore = new sqlSession({
                 db: 'database.sqlite',

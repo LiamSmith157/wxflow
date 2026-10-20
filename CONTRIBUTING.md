@@ -1,30 +1,14 @@
 <!-- markdownlint-disable MD030 -->
 
-# Contributing to Flowise
+# Contributing to wxflow
 
 English | [中文](./i18n/CONTRIBUTING-ZH.md)
 
 We appreciate any form of contributions.
 
-## ⭐ Star
+## 🐞 Report Bugs & Ideas
 
-Star and share the [Github Repo](https://github.com/FlowiseAI/Flowise).
-
-## 🙋 Q&A
-
-Search up for any questions in [Q&A section](https://github.com/FlowiseAI/Flowise/discussions/categories/q-a), if you can't find one, don't hesitate to create one. It might helps others that have similar question.
-
-## 🙌 Share Chatflow
-
-Yes! Sharing how you use Flowise is a way of contribution. Export your chatflow as JSON, attach a screenshot and share it in [Show and Tell section](https://github.com/FlowiseAI/Flowise/discussions/categories/show-and-tell).
-
-## 💡 Ideas
-
-Ideas are welcome such as new feature, apps integration, and blockchain networks. Submit in [Ideas section](https://github.com/FlowiseAI/Flowise/discussions/categories/ideas).
-
-## 🐞 Report Bugs
-
-Found an issue? [Report it](https://github.com/FlowiseAI/Flowise/issues/new/choose).
+Found an issue or have an idea? Open an issue in this repository.
 
 ## 👨‍💻 Contribute to Code
 
@@ -36,7 +20,7 @@ Not sure what to contribute? Some ideas:
 
 ### Developers
 
-Flowise has 3 different modules in a single mono repository.
+wxflow has 3 different modules in a single mono repository.
 
 -   `server`: Node backend to serve API logics
 -   `ui`: React frontend
@@ -51,7 +35,7 @@ Flowise has 3 different modules in a single mono repository.
 
 #### Step by step
 
-1. Fork the official [Flowise Github Repository](https://github.com/FlowiseAI/Flowise).
+1. Fork this repository.
 
 2. Clone your forked repository.
 
@@ -65,7 +49,7 @@ Flowise has 3 different modules in a single mono repository.
 5. Go into repository folder
 
     ```bash
-    cd Flowise
+    cd wxflow
     ```
 
 6. Install all dependencies of all modules:
@@ -114,7 +98,7 @@ Flowise has 3 different modules in a single mono repository.
 
     to make sure everything works fine in production.
 
-11. Commit code and submit Pull Request from forked branch pointing to [Flowise main](https://github.com/FlowiseAI/Flowise/tree/main).
+11. Commit code and submit Pull Request from forked branch pointing to the `main` branch.
 
 ### Adding or modifying credential definitions
 
@@ -179,27 +163,27 @@ If in doubt, use `type: 'password'`. The only cost is that the field must be re-
 
 ## 🌱 Env Variables
 
-Flowise support different environment variables to configure your instance. You can specify the following variables in the `.env` file inside `packages/server` folder. Read [more](https://docs.flowiseai.com/configuration/environment-variables)
+wxflow supports different environment variables to configure your instance. You can specify the following variables in the `.env` file inside `packages/server` folder. `FLOWISE_*` names are still read as a fallback for the `WXFLOW_*` ones
 
 | Variable                             | Description                                                                                                                                                                                                                                                                       | Type                                             | Default                             |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ----------------------------------- |
-| PORT                                 | The HTTP port Flowise runs on                                                                                                                                                                                                                                                     | Number                                           | 3000                                |
+| PORT                                 | The HTTP port wxflow runs on                                                                                                                                                                                                                                                     | Number                                           | 3000                                |
 | CORS_ALLOW_CREDENTIALS               | Enables CORS `Access-Control-Allow-Credentials` when `true`                                                                                                                                                                                                                       | Boolean                                          | false                               |
 | CORS_ORIGINS                         | The allowed origins for all cross-origin HTTP calls                                                                                                                                                                                                                               | String                                           |                                     |
 | MCP_CORS_ORIGINS                     | The allowed origins for MCP endpoint cross-origin calls. If unset, only non-browser (no Origin header) requests are allowed. Set to `*` to allow all origins.                                                                                                                     | String                                           |                                     |
 | IFRAME_ORIGINS                       | The allowed origins for iframe src embedding                                                                                                                                                                                                                                      | String                                           |                                     |
-| FLOWISE_FILE_SIZE_LIMIT              | Upload File Size Limit                                                                                                                                                                                                                                                            | String                                           | 50mb                                |
+| WXFLOW_FILE_SIZE_LIMIT               | Upload File Size Limit                                                                                                                                                                                                                                                            | String                                           | 50mb                                |
 | CUSTOM_MCP_TOOLS_MAX_BYTES           | Maximum byte size of the JSON tools payload stored per Custom MCP Server row (after stringify). Rejects oversized payloads returned by remote MCP servers. Set to `0` to disable the check.                                                                                       | Number                                           | 524288 (512 KB)                     |
 | CUSTOM_MCP_AUTHORIZE_TIMEOUT_MS      | Maximum time in milliseconds to wait for the MCP server handshake during authorize. Bounds the request so a slow/tarpit upstream cannot tie up the HTTP worker indefinitely. Minimum 1000.                                                                                        | Number                                           | 15000                               |
 | DEBUG                                | Print logs from components                                                                                                                                                                                                                                                        | Boolean                                          |                                     |
-| LOG_PATH                             | Location where log files are stored                                                                                                                                                                                                                                               | String                                           | `your-path/Flowise/logs`            |
+| LOG_PATH                             | Location where log files are stored                                                                                                                                                                                                                                               | String                                           | `your-path/wxflow/logs`            |
 | LOG_LEVEL                            | Different levels of logs                                                                                                                                                                                                                                                          | Enum String: `error`, `info`, `verbose`, `debug` | `info`                              |
 | LOG_JSON_SPACES                      | Spaces to beautify JSON logs                                                                                                                                                                                                                                                      |                                                  | 2                                   |
 | TOOL_FUNCTION_BUILTIN_DEP            | NodeJS built-in modules to be used for Custom Tool or Function                                                                                                                                                                                                                    | String                                           |                                     |
 | TOOL_FUNCTION_EXTERNAL_DEP           | External modules to be used for Custom Tool or Function                                                                                                                                                                                                                           | String                                           |                                     |
 | ALLOW_BUILTIN_DEP                    | Allow project dependencies to be used for Custom Tool or Function                                                                                                                                                                                                                 | Boolean                                          | false                               |
-| DATABASE_TYPE                        | Type of database to store the flowise data                                                                                                                                                                                                                                        | Enum String: `sqlite`, `mysql`, `postgres`       | `sqlite`                            |
-| DATABASE_PATH                        | Location where database is saved (When DATABASE_TYPE is sqlite)                                                                                                                                                                                                                   | String                                           | `your-home-dir/.flowise`            |
+| DATABASE_TYPE                        | Type of database to store the wxflow data                                                                                                                                                                                                                                        | Enum String: `sqlite`, `mysql`, `postgres`       | `sqlite`                            |
+| DATABASE_PATH                        | Location where database is saved (When DATABASE_TYPE is sqlite)                                                                                                                                                                                                                   | String                                           | `your-home-dir/.wxflow`            |
 | DATABASE_HOST                        | Host URL or IP address (When DATABASE_TYPE is not sqlite)                                                                                                                                                                                                                         | String                                           |                                     |
 | DATABASE_PORT                        | Database port (When DATABASE_TYPE is not sqlite)                                                                                                                                                                                                                                  | String                                           |                                     |
 | DATABASE_USER                        | Database username (When DATABASE_TYPE is not sqlite)                                                                                                                                                                                                                              | String                                           |                                     |
@@ -207,11 +191,11 @@ Flowise support different environment variables to configure your instance. You 
 | DATABASE_NAME                        | Database name (When DATABASE_TYPE is not sqlite)                                                                                                                                                                                                                                  | String                                           |                                     |
 | DATABASE_SSL_KEY_BASE64              | Database SSL client cert in base64 (takes priority over DATABASE_SSL)                                                                                                                                                                                                             | Boolean                                          | false                               |
 | DATABASE_SSL                         | Database connection overssl (When DATABASE_TYPE is postgre)                                                                                                                                                                                                                       | Boolean                                          | false                               |
-| SECRETKEY_PATH                       | Location where encryption key (used to encrypt/decrypt credentials) is saved                                                                                                                                                                                                      | String                                           | `your-path/Flowise/packages/server` |
-| FLOWISE_SECRETKEY_OVERWRITE          | Encryption key to be used instead of the key stored in SECRETKEY_PATH                                                                                                                                                                                                             | String                                           |                                     |
+| SECRETKEY_PATH                       | Location where encryption key (used to encrypt/decrypt credentials) is saved                                                                                                                                                                                                      | String                                           | `your-path/wxflow/packages/server` |
+| WXFLOW_SECRETKEY_OVERWRITE           | Encryption key to be used instead of the key stored in SECRETKEY_PATH                                                                                                                                                                                                             | String                                           |                                     |
 | MODEL_LIST_CONFIG_JSON               | File path to load list of models from your local config file                                                                                                                                                                                                                      | String                                           | `/your_model_list_config_file_path` |
 | STORAGE_TYPE                         | Type of storage for uploaded files. default is `local`                                                                                                                                                                                                                            | Enum String: `s3`, `local`, `gcs` ,`azure`       | `local`                             |
-| BLOB_STORAGE_PATH                    | Local folder path where uploaded files are stored when `STORAGE_TYPE` is `local`                                                                                                                                                                                                  | String                                           | `your-home-dir/.flowise/storage`    |
+| BLOB_STORAGE_PATH                    | Local folder path where uploaded files are stored when `STORAGE_TYPE` is `local`                                                                                                                                                                                                  | String                                           | `your-home-dir/.wxflow/storage`    |
 | S3_STORAGE_BUCKET_NAME               | Bucket name to hold the uploaded files when `STORAGE_TYPE` is `s3`                                                                                                                                                                                                                | String                                           |                                     |
 | S3_STORAGE_ACCESS_KEY_ID             | AWS Access Key                                                                                                                                                                                                                                                                    | String                                           |                                     |
 | S3_STORAGE_SECRET_ACCESS_KEY         | AWS Secret Key                                                                                                                                                                                                                                                                    | String                                           |                                     |
@@ -230,20 +214,16 @@ Flowise support different environment variables to configure your instance. You 
 | DISABLED_NODES                       | Hide nodes from UI (comma separated list of node names)                                                                                                                                                                                                                           | String                                           |                                     |
 | TRUST_PROXY                          | Configure proxy trust settings for proper IP detection. Values: 'true' (trust all), 'false' (disable), number (hop count), or Express proxy values (e.g., 'loopback', 'linklocal', 'uniquelocal', IP addresses). [Learn More](https://expressjs.com/en/guide/behind-proxies.html) | Boolean/String/Number                            | true                                |
 
-You can also specify the env variables when using `npx`. For example:
+You can also pass the env variables as flags to the start command. For example:
 
 ```
-npx flowise start --PORT=3000 --DEBUG=true
+wxflow start --PORT=3000 --DEBUG=true
 ```
-
-## 📖 Contribute to Docs
-
-[Flowise Docs](https://github.com/FlowiseAI/FlowiseDocs)
 
 ## 🏷️ Pull Request process
 
-A member of the FlowiseAI team will automatically be notified/assigned when you open a pull request. You can also reach out to us on [Discord](https://discord.gg/jbaHfsRVBW).
+Open a pull request against the `main` branch; a maintainer will review it.
 
 ## 📜 Code of Conduct
 
-This project and everyone participating in it are governed by the Code of Conduct which can be found in the [file](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to hello@flowiseai.com.
+This project and everyone participating in it are governed by the Code of Conduct which can be found in the [file](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to the project maintainers.

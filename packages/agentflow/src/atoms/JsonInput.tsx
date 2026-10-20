@@ -32,7 +32,7 @@ function safeParse(str: string): object {
  * Falls back to `{}` for empty or invalid input.
  *
  * When `variableItems` is provided, clicking a JSON key opens a popover to
- * inject a variable into that specific key (matching the original Flowise behaviour).
+ * inject a variable into that specific key (matching the original wxflow behaviour).
  */
 export function JsonInput({ value, onChange, disabled = false, variableItems }: JsonInputProps) {
     const theme = useTheme()

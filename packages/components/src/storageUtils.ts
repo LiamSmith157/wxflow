@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
-import { getUserHome } from './utils'
 import { StorageProviderFactory, StorageResult, StorageSizeResult, FileInfo } from './storage'
+import { getDefaultDataDir } from './wxflowEnv'
 
 export const addBase64FilesToStorage = async (
     fileBase64: string,
@@ -50,7 +50,7 @@ export const getFilesListFromStorage = async (...paths: string[]): Promise<FileI
 export const getStoragePath = (): string => {
     const storagePath = process.env.BLOB_STORAGE_PATH
         ? path.join(process.env.BLOB_STORAGE_PATH)
-        : path.join(getUserHome(), '.flowise', 'storage')
+        : path.join(getDefaultDataDir(), 'storage')
     if (!fs.existsSync(storagePath)) {
         fs.mkdirSync(storagePath, { recursive: true })
     }

@@ -19,7 +19,7 @@ export interface ApiServices {
 /**
  * Registry that maps `loadMethod` string keys — as declared on node `InputParam` definitions
  * (e.g. `{ loadMethod: 'listTools' }`) — to functions that fetch the corresponding options
- * from the Flowise API.
+ * from the wxflow API.
  *
  * Each entry receives the shared {@link ApiServices} instance and an optional `params` object,
  * and must return a `Promise` of the option values to populate the node's dropdown.

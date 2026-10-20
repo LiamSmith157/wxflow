@@ -9,7 +9,7 @@ export interface SwitchInputProps {
 
 /**
  * A reusable switch input with optional label.
- * Mirrors the original Flowise SwitchInput component.
+ * Mirrors the original wxflow SwitchInput component.
  */
 export function SwitchInput({ label, value, onChange, disabled = false }: SwitchInputProps) {
     const checked = value !== undefined ? !!value : false

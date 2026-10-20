@@ -6,7 +6,7 @@ import { type DeduplicatedClient, withDeduplication } from './deduplicatedClient
 
 /**
  * Creates a configured axios client for API calls
- * @param apiBaseUrl - Base URL of the Flowise server
+ * @param apiBaseUrl - Base URL of the wxflow server
  * @param token - Authentication token (optional)
  * @param requestInterceptor - Optional callback to customize outgoing requests
  */

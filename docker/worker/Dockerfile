@@ -51,5 +51,5 @@ RUN chown -R node:node /usr/src /app
 # Switch to non-root user
 USER node
 
-# Start healthcheck in background and flowise worker in foreground
+# Start healthcheck in background and wxflow worker in foreground
 CMD ["/bin/sh", "-c", "node /app/healthcheck/healthcheck.js & sleep 5 && pnpm run start-worker"]

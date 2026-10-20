@@ -316,7 +316,7 @@ describe('markdown formatting preservation', () => {
     })
 
     it('should roundtrip HTML anchor links', () => {
-        const input = 'Visit <a href="https://flowiseai.com">Flowise</a> for docs'
+        const input = 'Visit <a href="https://flowiseai.com">wxflow</a> for docs'
         expect(unescapeXmlTags(escapeXmlTags(input))).toBe(input)
     })
 })

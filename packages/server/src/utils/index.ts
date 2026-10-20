@@ -26,6 +26,8 @@ import {
     convertChatHistoryToText,
     handleEscapeCharacters,
     getEncryptionKeyPath,
+    getDefaultDataDir,
+    getEnv,
     ICommonObject,
     IDatabaseEntity,
     IMessage,
@@ -876,8 +878,9 @@ export const findAvailableConfigs = (reactFlowNodes: IReactFlowNode[], component
  * @returns {Promise<string>}
  */
 export const getEncryptionKey = async (): Promise<string> => {
-    if (process.env.FLOWISE_SECRETKEY_OVERWRITE !== undefined && process.env.FLOWISE_SECRETKEY_OVERWRITE !== '') {
-        return process.env.FLOWISE_SECRETKEY_OVERWRITE
+    const secretKeyOverwrite = getEnv('SECRETKEY_OVERWRITE')
+    if (secretKeyOverwrite !== undefined) {
+        return secretKeyOverwrite
     }
     if (USE_AWS_SECRETS_MANAGER && secretsManagerClient) {
         const secretId = process.env.SECRETKEY_AWS_NAME || 'FlowiseEncryptionKey'
@@ -908,7 +911,7 @@ export const getEncryptionKey = async (): Promise<string> => {
         const encryptKey = generateEncryptKey()
         const defaultLocation = process.env.SECRETKEY_PATH
             ? path.join(process.env.SECRETKEY_PATH, 'encryption.key')
-            : path.join(getUserHome(), '.flowise', 'encryption.key')
+            : path.join(getDefaultDataDir(), 'encryption.key')
         await fs.promises.writeFile(defaultLocation, encryptKey)
         return encryptKey
     }
@@ -992,7 +995,7 @@ export const generateEncryptKey = (): string => {
  * Used for file-based storage of TOKEN_HASH_SECRET, EXPRESS_SESSION_SECRET, JWT_*, etc.
  */
 export const getAuthSecretsDirectory = (): string => {
-    return process.env.SECRETKEY_PATH ? process.env.SECRETKEY_PATH : path.join(getUserHome(), '.flowise')
+    return process.env.SECRETKEY_PATH ? process.env.SECRETKEY_PATH : getDefaultDataDir()
 }
 
 /**
@@ -1231,7 +1234,7 @@ export const getAPIOverrideConfig = (chatflow: IChatFlow) => {
 export const getUploadPath = (): string => {
     return process.env.BLOB_STORAGE_PATH
         ? path.join(process.env.BLOB_STORAGE_PATH, 'uploads')
-        : path.join(getUserHome(), '.flowise', 'uploads')
+        : path.join(getDefaultDataDir(), 'uploads')
 }
 
 export function generateId() {

@@ -247,7 +247,7 @@ describe('initNode', () => {
         const nodeData = makeNodeDataSchema({
             filePath: '/some/server/path/Agent.js',
             badge: 'NEW',
-            author: 'Flowise',
+            author: 'wxflow',
             documentation: 'https://docs.example.com',
             tags: ['LLM', 'OpenAI'],
             loadMethods: { listModels: () => Promise.resolve([]) }

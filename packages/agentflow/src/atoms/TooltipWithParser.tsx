@@ -11,7 +11,7 @@ export interface TooltipWithParserProps {
 
 /**
  * An info-icon tooltip that parses HTML in the title string.
- * Mirrors the original Flowise TooltipWithParser component.
+ * Mirrors the original wxflow TooltipWithParser component.
  */
 export function TooltipWithParser({ title, sx }: TooltipWithParserProps) {
     const theme = useTheme()

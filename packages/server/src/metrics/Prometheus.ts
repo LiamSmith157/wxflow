@@ -23,7 +23,7 @@ export class Prometheus implements IMetricsProvider {
     }
 
     async initializeCounters(): Promise<void> {
-        const serviceName: string = process.env.METRICS_SERVICE_NAME || 'FlowiseAI'
+        const serviceName: string = process.env.METRICS_SERVICE_NAME || 'wxflow'
         this.register.setDefaultLabels({
             app: serviceName
         })
@@ -59,7 +59,7 @@ export class Prometheus implements IMetricsProvider {
         try {
             const versionGaugeCounter = new promClient.Gauge({
                 name: 'flowise_version_info',
-                help: 'Flowise version info.',
+                help: 'wxflow version info.',
                 labelNames: ['version'],
                 registers: [this.register] // Explicitly set the registry
             })

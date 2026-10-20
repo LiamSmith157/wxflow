@@ -43,19 +43,19 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - image: flowiseai/flowise
+                    - image: wxflow/wxflow
                       dockerfile: ./docker/Dockerfile
                       platform: linux/amd64
                       runner: ubuntu-latest
-                    - image: flowiseai/flowise
+                    - image: wxflow/wxflow
                       dockerfile: ./docker/Dockerfile
                       platform: linux/arm64
                       runner: ubuntu-24.04-arm
-                    - image: flowiseai/flowise-worker
+                    - image: wxflow/wxflow-worker
                       dockerfile: docker/worker/Dockerfile
                       platform: linux/amd64
                       runner: ubuntu-latest
-                    - image: flowiseai/flowise-worker
+                    - image: wxflow/wxflow-worker
                       dockerfile: docker/worker/Dockerfile
                       platform: linux/arm64
                       runner: ubuntu-24.04-arm
@@ -111,8 +111,8 @@ jobs:
             fail-fast: false
             matrix:
                 image:
-                    - flowiseai/flowise
-                    - flowiseai/flowise-worker
+                    - wxflow/wxflow
+                    - wxflow/wxflow-worker
         steps:
             - name: Prepare env
               run: |

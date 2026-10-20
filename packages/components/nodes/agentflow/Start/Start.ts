@@ -312,7 +312,7 @@ class Start_Agentflow implements INode {
                 label: 'Response Mode',
                 name: 'webhookResponseMode',
                 type: 'options',
-                description: 'How Flowise replies to the incoming webhook request.',
+                description: 'How wxflow replies to the incoming webhook request.',
                 options: [
                     {
                         label: 'Synchronous',
@@ -343,8 +343,8 @@ class Start_Agentflow implements INode {
                 name: 'callbackUrl',
                 type: 'string',
                 description:
-                    'Optional. Flowise will POST the flow result to this URL when the flow finishes. Leave blank for fire-and-forget — the flow still runs in the background, but no callback is delivered.',
-                placeholder: 'https://example.com/flowise-callback',
+                    'Optional. wxflow will POST the flow result to this URL when the flow finishes. Leave blank for fire-and-forget — the flow still runs in the background, but no callback is delivered.',
+                placeholder: 'https://example.com/wxflow-callback',
                 optional: true,
                 show: {
                     startInputType: 'webhookTrigger',
@@ -356,7 +356,7 @@ class Start_Agentflow implements INode {
                 name: 'callbackSecret',
                 type: 'string',
                 description:
-                    'Optional. If set, outgoing callback POSTs are signed with HMAC-SHA256 and delivered as X-Flowise-Signature: sha256=<hex> so your callback endpoint can verify the request came from Flowise.',
+                    'Optional. If set, outgoing callback POSTs are signed with HMAC-SHA256 and delivered as X-Wxflow-Signature: sha256=<hex> (also sent as the legacy X-Flowise-Signature) so your callback endpoint can verify the request came from wxflow.',
                 optional: true,
                 show: {
                     startInputType: 'webhookTrigger',

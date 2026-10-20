@@ -8,7 +8,7 @@ import type { FlowData, RequestInterceptor } from './core/types'
 import { AgentflowStateProvider, ApiProvider, ConfigProvider } from './infrastructure/store'
 
 interface AgentflowProviderProps {
-    /** Flowise API server endpoint */
+    /** wxflow API server endpoint */
     apiBaseUrl: string
     /** Authentication token for API calls */
     token?: string

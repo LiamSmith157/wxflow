@@ -5,6 +5,7 @@ import { transports } from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
 import { BaseStorageProvider } from './BaseStorageProvider'
 import { FileInfo, StorageResult, StorageSizeResult } from './IStorageProvider'
+import { getDefaultDataDir } from '../wxflowEnv'
 
 export class LocalStorageProvider extends BaseStorageProvider {
     constructor() {
@@ -343,15 +344,11 @@ export class LocalStorageProvider extends BaseStorageProvider {
     private getUploadPath(): string {
         return process.env.BLOB_STORAGE_PATH
             ? path.join(process.env.BLOB_STORAGE_PATH, 'uploads')
-            : path.join(this.getUserHome(), '.flowise', 'uploads')
-    }
-
-    private getUserHome(): string {
-        return process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || ''
+            : path.join(getDefaultDataDir(), 'uploads')
     }
 
     getLoggerTransports(logType: 'server' | 'error' | 'requests' | 'audit', config?: any): any[] {
-        const logDir = config?.logging?.dir || path.join(this.getUserHome(), '.flowise', 'logs')
+        const logDir = config?.logging?.dir || path.join(getDefaultDataDir(), 'logs')
 
         if (!fs.existsSync(logDir)) {
             fs.mkdirSync(logDir, { recursive: true })

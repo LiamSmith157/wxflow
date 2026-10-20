@@ -124,7 +124,7 @@ export class EvaluationRunner {
 
             const headers: any = {
                 'X-Request-ID': uuid,
-                'X-Flowise-Evaluation': 'true'
+                'X-Wxflow-Evaluation': 'true'
             }
             if (apiKey) {
                 headers['Authorization'] = `Bearer ${apiKey}`

@@ -110,7 +110,7 @@ export const defaultThemeConfig = {
     },
     disclaimer: {
         title: 'Disclaimer',
-        message: 'By using this chatbot, you agree to the <a target="_blank" href="https://flowiseai.com/terms">Terms & Condition</a>',
+        message: 'By using this chatbot, you agree to the Terms & Condition',
         textColor: 'black',
         buttonColor: '#3b82f6',
         buttonText: 'Start Chatting',
@@ -172,7 +172,7 @@ export const defaultThemeConfig = {
             textColor: '#303235',
             text: 'Powered by',
             company: 'wxflow',
-            companyLink: 'https://flowiseai.com'
+            companyLink: '#'
         }
     }
 }

@@ -1,8 +1,4 @@
 {
-    "announcement": {
-        "sunset": "We're sunsetting Flowise.",
-        "learnMore": "Learn more"
-    },
     "header": {
         "star": "Star",
         "loggingOut": "Logging out..."

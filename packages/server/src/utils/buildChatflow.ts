@@ -268,8 +268,8 @@ export const utilBuildChatflow = async (req: Request, isInternal: boolean = fals
     const chatId = incomingInput.chatId ?? incomingInput.overrideConfig?.sessionId ?? uuidv4()
     const files = (req.files as Express.Multer.File[]) || []
     const abortControllerId = `${chatflow.id}_${chatId}`
-    const isTool = req.get('flowise-tool') === 'true'
-    const isEvaluation: boolean = req.headers['X-Flowise-Evaluation'] || req.body.evaluation
+    const isTool = (req.get('wxflow-tool') ?? req.get('flowise-tool')) === 'true'
+    const isEvaluation: boolean = req.headers['X-Wxflow-Evaluation'] || req.headers['X-Flowise-Evaluation'] || req.body.evaluation
     const evaluationRunId = req.body.evaluationRunId
 
     let organizationId = ''

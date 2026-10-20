@@ -1,3 +1,3 @@
-## ⚠️ IMPORTANT NOTICE: PRODUCT SUNSET ⚠️
+# Security Policy
 
-Flowise is officially being sunset and will soon cease active maintenance or support. As a result, **we are no longer accepting new security vulnerability reports for this repository.** You can find more information [here](https://flowiseai.com/sunset).
+wxflow is built on [Flowise](https://github.com/FlowiseAI/Flowise), which is no longer maintained upstream. Security issues in wxflow are handled in this repository; report a suspected vulnerability privately to the repository maintainers rather than opening a public issue.

@@ -36,19 +36,19 @@ The examples app uses environment variables for configuration. To set up:
     cp .env.example .env
     ```
 
-2. Edit `.env` to configure your Flowise API server:
+2. Edit `.env` to configure your wxflow API server:
 
     ```bash
-    # Flowise API Base URL
+    # wxflow API Base URL
     VITE_INSTANCE_URL=http://localhost:3000
 
     # API Key (required for authenticated endpoints)
     VITE_API_TOKEN=your-api-key-here
     ```
 
-3. **Get your API Key from Flowise:**
+3. **Get your API Key from wxflow:**
 
-    - Open your Flowise instance (http://localhost:3000)
+    - Open your wxflow instance (http://localhost:3000)
     - Go to **Settings** → **API Keys**
     - Click **Create New Key**
     - Copy the generated key and paste it in `.env`
@@ -64,9 +64,9 @@ The examples app uses environment variables for configuration. To set up:
 
 | Variable            | Required            | Description                                                                                                                                                                                                         |
 | ------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `VITE_INSTANCE_URL` | No                  | Flowise API server endpoint (default: `http://localhost:3000`)                                                                                                                                                      |
-| `VITE_API_TOKEN`    | Yes (authenticated) | Flowise API Key — get from Settings → API Keys                                                                                                                                                                      |
-| `VITE_FLOW_ID`      | No                  | Agentflow ID to load on startup. When set, the canvas loads the saved flow from the database and enables Test Run and Run Status polling without saving first. Copy the ID from the Flowise URL: `/agentflows/<id>` |
+| `VITE_INSTANCE_URL` | No                  | wxflow API server endpoint (default: `http://localhost:3000`)                                                                                                                                                      |
+| `VITE_API_TOKEN`    | Yes (authenticated) | wxflow API Key — get from Settings → API Keys                                                                                                                                                                      |
+| `VITE_FLOW_ID`      | No                  | Agentflow ID to load on startup. When set, the canvas loads the saved flow from the database and enables Test Run and Run Status polling without saving first. Copy the ID from the wxflow URL: `/agentflows/<id>` |
 
 **Note**: The `.env` file is gitignored and will not be committed to version control. Add your actual API key to `.env`, not `.env.example`.
 
@@ -87,12 +87,12 @@ Common causes:
 
 3. **Invalid API Key**
 
-    - Regenerate key in Flowise: Settings → API Keys → Create New Key
+    - Regenerate key in wxflow: Settings → API Keys → Create New Key
     - Copy the new key to `.env`
 
 4. **CORS issues**
-    - Ensure Flowise allows requests from `http://localhost:5174`
-    - Check Flowise CORS configuration
+    - Ensure wxflow allows requests from `http://localhost:5174`
+    - Check wxflow CORS configuration
 
 ## Examples
 
@@ -109,7 +109,7 @@ Minimal canvas integration — no database calls:
 
 ### E2E — Live Instance (`E2eExample.tsx`)
 
-Full integration with a running Flowise instance. Requires `VITE_FLOW_ID` for the best experience:
+Full integration with a running wxflow instance. Requires `VITE_FLOW_ID` for the best experience:
 
 -   Loads the saved flow from the database on startup (`VITE_FLOW_ID`)
 -   Editable flow title synced to the database on save
@@ -173,7 +173,7 @@ Use the dropdown selector at the top of the page to switch between examples. All
 
 ## Requirements
 
-The examples work best with a running Flowise instance at `http://localhost:3000` for the node API. Without it:
+The examples work best with a running wxflow instance at `http://localhost:3000` for the node API. Without it:
 
 -   The canvas will render
 -   Initial flow data will display

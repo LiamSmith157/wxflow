@@ -40,7 +40,7 @@ describe('dispatchCallback', () => {
         })
     })
 
-    it('includes X-Flowise-Signature header when secret is provided', async () => {
+    it('includes both X-Wxflow-Signature and legacy X-Flowise-Signature headers when secret is provided', async () => {
         mockSecureAxiosRequest.mockResolvedValue({ status: 200 })
         const secret = 'my-secret'
         const body = JSON.stringify(PAYLOAD)
@@ -52,18 +52,20 @@ describe('dispatchCallback', () => {
                 url: URL,
                 data: body,
                 headers: expect.objectContaining({
+                    'X-Wxflow-Signature': expectedSignature(body, secret),
                     'X-Flowise-Signature': expectedSignature(body, secret)
                 })
             })
         )
     })
 
-    it('does not include X-Flowise-Signature when no secret is provided', async () => {
+    it('does not include signature headers when no secret is provided', async () => {
         mockSecureAxiosRequest.mockResolvedValue({ status: 200 })
 
         await dispatchCallback(URL, PAYLOAD)
 
         const call = mockSecureAxiosRequest.mock.calls[0]
+        expect(call[0].headers).not.toHaveProperty('X-Wxflow-Signature')
         expect(call[0].headers).not.toHaveProperty('X-Flowise-Signature')
     })
 

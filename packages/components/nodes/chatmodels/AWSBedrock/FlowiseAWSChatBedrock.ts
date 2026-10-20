@@ -1,5 +1,5 @@
 /**
- * Flowise wrapper around LangChain's ChatBedrockConverse.
+ * wxflow wrapper around LangChain's ChatBedrockConverse.
  *
  * Extends the base class with three Flowise-specific behaviors:
  *

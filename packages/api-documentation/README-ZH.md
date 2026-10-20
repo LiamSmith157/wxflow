@@ -1,16 +1,16 @@
 <!-- markdownlint-disable MD030 -->
 
-# Flowise API 文档
+# wxflow API 文档
 
 [English](./README.md) | 中文
 
-这是 Flowise 公共 API 的列表，允许用户以编程方式执行与 GUI 中相同的许多任务。
+这是 wxflow 公共 API 的列表，允许用户以编程方式执行与 GUI 中相同的许多任务。
 
 独立运行：
 
-1. 启动 Flowise 服务器：
+1. 启动 wxflow 服务器：
     ```sh
-    cd Flowise
+    cd wxflow
     pnpm start
     ```
 2. 启动 API 文档服务器：
@@ -22,7 +22,7 @@
 开发模式下运行：
 
 ```sh
-cd Flowise
+cd wxflow
 pnpm dev
 ```
 

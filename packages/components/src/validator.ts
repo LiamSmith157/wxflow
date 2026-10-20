@@ -1,6 +1,7 @@
 import path from 'path'
 import sanitize from 'sanitize-filename'
 import { getUserHome, isAllowedUploadMimeType, mapMimeTypeToExt } from './utils'
+import { getDefaultDataDir } from './wxflowEnv'
 
 /**
  * Validates if a string is a valid UUID v4
@@ -187,9 +188,8 @@ export const filterAllowedUploadMimeTypes = (mimeTypes: string[]): string[] => {
 const getAllowedVectorStoreBaseDirs = (): string[] => {
     const allowedDirs: string[] = []
 
-    // Allow user home .flowise directory
-    const userHome = getUserHome()
-    allowedDirs.push(path.join(userHome, '.flowise'))
+    // Allow user home data directory
+    allowedDirs.push(getDefaultDataDir())
 
     // Allow configured blob storage path if set
     if (process.env.BLOB_STORAGE_PATH) {
@@ -212,15 +212,15 @@ const getAllowedVectorStoreBaseDirs = (): string[] => {
 export const validateVectorStorePath = (userProvidedPath: string | undefined): string => {
     if (process.env.PATH_TRAVERSAL_SAFETY === 'false') {
         if (!userProvidedPath || userProvidedPath.trim() === '') {
-            return path.join(getUserHome(), '.flowise', 'vectorstore')
+            return path.join(getDefaultDataDir(), 'vectorstore')
         }
         const bypassPath = userProvidedPath.trim()
-        return path.isAbsolute(bypassPath) ? bypassPath : path.resolve(path.join(getUserHome(), '.flowise', bypassPath))
+        return path.isAbsolute(bypassPath) ? bypassPath : path.resolve(path.join(getDefaultDataDir(), bypassPath))
     }
 
     // If no path provided, use default secure location
     if (!userProvidedPath || userProvidedPath.trim() === '') {
-        return path.join(getUserHome(), '.flowise', 'vectorstore')
+        return path.join(getDefaultDataDir(), 'vectorstore')
     }
 
     const basePath = userProvidedPath.trim()
@@ -253,14 +253,14 @@ export const validateVectorStorePath = (userProvidedPath: string | undefined): s
     }
 
     // Resolve to absolute path
-    // If path is relative, resolve it relative to the .flowise directory (safe default)
+    // If path is relative, resolve it relative to the data directory (safe default)
     // If path is already absolute, keep it as-is
     let resolvedPath: string
     if (path.isAbsolute(basePath)) {
         resolvedPath = path.resolve(basePath)
     } else {
-        // Relative paths are resolved within the .flowise directory for safety
-        resolvedPath = path.resolve(path.join(getUserHome(), '.flowise', basePath))
+        // Relative paths are resolved within the data directory for safety
+        resolvedPath = path.resolve(path.join(getDefaultDataDir(), basePath))
     }
 
     // Verify the resolved path doesn't contain '..' after resolution
@@ -286,7 +286,7 @@ export const validateVectorStorePath = (userProvidedPath: string | undefined): s
 }
 
 const getAllowedSQLiteBaseDirs = (): string[] => {
-    const dirs = [path.join(getUserHome(), '.flowise')]
+    const dirs = [getDefaultDataDir()]
     if (process.env.DATABASE_PATH) {
         dirs.push(path.resolve(process.env.DATABASE_PATH))
     }
@@ -310,8 +310,8 @@ const isPathWithinAllowedSQLiteDirs = (resolvedPath: string, allowedDirs: string
  * Validates and sanitizes a SQLite database file path to prevent path traversal
  * and arbitrary file write attacks.
  *
- * Relative paths are resolved within ~/.flowise/. Absolute paths must fall inside
- * ~/.flowise/ or DATABASE_PATH when set. Set PATH_TRAVERSAL_SAFETY=false to bypass all checks (not recommended).
+ * Relative paths are resolved within the data directory (~/.wxflow/). Absolute paths must fall inside
+ * the data directory (~/.wxflow/) or DATABASE_PATH when set. Set PATH_TRAVERSAL_SAFETY=false to bypass all checks (not recommended).
  *
  * @param {string | undefined} userProvidedPath - File path supplied by the user in the node config
  * @returns {string} A validated, absolute path within an allowed base directory

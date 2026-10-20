@@ -46,7 +46,7 @@ class AWSApi implements INodeCredential {
                 type: 'string',
                 placeholder: 'arn:aws:iam::123456789012:role/role-name',
                 description:
-                    'The Amazon Resource Name (ARN) of the IAM role to assume. When provided, Flowise will use AWS STS AssumeRole to obtain temporary credentials. Leave empty to use static credentials directly.',
+                    'The Amazon Resource Name (ARN) of the IAM role to assume. When provided, wxflow will use AWS STS AssumeRole to obtain temporary credentials. Leave empty to use static credentials directly.',
                 optional: true
             },
             {

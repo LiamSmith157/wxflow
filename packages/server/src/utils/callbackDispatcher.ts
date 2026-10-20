@@ -12,7 +12,12 @@ function sign(body: string, secret: string): string {
 export async function dispatchCallback(url: string, payload: Record<string, unknown>, secret?: string): Promise<void> {
     const body = JSON.stringify(payload)
     const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-    if (secret) headers['X-Flowise-Signature'] = sign(body, secret)
+    if (secret) {
+        const signature = sign(body, secret)
+        headers['X-Wxflow-Signature'] = signature
+        // legacy header, kept so existing receivers keep verifying
+        headers['X-Flowise-Signature'] = signature
+    }
 
     for (let attempt = 0; attempt < RETRY_DELAYS.length; attempt++) {
         if (RETRY_DELAYS[attempt] > 0) {

@@ -5,7 +5,6 @@ import { render, screen, act, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 
 import i18n from '@/i18n'
-import AnnouncementBanner from './AnnouncementBanner'
 import TrialInfo from './Sidebar/TrialInfo'
 import ViewHeader from './ViewHeader'
 
@@ -22,15 +21,6 @@ const setLanguage = (lng) =>
 
 describe('layout text', () => {
     beforeEach(() => setLanguage('en'))
-
-    it('translates the announcement banner', async () => {
-        render(<AnnouncementBanner />)
-        expect(screen.getByText(/We're sunsetting Flowise/)).toBeInTheDocument()
-        await setLanguage('zh-CN')
-        expect(screen.getByText(/Flowise 即将停止维护/)).toBeInTheDocument()
-        expect(screen.getByText('了解更多')).toBeInTheDocument()
-        expect(screen.queryByText('Learn more')).not.toBeInTheDocument()
-    })
 
     it('translates the trial info sentence with its highlighted days', async () => {
         render(<TrialInfo billingPortalUrl='#' isLoading={false} paymentMethodExists={false} trialDaysLeft={5} />)

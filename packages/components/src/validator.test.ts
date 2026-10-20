@@ -10,6 +10,7 @@ import {
 } from './validator'
 import path from 'path'
 import { getUserHome } from './utils'
+import { getDefaultDataDir } from './wxflowEnv'
 import * as utils from './utils'
 
 describe('isPathTraversal', () => {
@@ -264,34 +265,34 @@ describe('validateMimeTypeAndExtensionMatch', () => {
 
 describe('validateVectorStorePath', () => {
     const userHome = getUserHome()
-    const defaultFlowisePath = path.join(userHome, '.flowise')
+    const defaultFlowisePath = getDefaultDataDir()
 
     describe('valid paths', () => {
         it('should return default path when no path is provided', () => {
             const result = validateVectorStorePath(undefined)
-            expect(result).toBe(path.join(userHome, '.flowise', 'vectorstore'))
+            expect(result).toBe(path.join(getDefaultDataDir(), 'vectorstore'))
         })
 
         it('should return default path when empty string is provided', () => {
             const result = validateVectorStorePath('')
-            expect(result).toBe(path.join(userHome, '.flowise', 'vectorstore'))
+            expect(result).toBe(path.join(getDefaultDataDir(), 'vectorstore'))
         })
 
         it('should return default path when whitespace string is provided', () => {
             const result = validateVectorStorePath('   ')
-            expect(result).toBe(path.join(userHome, '.flowise', 'vectorstore'))
+            expect(result).toBe(path.join(getDefaultDataDir(), 'vectorstore'))
         })
 
-        it('should accept relative path within .flowise directory', () => {
+        it('should accept relative path within the data directory directory', () => {
             const relativePath = 'vectorstore/faiss'
             const result = validateVectorStorePath(relativePath)
 
-            // Should resolve to absolute path within .flowise
+            // Should resolve to absolute path within the data directory
             expect(path.isAbsolute(result)).toBe(true)
-            expect(result).toContain('.flowise')
+            expect(result).toContain(path.basename(getDefaultDataDir()))
         })
 
-        it('should accept absolute path within .flowise directory', () => {
+        it('should accept absolute path within the data directory directory', () => {
             const absolutePath = path.join(defaultFlowisePath, 'vectorstore', 'test')
             const result = validateVectorStorePath(absolutePath)
 
@@ -378,7 +379,7 @@ describe('validateVectorStorePath', () => {
             }
         })
 
-        it('should reject path to user home root (outside .flowise)', () => {
+        it('should reject path to user home root (outside the data directory)', () => {
             const homeRootPath = path.join(userHome, 'Documents', 'vectorstore')
 
             expect(() => {
@@ -415,7 +416,7 @@ describe('validateVectorStorePath', () => {
             expect(result).toBe(testPath)
         })
 
-        it('should allow path within .flowise even when BLOB_STORAGE_PATH is configured', () => {
+        it('should allow path within the data directory even when BLOB_STORAGE_PATH is configured', () => {
             process.env.BLOB_STORAGE_PATH = path.join(userHome, 'custom-storage')
 
             const flowisePath = path.join(defaultFlowisePath, 'vectorstore')
@@ -472,33 +473,33 @@ describe('validateVectorStorePath', () => {
 
         it('should return default path when undefined', () => {
             const userHome = getUserHome()
-            expect(validateVectorStorePath(undefined)).toBe(path.join(userHome, '.flowise', 'vectorstore'))
+            expect(validateVectorStorePath(undefined)).toBe(path.join(getDefaultDataDir(), 'vectorstore'))
         })
     })
 })
 
 describe('validateSQLitePath', () => {
     const userHome = getUserHome()
-    const defaultFlowiseDir = path.join(userHome, '.flowise')
+    const defaultFlowiseDir = getDefaultDataDir()
 
     describe('valid paths', () => {
-        it('should resolve a simple filename to ~/.flowise/<filename>', () => {
+        it('should resolve a simple filename to the data directory/<filename>', () => {
             const result = validateSQLitePath('mydb.sqlite')
             expect(result).toBe(path.join(defaultFlowiseDir, 'mydb.sqlite'))
         })
 
-        it('should resolve a relative subdirectory path within ~/.flowise', () => {
+        it('should resolve a relative subdirectory path within the data directory', () => {
             const result = validateSQLitePath('dbs/mydb.sqlite')
             expect(result).toBe(path.join(defaultFlowiseDir, 'dbs', 'mydb.sqlite'))
         })
 
-        it('should accept an absolute path within ~/.flowise', () => {
+        it('should accept an absolute path within the data directory', () => {
             const absolutePath = path.join(defaultFlowiseDir, 'mydb.sqlite')
             const result = validateSQLitePath(absolutePath)
             expect(result).toBe(absolutePath)
         })
 
-        it('should accept an absolute path in a nested directory within ~/.flowise', () => {
+        it('should accept an absolute path in a nested directory within the data directory', () => {
             const absolutePath = path.join(defaultFlowiseDir, 'dbs', 'project', 'mydb.sqlite')
             const result = validateSQLitePath(absolutePath)
             expect(result).toBe(absolutePath)
@@ -582,7 +583,7 @@ describe('validateSQLitePath', () => {
             )
         })
 
-        it('should reject path to home directory outside .flowise', () => {
+        it('should reject path to home directory outside the data directory', () => {
             const outsidePath = path.join(userHome, 'Documents', 'db.sqlite')
             expect(() => validateSQLitePath(outsidePath)).toThrow(/Invalid SQLite path: path must be within/)
         })
@@ -606,7 +607,7 @@ describe('validateSQLitePath', () => {
             expect(validateSQLitePath(dbPath)).toBe(path.resolve(dbPath))
         })
 
-        it('should still reject paths outside DATABASE_PATH and .flowise', () => {
+        it('should still reject paths outside DATABASE_PATH and the data directory', () => {
             process.env.DATABASE_PATH = path.join(userHome, 'custom-flowise-data')
             expect(() => validateSQLitePath('/etc/chromium/exploit.conf')).toThrow(/Invalid SQLite path:/)
         })
@@ -637,7 +638,7 @@ describe('validateSQLitePath', () => {
             expect(validateSQLitePath(undefined)).toBe(path.join(defaultFlowiseDir, 'database.sqlite'))
         })
 
-        it('should resolve relative path within .flowise when no absolute path given', () => {
+        it('should resolve relative path within the data directory when no absolute path given', () => {
             const result = validateSQLitePath('test.db')
             expect(result).toBe(path.join(defaultFlowiseDir, 'test.db'))
         })
@@ -657,13 +658,13 @@ describe('validateSQLitePath', () => {
         })
 
         it('should accept a valid path whose casing differs from the allowed directory', () => {
-            // allowedDir = /Users/TestUser/.flowise (mixed case from getUserHome mock)
-            // user input  = /users/testuser/.flowise/mydb.sqlite (all lowercase)
-            const result = validateSQLitePath('/users/testuser/.flowise/mydb.sqlite')
-            expect(result).toBe('/users/testuser/.flowise/mydb.sqlite')
+            // allowedDir = /Users/TestUser/.wxflow (mixed case from getUserHome mock)
+            // user input  = /users/testuser/.wxflow/mydb.sqlite (all lowercase)
+            const result = validateSQLitePath('/users/testuser/.wxflow/mydb.sqlite')
+            expect(result).toBe('/users/testuser/.wxflow/mydb.sqlite')
         })
 
-        it('should still reject a path outside .flowise even after case normalisation', () => {
+        it('should still reject a path outside the data directory even after case normalisation', () => {
             expect(() => validateSQLitePath('/users/testuser/documents/mydb.sqlite')).toThrow(/Invalid SQLite path:/)
         })
     })

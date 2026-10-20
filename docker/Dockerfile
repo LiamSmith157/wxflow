@@ -12,11 +12,11 @@ RUN apk add --no-cache git python3 py3-pip make g++ build-base cairo-dev pango-d
 # Skip downloading Chrome for Puppeteer (saves build time)
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
-# Install latest Flowise globally (specific version can be set: flowise@1.0.0)
+# Install latest wxflow globally (specific version can be set: wxflow-server@0.0.1)
 # npm dedupe is required after install: npm's overrides resolver does not
 # consistently collapse every duplicate of an overridden package in one pass
 # on a tree this size/complexity
-RUN npm install -g flowise && npm --prefix "$(npm root -g)/flowise" dedupe
+RUN npm install -g wxflow-server && npm --prefix "$(npm root -g)/wxflow-server" dedupe
 
 # Stage 2: Runtime stage
 FROM node:${NODE_VERSION}-alpine
@@ -27,7 +27,7 @@ RUN apk add --no-cache chromium git python3 py3-pip make g++ build-base cairo-de
 # Set the environment variable for Puppeteer to find Chromium
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-# Copy Flowise from the build stage
+# Copy wxflow from the build stage
 COPY --from=build /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=build /usr/local/bin /usr/local/bin
 
@@ -37,4 +37,4 @@ RUN chown -R node:node /usr/local/lib/node_modules /usr/local/bin
 # Switch to non-root user
 USER node
 
-ENTRYPOINT ["flowise", "start"]
+ENTRYPOINT ["wxflow", "start"]

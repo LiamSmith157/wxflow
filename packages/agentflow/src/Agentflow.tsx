@@ -391,7 +391,7 @@ function AgentflowCanvas({
  * function App() {
  *   return (
  *     <Agentflow
- *       apiBaseUrl="https://flowise-url.com"
+ *       apiBaseUrl="https://wxflow-url.com"
  *       token="your-auth-token"
  *       components={['agentAgentflow', 'llmAgentflow']}
  *     />

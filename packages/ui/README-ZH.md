@@ -4,9 +4,7 @@
 
 [English](./README.md) | 中文
 
-Flowise 的 React 前端界面。
-
-![Flowise](https://github.com/FlowiseAI/Flowise/blob/main/images/flowise_agentflow.gif?raw=true)
+wxflow 的 React 前端界面。
 
 安装：
 
@@ -59,4 +57,4 @@ pnpm --filter wxflow-ui i18n:extract-nodes out.json     # 导出带类别的英�
 
 ## 许可证
 
-本仓库中的源代码在[Apache License Version 2.0 许可证](https://github.com/FlowiseAI/Flowise/blob/master/LICENSE.md)下提供。
+本仓库中的源代码在[Apache License Version 2.0 许可证](../../LICENSE.md)下提供。

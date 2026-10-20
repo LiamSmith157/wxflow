@@ -115,7 +115,7 @@ class Pipedream_MCP implements INode {
                 name: 'externalUserId',
                 type: 'string',
                 description:
-                    'A unique identifier for your end user (e.g. email or user ID from your system). Supports Flowise variables (e.g. <code>{{$vars.user_email}}</code>) and flow variables (e.g. <code>{{$flow.sessionId}}</code>).',
+                    'A unique identifier for your end user (e.g. email or user ID from your system). Supports wxflow variables (e.g. <code>{{$vars.user_email}}</code>) and flow variables (e.g. <code>{{$flow.sessionId}}</code>).',
                 acceptVariable: true,
                 placeholder: '{{$vars.user_email}}'
             },

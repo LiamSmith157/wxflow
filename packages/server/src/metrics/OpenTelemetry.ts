@@ -48,7 +48,7 @@ export class OpenTelemetry implements IMetricsProvider {
             const flowiseVersion = await getVersion()
 
             this.resource = new Resource({
-                [ATTR_SERVICE_NAME]: process.env.METRICS_SERVICE_NAME || 'FlowiseAI',
+                [ATTR_SERVICE_NAME]: process.env.METRICS_SERVICE_NAME || 'wxflow',
                 [ATTR_SERVICE_VERSION]: flowiseVersion.version // Version as a label
             })
 
@@ -132,7 +132,7 @@ export class OpenTelemetry implements IMetricsProvider {
                 // Add version gauge if not already created
                 if (!createdMetrics.has('flowise_version')) {
                     const versionGuage = meter.createGauge('flowise_version', {
-                        description: 'Flowise version'
+                        description: 'wxflow version'
                     })
                     // remove the last dot from the version string, e.g. 2.1.3 -> 2.13 (gauge needs a number - float)
                     const formattedVersion = flowiseVersion.version.replace(/\.(\d+)$/, '$1')

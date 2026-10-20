@@ -18,7 +18,7 @@ export interface MockRequestOptions {
  * all properties accessed by utilBuildChatflow():
  *   - req.params.id
  *   - req.body (question, streaming, form, etc.)
- *   - req.get(header) (host, x-forwarded-proto, flowise-tool)
+ *   - req.get(header) (host, x-forwarded-proto, wxflow-tool)
  *   - req.protocol
  *   - req.headers
  *   - req.files

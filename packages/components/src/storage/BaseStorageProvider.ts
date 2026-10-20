@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import sanitize from 'sanitize-filename'
-import { getUserHome } from '../utils'
 import { isPathTraversal, isUnsafeFilePath, isValidUUID } from '../validator'
 import { FileInfo, IStorageProvider, StorageResult, StorageSizeResult } from './IStorageProvider'
+import { getDefaultDataDir } from '../wxflowEnv'
 
 export abstract class BaseStorageProvider implements IStorageProvider {
     protected storagePath: string
@@ -62,7 +62,7 @@ export abstract class BaseStorageProvider implements IStorageProvider {
     protected getStoragePath(): string {
         const storagePath = process.env.BLOB_STORAGE_PATH
             ? path.join(process.env.BLOB_STORAGE_PATH)
-            : path.join(getUserHome(), '.flowise', 'storage')
+            : path.join(getDefaultDataDir(), 'storage')
 
         if (!fs.existsSync(storagePath)) {
             fs.mkdirSync(storagePath, { recursive: true })

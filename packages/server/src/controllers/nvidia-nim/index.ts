@@ -10,7 +10,7 @@ const getToken = async (req: Request, res: Response, next: NextFunction) => {
             Accept: 'application/json'
         }
         const data = {
-            client_id: 'Flowise',
+            client_id: 'wxflow',
             pdi: '0x1234567890abcdeg',
             access_policy_name: 'nim-dev'
         }
