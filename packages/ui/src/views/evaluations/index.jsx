@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import * as PropTypes from 'prop-types'
 import moment from 'moment/moment'
 import { useNavigate } from 'react-router-dom'
@@ -62,6 +63,7 @@ import {
 import empty_evalSVG from '@/assets/images/empty_evals.svg'
 
 const EvalsEvaluation = () => {
+    const { t } = useTranslation('evaluations')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const { confirm } = useConfirm()
@@ -129,8 +131,8 @@ const EvalsEvaluation = () => {
     const createEvaluation = () => {
         const dialogProp = {
             type: 'ADD',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Start New Evaluation',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('startNewEvaluation'),
             data: {}
         }
         setDialogProps(dialogProp)
@@ -139,12 +141,10 @@ const EvalsEvaluation = () => {
 
     const deleteEvaluationsAllVersions = async () => {
         const confirmPayload = {
-            title: `Delete`,
-            description: `Delete ${selected.length} ${
-                selected.length > 1 ? 'evaluations' : 'evaluation'
-            }? This will delete all versions of the evaluation.`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('delete'),
+            description: t('deleteEvaluationsAll', { count: selected.length }),
+            confirmButtonName: t('common:delete'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -154,7 +154,7 @@ const EvalsEvaluation = () => {
                 const deleteResp = await evaluationApi.deleteEvaluations(selected, isDeleteAllVersion)
                 if (deleteResp.data) {
                     enqueueSnackbar({
-                        message: `${selected.length} ${selected.length > 1 ? 'evaluations' : 'evaluation'} deleted`,
+                        message: t('evaluationsDeleted', { count: selected.length }),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -169,9 +169,10 @@ const EvalsEvaluation = () => {
                 }
             } catch (error) {
                 enqueueSnackbar({
-                    message: `Failed to delete ${selected.length > 1 ? 'evaluations' : 'evaluation'}: ${
-                        typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                    }`,
+                    message: t('failedToDeleteEvaluations', {
+                        count: selected.length,
+                        error: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                    }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -241,11 +242,12 @@ const EvalsEvaluation = () => {
         if (createNewEvaluation.error) {
             // Change to Notifstack
             enqueueSnackbar({
-                message: `Failed to create new evaluation: ${
-                    typeof createNewEvaluation.error.response?.data === 'object'
-                        ? createNewEvaluation.error.response.data.message
-                        : createNewEvaluation.error.response?.data || createNewEvaluation.error.message || 'Unknown error'
-                }`,
+                message: t('failedToCreateNewEvaluation', {
+                    v1:
+                        typeof createNewEvaluation.error.response?.data === 'object'
+                            ? createNewEvaluation.error.response.data.message
+                            : createNewEvaluation.error.response?.data || createNewEvaluation.error.message || 'Unknown error'
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -341,7 +343,7 @@ const EvalsEvaluation = () => {
                                     }
                                 }}
                                 onClick={onRefresh}
-                                title='Refresh'
+                                title={t('common:refresh')}
                             >
                                 <IconRefresh />
                             </IconButton>
@@ -351,7 +353,7 @@ const EvalsEvaluation = () => {
                                 onClick={createEvaluation}
                                 startIcon={<IconPlus />}
                             >
-                                New Evaluation
+                                {t('newEvaluation')}
                             </StyledPermissionButton>
                         </ViewHeader>
                         {selected.length > 0 && (
@@ -375,7 +377,7 @@ const EvalsEvaluation = () => {
                                         alt='empty_evalSVG'
                                     />
                                 </Box>
-                                <div>No Evaluations Yet</div>
+                                <div>{t('noEvaluationsYet')}</div>
                             </Stack>
                         ) : (
                             <>
@@ -404,12 +406,12 @@ const EvalsEvaluation = () => {
                                                     />
                                                 </TableCell>
                                                 <TableCell width={10}> </TableCell>
-                                                <TableCell>Name</TableCell>
-                                                <TableCell>Latest Version</TableCell>
-                                                <TableCell>Average Metrics</TableCell>
-                                                <TableCell>Last Evaluated</TableCell>
-                                                <TableCell>Flow(s)</TableCell>
-                                                <TableCell>Dataset</TableCell>
+                                                <TableCell>{t('common:name')}</TableCell>
+                                                <TableCell>{t('latestVersion')}</TableCell>
+                                                <TableCell>{t('averageMetrics')}</TableCell>
+                                                <TableCell>{t('lastEvaluated')}</TableCell>
+                                                <TableCell>{t('flowS')}</TableCell>
+                                                <TableCell>{t('dataset2')}</TableCell>
                                                 <TableCell> </TableCell>
                                             </TableRow>
                                         </TableHead>
@@ -506,6 +508,7 @@ const EvalsEvaluation = () => {
 }
 
 function EvaluationRunRow(props) {
+    const { t } = useTranslation('evaluations')
     const enqueueSnackbar = (...args) => dispatch(enqueueSnackbarAction(...args))
     const closeSnackbar = (...args) => dispatch(closeSnackbarAction(...args))
 
@@ -552,10 +555,10 @@ function EvaluationRunRow(props) {
 
     const deleteChildEvaluations = async () => {
         const confirmPayload = {
-            title: `Delete`,
-            description: `Delete ${childSelected.length} ${childSelected.length > 1 ? 'evaluations' : 'evaluation'}?`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('delete'),
+            description: t('deleteEvaluations', { count: childSelected.length }),
+            confirmButtonName: t('common:delete'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -564,7 +567,7 @@ function EvaluationRunRow(props) {
                 const deleteResp = await evaluationApi.deleteEvaluations(childSelected)
                 if (deleteResp.data) {
                     enqueueSnackbar({
-                        message: `${childSelected.length} evaluations deleted.`,
+                        message: t('v1EvaluationsDeleted', { v1: childSelected.length }),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -579,9 +582,9 @@ function EvaluationRunRow(props) {
                 }
             } catch (error) {
                 enqueueSnackbar({
-                    message: `Failed to delete Evaluation: ${
-                        typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                    }`,
+                    message: t('failedToDeleteEvaluationV1', {
+                        v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                    }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -726,7 +729,7 @@ function EvaluationRunRow(props) {
                 </StyledTableCell>
                 <TableCell>
                     <IconButton
-                        title='View Results'
+                        title={t('viewResults')}
                         color='primary'
                         disabled={props.item.status === 'pending'}
                         onClick={() => showResults(props.item)}
@@ -766,10 +769,10 @@ function EvaluationRunRow(props) {
                                                         onChange={onSelectAllChildClick}
                                                     />
                                                 </TableCell>
-                                                <TableCell>Version</TableCell>
-                                                <TableCell>Last Run</TableCell>
-                                                <TableCell>Average Metrics</TableCell>
-                                                <TableCell>Status</TableCell>
+                                                <TableCell>{t('version')}</TableCell>
+                                                <TableCell>{t('lastRun')}</TableCell>
+                                                <TableCell>{t('averageMetrics')}</TableCell>
+                                                <TableCell>{t('common:status')}</TableCell>
                                                 <TableCell> </TableCell>
                                             </TableRow>
                                         </TableHead>
@@ -861,7 +864,7 @@ function EvaluationRunRow(props) {
                                                             </StyledTableCell>
                                                             <StyledTableCell>
                                                                 <IconButton
-                                                                    title='View Results'
+                                                                    title={t('viewResults')}
                                                                     color='primary'
                                                                     disabled={childItem.status === 'pending'}
                                                                     onClick={() => showResults(childItem)}

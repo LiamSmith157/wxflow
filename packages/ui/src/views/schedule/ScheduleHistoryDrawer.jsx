@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import { td } from '@/i18n/dynamic'
+import i18n from '@/i18n'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 import moment from 'moment'
@@ -68,6 +71,7 @@ const STATUS_META = {
 
 const StatusCell = ({ status }) => {
     const theme = useTheme()
+    useTranslation('misc') // re-render the status label when the language changes
     const meta = STATUS_META[status] ?? STATUS_META.QUEUED
     const isSpin = status === 'RUNNING'
     const Icon = meta.Icon
@@ -81,7 +85,7 @@ const StatusCell = ({ status }) => {
                 />
             </Box>
             <Typography variant='body2' sx={{ color: meta.color, fontWeight: 500 }}>
-                {meta.label}
+                {td(meta.label)}
             </Typography>
         </Stack>
     )
@@ -146,7 +150,7 @@ const fmtDateInTz = (date, timezone) => {
 const fmtNextRun = (date) => {
     if (!date) return { text: '—', overdue: false }
     const m = moment(date)
-    if (m.isBefore(moment())) return { text: 'due now', overdue: true }
+    if (m.isBefore(moment())) return { text: i18n.t('misc:dueNow'), overdue: true }
     return { text: m.fromNow(), overdue: false }
 }
 const fmtDuration = (ms) => {
@@ -187,6 +191,7 @@ const cronHumanize = (cron, timezone) => {
 // ─── Main drawer ─────────────────────────────────────────────────────────────
 
 const ScheduleHistoryDrawer = ({ open, chatflowid, onClose }) => {
+    const { t } = useTranslation('misc')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
 
@@ -332,7 +337,7 @@ const ScheduleHistoryDrawer = ({ open, chatflowid, onClose }) => {
             } catch (e) {
                 setErrorModal({
                     open: true,
-                    title: 'Could not load execution',
+                    title: t('couldNotLoadExecution'),
                     message: e?.response?.data?.message || e?.message || 'Unknown error'
                 })
             }
@@ -376,9 +381,9 @@ const ScheduleHistoryDrawer = ({ open, chatflowid, onClose }) => {
             const resp = await chatflowsApi.deleteScheduleTriggerLogs(chatflowid, selectedIds)
             const data = resp?.data ?? {}
             enqueueSnackbar({
-                message: `Deleted ${data.deletedLogs ?? selectedIds.length} log${
-                    (data.deletedLogs ?? selectedIds.length) === 1 ? '' : 's'
-                }${data.deletedExecutions ? ` and ${data.deletedExecutions} execution${data.deletedExecutions === 1 ? '' : 's'}` : ''}`,
+                message: `${t('logsDeleted', { count: data.deletedLogs ?? selectedIds.length })}${
+                    data.deletedExecutions ? t('executionsAnd', { count: data.deletedExecutions }) : ''
+                }`,
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
@@ -442,7 +447,7 @@ const ScheduleHistoryDrawer = ({ open, chatflowid, onClose }) => {
             >
                 {/* Left-edge drag handle: click-and-drag to resize */}
                 <button
-                    aria-label='Resize drawer'
+                    aria-label={t('resizeDrawer')}
                     style={{
                         position: 'absolute',
                         left: 0,
@@ -487,7 +492,7 @@ const ScheduleHistoryDrawer = ({ open, chatflowid, onClose }) => {
                         <Stack direction='row' alignItems='center' spacing={1.5}>
                             <IconCalendar size={20} />
                             <Typography variant='h4' sx={{ m: 0 }}>
-                                Schedule History
+                                {t('scheduleHistory')}
                             </Typography>
                         </Stack>
                         <IconButton onClick={onClose} size='small' aria-label='close'>
@@ -525,7 +530,7 @@ const ScheduleHistoryDrawer = ({ open, chatflowid, onClose }) => {
                     <Stack direction='row' spacing={3} sx={{ mt: 1 }}>
                         <Box>
                             <Typography variant='caption' color='text.secondary'>
-                                Last run
+                                {t('lastRun')}
                             </Typography>
                             <Tooltip title={lastLog ? fmtDate(lastLog.scheduledAt) : ''}>
                                 <Typography variant='body2'>{lastLog ? relTime(lastLog.scheduledAt) : '—'}</Typography>
@@ -533,7 +538,7 @@ const ScheduleHistoryDrawer = ({ open, chatflowid, onClose }) => {
                         </Box>
                         <Box>
                             <Typography variant='caption' color='text.secondary'>
-                                Next run
+                                {t('nextRun')}
                             </Typography>
                             {(() => {
                                 if (!enabled || !nextRunAt) {
@@ -569,7 +574,7 @@ const ScheduleHistoryDrawer = ({ open, chatflowid, onClose }) => {
                     </Stack>
 
                     <Stack direction='row' alignItems='center' spacing={1} sx={{ mt: 2 }}>
-                        <Tooltip title='Refresh'>
+                        <Tooltip title={t('common:refresh')}>
                             <IconButton size='small' onClick={fetchAll} disabled={logsApi.loading}>
                                 <IconRefresh size={16} color={customization?.isDarkMode ? 'white' : undefined} />
                             </IconButton>
@@ -577,7 +582,7 @@ const ScheduleHistoryDrawer = ({ open, chatflowid, onClose }) => {
                         <FormControlLabel
                             sx={{ m: 0 }}
                             control={<Switch size='small' checked={autoRefresh} onChange={(e) => setAutoRefresh(e.target.checked)} />}
-                            label={<Typography variant='caption'>Auto-refresh</Typography>}
+                            label={<Typography variant='caption'>{t('autoRefresh')}</Typography>}
                         />
                         <Box sx={{ flex: 1 }} />
                         <Tooltip title={selectedIds.length === 0 ? 'Select rows to delete' : `Delete ${selectedIds.length} selected`}>
@@ -628,7 +633,7 @@ const ScheduleHistoryDrawer = ({ open, chatflowid, onClose }) => {
                         <Box sx={{ p: 6, textAlign: 'center', color: 'text.secondary' }}>
                             <IconClock size={40} style={{ opacity: 0.4 }} />
                             <Typography variant='body2' sx={{ mt: 2 }}>
-                                No runs yet.
+                                {t('noRunsYet')}
                                 {enabled && nextRunAt ? ` Next fire ${relTime(nextRunAt)}.` : ''}
                             </Typography>
                         </Box>
@@ -646,10 +651,10 @@ const ScheduleHistoryDrawer = ({ open, chatflowid, onClose }) => {
                                                 inputProps={{ 'aria-label': 'Select all rows on page' }}
                                             />
                                         </StyledTableCell>
-                                        <StyledTableCell>Status</StyledTableCell>
-                                        <StyledTableCell>Scheduled At</StyledTableCell>
-                                        <StyledTableCell>Duration</StyledTableCell>
-                                        <StyledTableCell>Error</StyledTableCell>
+                                        <StyledTableCell>{t('common:status')}</StyledTableCell>
+                                        <StyledTableCell>{t('scheduledAt')}</StyledTableCell>
+                                        <StyledTableCell>{t('duration')}</StyledTableCell>
+                                        <StyledTableCell>{t('common:error')}</StyledTableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -732,19 +737,13 @@ const ScheduleHistoryDrawer = ({ open, chatflowid, onClose }) => {
 
             {/* Bulk-delete confirmation */}
             <Dialog open={deleteDialogOpen} onClose={() => !deleting && setDeleteDialogOpen(false)} maxWidth='sm' fullWidth>
-                <DialogTitle>
-                    Delete {selectedIds.length} log{selectedIds.length === 1 ? '' : 's'}?
-                </DialogTitle>
+                <DialogTitle>{t('deleteLogsTitle', { count: selectedIds.length })}</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        This will also permanently delete the linked execution traces. Schedule trigger logs that never produced an
-                        execution (skipped or pre-execution failures) are deleted but have no associated execution to remove. This action
-                        cannot be undone.
-                    </DialogContentText>
+                    <DialogContentText>{t('deleteLogsBody')}</DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
-                        Cancel
+                        {t('common:cancel')}
                     </Button>
                     <Button onClick={handleConfirmDelete} color='error' disabled={deleting} variant='contained'>
                         {deleting ? 'Deleting…' : 'Delete'}

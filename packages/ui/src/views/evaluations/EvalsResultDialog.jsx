@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
@@ -32,6 +33,7 @@ import { StyledTableCell, StyledTableRow } from '@/ui-component/table/TableStyle
 // const
 
 const EvalsResultDialog = ({ show, dialogProps, onCancel, openDetailsDrawer }) => {
+    const { t } = useTranslation('evaluations')
     const portalElement = document.getElementById('portal')
     const customization = useSelector((state) => state.customization)
     const theme = useTheme()
@@ -70,7 +72,7 @@ const EvalsResultDialog = ({ show, dialogProps, onCancel, openDetailsDrawer }) =
                                 }}
                             >
                                 <IconVectorBezier2 style={{ marginRight: 5 }} size={17} />
-                                Flows Used:
+                                {t('flowsUsed')}
                             </div>
                             {(dialogProps.data.evaluation.chatflowName || []).map((chatflowUsed, index) => (
                                 <Chip
@@ -90,7 +92,7 @@ const EvalsResultDialog = ({ show, dialogProps, onCancel, openDetailsDrawer }) =
                         </Stack>
                     )}
                     <Button variant='outlined' sx={{ width: 'max-content' }} startIcon={<IconMinimize />} onClick={() => onCancel()}>
-                        Minimize
+                        {t('minimize')}
                     </Button>
                 </Stack>
             </DialogTitle>
@@ -114,8 +116,8 @@ const EvalsResultDialog = ({ show, dialogProps, onCancel, openDetailsDrawer }) =
                         >
                             <TableRow>
                                 <TableCell rowSpan='2'>&nbsp;</TableCell>
-                                <TableCell rowSpan='2'>Input</TableCell>
-                                <TableCell rowSpan='2'>Expected Output</TableCell>
+                                <TableCell rowSpan='2'>{t('input')}</TableCell>
+                                <TableCell rowSpan='2'>{t('expectedOutput')}</TableCell>
                                 {dialogProps.data &&
                                     dialogProps.data.evaluation.chatflowId?.map((chatflowId, index) => (
                                         <React.Fragment key={index}>
@@ -157,12 +159,14 @@ const EvalsResultDialog = ({ show, dialogProps, onCancel, openDetailsDrawer }) =
                                             <TableCell
                                                 style={{ borderLeftStyle: 'dashed', borderLeftColor: 'lightgrey', borderLeftWidth: 1 }}
                                             >
-                                                Actual Output
+                                                {t('actualOutput')}
                                             </TableCell>
                                             {dialogProps.data.customEvalsDefined && dialogProps.data.showCustomEvals && (
-                                                <TableCell>Evaluator</TableCell>
+                                                <TableCell>{t('evaluator')}</TableCell>
                                             )}
-                                            {dialogProps.data.evaluation?.evaluationType === 'llm' && <TableCell>LLM Evaluation</TableCell>}
+                                            {dialogProps.data.evaluation?.evaluationType === 'llm' && (
+                                                <TableCell>{t('llmEvaluation')}</TableCell>
+                                            )}
                                         </React.Fragment>
                                     ))}
                             </TableRow>

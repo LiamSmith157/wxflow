@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { useState, useContext } from 'react'
 import { useSelector } from 'react-redux'
 
@@ -29,6 +30,7 @@ import { FLOWISE_CREDENTIAL_ID } from '@/store/constant'
 // ===========================|| DocStoreInputHandler ||=========================== //
 
 const DocStoreInputHandler = ({ inputParam, data, disabled = false, onNodeDataChange }) => {
+    const { t } = useTranslation('docstore')
     const customization = useSelector((state) => state.customization)
     const flowContextValue = useContext(flowContext)
     const nodeDataChangeHandler = onNodeDataChange || flowContextValue?.onNodeDataChange
@@ -51,8 +53,8 @@ const DocStoreInputHandler = ({ inputParam, data, disabled = false, onNodeDataCh
             value,
             inputParam,
             disabled,
-            confirmButtonName: 'Save',
-            cancelButtonName: 'Cancel'
+            confirmButtonName: t('common:save'),
+            cancelButtonName: t('common:cancel')
         }
         setExpandDialogProps(dialogProps)
         setShowExpandDialog(true)
@@ -64,8 +66,8 @@ const DocStoreInputHandler = ({ inputParam, data, disabled = false, onNodeDataCh
             relativeLinksMethod,
             limit,
             selectedLinks,
-            confirmButtonName: 'Save',
-            cancelButtonName: 'Cancel'
+            confirmButtonName: t('common:save'),
+            cancelButtonName: t('common:cancel')
         }
         setManageScrapedLinksDialogProps(dialogProps)
         setShowManageScrapedLinksDialog(true)
@@ -109,7 +111,7 @@ const DocStoreInputHandler = ({ inputParam, data, disabled = false, onNodeDataCh
                                         height: 25,
                                         width: 25
                                     }}
-                                    title='Expand'
+                                    title={t('expand')}
                                     color='primary'
                                     onClick={() =>
                                         onExpandDialogClicked(data.inputs[inputParam.name] ?? inputParam.default ?? '', inputParam)
@@ -252,7 +254,7 @@ const DocStoreInputHandler = ({ inputParam, data, disabled = false, onNodeDataCh
                                     </div>
                                     {inputParam.refresh && (
                                         <IconButton
-                                            title='Refresh'
+                                            title={t('common:refresh')}
                                             color='primary'
                                             size='small'
                                             onClick={() => setReloadTimestamp(Date.now().toString())}
@@ -289,7 +291,7 @@ const DocStoreInputHandler = ({ inputParam, data, disabled = false, onNodeDataCh
                                             )
                                         }
                                     >
-                                        Manage Links
+                                        {t('manageLinks')}
                                     </Button>
                                     <ManageScrapedLinksDialog
                                         show={showManageScrapedLinksDialog}

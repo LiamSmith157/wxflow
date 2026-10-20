@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { useState, useCallback } from 'react'
 import { DataGrid as MUIDataGrid, GridActionsCellItem } from '@mui/x-data-grid'
 import { IconPlus } from '@tabler/icons-react'
@@ -6,6 +7,7 @@ import { Button } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { cloneDeep } from 'lodash'
 import { formatDataGridRows } from '@/utils/genericHelper'
+import { useDataGridLocale } from '@/i18n/useDataGridLocale'
 import { styled } from '@mui/material/styles'
 
 const StyledDataGrid = styled(MUIDataGrid)(({ theme }) => ({
@@ -34,6 +36,8 @@ const StyledDataGrid = styled(MUIDataGrid)(({ theme }) => ({
 }))
 
 export const DataGrid = ({ columns, rows, style, disabled = false, hideFooter = false, onChange }) => {
+    const { t } = useTranslation('components')
+    const localeText = useDataGridLocale()
     const [rowValues, setRowValues] = useState(formatDataGridRows(rows) ?? [])
 
     const deleteItem = useCallback(
@@ -59,7 +63,7 @@ export const DataGrid = ({ columns, rows, style, disabled = false, hideFooter = 
                 type: 'actions',
                 width: 80,
                 getActions: (params) => [
-                    <GridActionsCellItem key={'Delete'} icon={<DeleteIcon />} label='Delete' onClick={deleteItem(params.id)} />
+                    <GridActionsCellItem key={'Delete'} icon={<DeleteIcon />} label={t('common:delete')} onClick={deleteItem(params.id)} />
                 ]
             }
         ]
@@ -115,12 +119,13 @@ export const DataGrid = ({ columns, rows, style, disabled = false, hideFooter = 
                         onProcessRowUpdateError={(error) => console.error(error)}
                         rows={rowValues}
                         columns={colValues}
+                        localeText={localeText}
                     />
                 </div>
             )}
             {!disabled && (
                 <Button sx={{ mt: 1 }} variant='outlined' onClick={addNewRow} startIcon={<IconPlus />}>
-                    Add Item
+                    {t('addItem')}
                 </Button>
             )}
         </>

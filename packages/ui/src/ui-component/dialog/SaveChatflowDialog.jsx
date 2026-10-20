@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
@@ -6,6 +7,7 @@ import { Button, Dialog, DialogActions, DialogContent, OutlinedInput, DialogTitl
 import { StyledButton } from '@/ui-component/button/StyledButton'
 
 const SaveChatflowDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
+    const { t } = useTranslation('components')
     const portalElement = document.getElementById('portal')
 
     const [chatflowName, setChatflowName] = useState('')
@@ -37,7 +39,7 @@ const SaveChatflowDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                     id='chatflow-name'
                     type='text'
                     fullWidth
-                    placeholder='My New Chatflow'
+                    placeholder={t('myNewChatflow')}
                     value={chatflowName}
                     onChange={(e) => setChatflowName(e.target.value)}
                     onKeyDown={(e) => {

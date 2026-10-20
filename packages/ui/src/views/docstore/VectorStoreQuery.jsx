@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import ReactJson from 'flowise-react-json-view'
@@ -54,6 +55,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 }))
 
 const VectorStoreQuery = () => {
+    const { t } = useTranslation('docstore')
     const customization = useSelector((state) => state.customization)
     const navigate = useNavigate()
     const theme = useTheme()
@@ -153,7 +155,7 @@ const VectorStoreQuery = () => {
             setLoading(false)
             if (updateResp.data) {
                 enqueueSnackbar({
-                    message: 'Vector Store Config Successfully Updated',
+                    message: t('vectorStoreConfigSuccessfullyUpdated'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -169,7 +171,7 @@ const VectorStoreQuery = () => {
             setLoading(false)
             const errorData = error.response?.data || `${error.response?.status}: ${error.response?.statusText}`
             enqueueSnackbar({
-                message: `Failed to update vector store config: ${errorData}`,
+                message: t('failedToUpdateVectorStore', { errorData }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -262,7 +264,7 @@ const VectorStoreQuery = () => {
                         isBackButton={true}
                         search={false}
                         title={documentStore?.name || 'Document Store'}
-                        description='Retrieval Playground - Test your vector store retrieval settings'
+                        description={t('retrievalPlaygroundTestYourVector')}
                         onBack={() => navigate(-1)}
                     >
                         <PermissionButton
@@ -273,7 +275,7 @@ const VectorStoreQuery = () => {
                             startIcon={<IconDeviceFloppy />}
                             onClick={saveConfig}
                         >
-                            Save Config
+                            {t('saveConfig')}
                         </PermissionButton>
                     </ViewHeader>
                     <div style={{ width: '100%' }}></div>
@@ -283,7 +285,8 @@ const VectorStoreQuery = () => {
                                 <Box>
                                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                                         <Typography variant='overline'>
-                                            Enter your Query<span style={{ color: 'red' }}>&nbsp;*</span>
+                                            {t('enterYourQuery')}
+                                            <span style={{ color: 'red' }}>&nbsp;*</span>
                                         </Typography>
 
                                         <div style={{ flexGrow: 1 }}></div>
@@ -413,7 +416,7 @@ const VectorStoreQuery = () => {
                                             />
                                         </div>
                                         <Typography sx={{ ml: 2 }} variant='h3'>
-                                            Retrieved Documents
+                                            {t('retrievedDocuments')}
                                             {timeTaken > -1 && (
                                                 <Typography variant='body2' sx={{ color: 'gray' }}>
                                                     Count: {documentChunks.length}. Time taken: {timeTaken} millis.
@@ -443,7 +446,7 @@ const VectorStoreQuery = () => {
                                                     alt='chunks_emptySVG'
                                                 />
                                             </Box>
-                                            <div>No Documents Retrieved</div>
+                                            <div>{t('noDocumentsRetrieved')}</div>
                                         </div>
                                     )}
                                     <Grid container spacing={2}>

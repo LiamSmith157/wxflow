@@ -1,4 +1,5 @@
 import MainCard from '@/ui-component/cards/MainCard'
+import { useTranslation } from 'react-i18next'
 import { Box, Stack, Typography } from '@mui/material'
 import contactSupport from '@/assets/images/contact_support.svg'
 import { StyledButton } from '@/ui-component/button/StyledButton'
@@ -6,6 +7,7 @@ import { StyledButton } from '@/ui-component/button/StyledButton'
 // ==============================|| License Expired Page ||============================== //
 
 const LicenseExpired = () => {
+    const { t } = useTranslation('auth')
     return (
         <>
             <MainCard>
@@ -28,13 +30,13 @@ const LicenseExpired = () => {
                             <img style={{ objectFit: 'cover', height: '16vh', width: 'auto' }} src={contactSupport} alt='contact support' />
                         </Box>
                         <Typography sx={{ mb: 2 }} variant='h4' component='div' fontWeight='bold'>
-                            Your enterprise license has expired
+                            {t('yourEnterpriseLicenseHasExpired')}
                         </Typography>
                         <Typography variant='body1' component='div' sx={{ mb: 2 }}>
-                            Please contact our support team to renew your license.
+                            {t('pleaseContactOurSupportTeam')}
                         </Typography>
                         <a href='mailto:support@flowiseai.com'>
-                            <StyledButton sx={{ px: 2, py: 1 }}>Contact Support</StyledButton>
+                            <StyledButton sx={{ px: 2, py: 1 }}>{t('contactSupport')}</StyledButton>
                         </a>
                     </Stack>
                 </Box>

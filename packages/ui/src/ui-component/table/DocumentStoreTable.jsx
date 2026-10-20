@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 import { styled } from '@mui/material/styles'
@@ -41,6 +42,7 @@ const StyledTableRow = styled(TableRow)(() => ({
 }))
 
 export const DocumentStoreTable = ({ data, isLoading, onRowClick, images, showActions, onActionMenuClick, actionButtonSx }) => {
+    const { t } = useTranslation('components')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
 
@@ -82,14 +84,14 @@ export const DocumentStoreTable = ({ data, isLoading, onRowClick, images, showAc
                             <StyledTableCell>&nbsp;</StyledTableCell>
                             <StyledTableCell>
                                 <TableSortLabel active={orderBy === 'name'} direction={order} onClick={() => handleRequestSort('name')}>
-                                    Name
+                                    {t('common:name')}
                                 </TableSortLabel>
                             </StyledTableCell>
-                            <StyledTableCell>Description</StyledTableCell>
-                            <StyledTableCell>Connected flows</StyledTableCell>
-                            <StyledTableCell>Total characters</StyledTableCell>
-                            <StyledTableCell>Total chunks</StyledTableCell>
-                            <StyledTableCell>Loader Types</StyledTableCell>
+                            <StyledTableCell>{t('common:description')}</StyledTableCell>
+                            <StyledTableCell>{t('connectedFlows')}</StyledTableCell>
+                            <StyledTableCell>{t('totalCharacters')}</StyledTableCell>
+                            <StyledTableCell>{t('totalChunks')}</StyledTableCell>
+                            <StyledTableCell>{t('loaderTypes')}</StyledTableCell>
                             {showActions && (
                                 <StyledTableCell align='right' sx={{ width: 44, pr: 1 }}>
                                     &nbsp;
@@ -254,7 +256,7 @@ export const DocumentStoreTable = ({ data, isLoading, onRowClick, images, showAc
                                                 <StyledTableCell align='right' sx={{ width: 44, mr: 1 }}>
                                                     <IconButton
                                                         size='small'
-                                                        aria-label='Document store options'
+                                                        aria-label={t('documentStoreOptions')}
                                                         sx={actionButtonSx}
                                                         onClick={(event) => {
                                                             event.stopPropagation()

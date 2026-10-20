@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import {
     CardContent,
     Card,
@@ -22,6 +23,7 @@ import TableCell from '@mui/material/TableCell'
 import { Close } from '@mui/icons-material'
 
 const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
+    const { t } = useTranslation('evaluations')
     const onOpen = () => {}
     const customization = useSelector((state) => state.customization)
 
@@ -47,14 +49,14 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
         <SwipeableDrawer sx={{ zIndex: 2000 }} anchor='right' open={show} onClose={() => onClickFunction()} onOpen={onOpen}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #ccc' }}>
                 <Typography variant='overline' sx={{ margin: 1, fontWeight: 'bold' }}>
-                    Evaluation Details
+                    {t('evaluationDetails')}
                 </Typography>
                 <Button endIcon={<Close />} onClick={() => onClickFunction()} />
             </div>
             <Box sx={{ width: 600, p: 2 }} role='presentation'>
                 <Box>
                     <Typography variant='overline' sx={{ fontWeight: 'bold' }}>
-                        Evaluation Id
+                        {t('evaluationId')}
                     </Typography>
                     <Typography variant='body2'>{dialogProps.data.evaluationId}</Typography>
                 </Box>
@@ -65,7 +67,7 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
                 <Box>
                     <br />
                     <Typography variant='overline' sx={{ fontWeight: 'bold' }}>
-                        Input
+                        {t('input')}
                     </Typography>
                     <Typography variant='body2'>{dialogProps.data.input}</Typography>
                 </Box>
@@ -76,7 +78,7 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
                 <Box>
                     <br />
                     <Typography variant='overline' sx={{ fontWeight: 'bold' }}>
-                        Expected Output
+                        {t('expectedOutput')}
                     </Typography>
                     <Typography variant='body2'>{dialogProps.data.expectedOutput}</Typography>
                 </Box>
@@ -137,7 +139,7 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
                                 <Box>
                                     <br />
                                     <Typography variant='overline' style={{ fontWeight: 'bold' }}>
-                                        Latency Metrics
+                                        {t('latencyMetrics')}
                                     </Typography>
                                     <Typography variant='body2'>
                                         <Stack sx={{ mt: 1, alignItems: 'center', flexWrap: 'wrap' }} flexDirection='row' gap={1}>
@@ -189,25 +191,25 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
                                 {dialogProps.data.metrics[index]?.nested_metrics ? (
                                     <Box>
                                         <Typography variant='overline' style={{ fontWeight: 'bold' }}>
-                                            Tokens
+                                            {t('tokens')}
                                         </Typography>
                                         <Table size='small' style={{ border: '1px solid #ccc' }}>
                                             <TableHead>
                                                 <TableRow>
                                                     <TableCell align='left' style={{ fontSize: '11px', fontWeight: 'bold' }}>
-                                                        Node
+                                                        {t('node')}
                                                     </TableCell>
                                                     <TableCell align='left' style={{ fontSize: '11px', fontWeight: 'bold' }}>
-                                                        Provider & Model
+                                                        {t('providerModel')}
                                                     </TableCell>
                                                     <TableCell align='right' style={{ fontSize: '11px', fontWeight: 'bold', width: '15%' }}>
-                                                        Input
+                                                        {t('input')}
                                                     </TableCell>
                                                     <TableCell align='right' style={{ fontSize: '11px', fontWeight: 'bold', width: '15%' }}>
-                                                        Output
+                                                        {t('output')}
                                                     </TableCell>
                                                     <TableCell align='right' style={{ fontSize: '11px', fontWeight: 'bold', width: '15%' }}>
-                                                        Total
+                                                        {t('total')}
                                                     </TableCell>
                                                 </TableRow>
                                             </TableHead>
@@ -241,7 +243,7 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
                                                         scope='row'
                                                         colspan={2}
                                                     >
-                                                        Total
+                                                        {t('total')}
                                                     </TableCell>
                                                     <TableCell align='right' style={{ fontSize: '11px', fontWeight: 'bold' }}>
                                                         {dialogProps.data.metrics[index].promptTokens}
@@ -259,7 +261,7 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
                                 ) : (
                                     <Box>
                                         <Typography variant='overline' style={{ fontWeight: 'bold' }}>
-                                            Tokens
+                                            {t('tokens')}
                                         </Typography>
                                         <Typography variant='body2'>
                                             <Stack sx={{ mt: 1, alignItems: 'center', flexWrap: 'wrap' }} flexDirection='row' gap={1}>
@@ -298,25 +300,25 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
                                 {dialogProps.data.metrics[index]?.nested_metrics ? (
                                     <Box>
                                         <Typography variant='overline' style={{ fontWeight: 'bold' }}>
-                                            Cost
+                                            {t('cost')}
                                         </Typography>
                                         <Table size='small' style={{ border: '1px solid #ccc' }}>
                                             <TableHead>
                                                 <TableRow>
                                                     <TableCell align='left' style={{ fontSize: '11px', fontWeight: 'bold' }}>
-                                                        Node
+                                                        {t('node')}
                                                     </TableCell>
                                                     <TableCell align='left' style={{ fontSize: '11px', fontWeight: 'bold' }}>
-                                                        Provider & Model
+                                                        {t('providerModel')}
                                                     </TableCell>
                                                     <TableCell align='right' style={{ fontSize: '11px', width: '15%', fontWeight: 'bold' }}>
-                                                        Input
+                                                        {t('input')}
                                                     </TableCell>
                                                     <TableCell align='right' style={{ fontSize: '11px', width: '15%', fontWeight: 'bold' }}>
-                                                        Output
+                                                        {t('output')}
                                                     </TableCell>
                                                     <TableCell align='right' style={{ fontSize: '11px', width: '15%', fontWeight: 'bold' }}>
-                                                        Total
+                                                        {t('total')}
                                                     </TableCell>
                                                 </TableRow>
                                             </TableHead>
@@ -349,7 +351,7 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
                                                         scope='row'
                                                         colspan={2}
                                                     >
-                                                        Total
+                                                        {t('total')}
                                                     </TableCell>
                                                     <TableCell align='right' style={{ fontSize: '11px', fontWeight: 'bold' }}>
                                                         {dialogProps.data.metrics[index].promptCost}
@@ -367,7 +369,7 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
                                 ) : (
                                     <Box>
                                         <Typography variant='overline' style={{ fontWeight: 'bold' }}>
-                                            Cost
+                                            {t('cost')}
                                         </Typography>
                                         <Typography variant='body2'>
                                             <Stack sx={{ mt: 1, alignItems: 'center', flexWrap: 'wrap' }} flexDirection='row' gap={1}>
@@ -410,7 +412,7 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
                                     dialogProps.data.customEvals[index].length > 0 && (
                                         <Box>
                                             <Typography variant='overline' style={{ fontWeight: 'bold' }}>
-                                                Custom Evaluators
+                                                {t('customEvaluators')}
                                             </Typography>
                                             <Box>
                                                 {dialogProps.data.customEvals[index] &&
@@ -435,7 +437,7 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
                                                                 sx={{ width: 'max-content' }}
                                                                 variant='outlined'
                                                                 size='small'
-                                                                label={`Evaluator: ${evaluator.name}`}
+                                                                label={t('evaluatorName', { name: evaluator.name })}
                                                             ></Chip>
                                                             <Chip
                                                                 sx={{ width: 'max-content' }}
@@ -463,7 +465,7 @@ const EvaluationResultSideDrawer = ({ show, dialogProps, onClickFunction }) => {
                                         <Box>
                                             <br />
                                             <Typography variant='overline' sx={{ fontWeight: 'bold' }}>
-                                                LLM Graded
+                                                {t('llmGraded')}
                                             </Typography>
                                             <Stack flexDirection='row' gap={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
                                                 {Object.entries(dialogProps.data.llmEvaluators[index]).map(([key, value], index) => (

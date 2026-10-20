@@ -1,4 +1,6 @@
 import { useDispatch } from 'react-redux'
+import { useTranslatedConfig } from '@/i18n/useTranslatedConfig'
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction, SET_CHATFLOW } from '@/store/actions'
@@ -39,7 +41,7 @@ import useNotifier from '@/utils/useNotifier'
 // API
 import chatflowsApi from '@/api/chatflows'
 
-const analyticProviders = [
+const analyticProvidersRaw = [
     {
         label: 'LangSmith',
         name: 'langSmith',
@@ -221,6 +223,8 @@ const analyticProviders = [
 ]
 
 const AnalyseFlow = ({ dialogProps }) => {
+    const analyticProviders = useTranslatedConfig(analyticProvidersRaw)
+    const { t } = useTranslation('components')
     const dispatch = useDispatch()
     const theme = useTheme()
 
@@ -239,7 +243,7 @@ const AnalyseFlow = ({ dialogProps }) => {
             })
             if (saveResp.data) {
                 enqueueSnackbar({
-                    message: 'Analytic Configuration Saved',
+                    message: t('analyticConfigurationSaved'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -254,9 +258,9 @@ const AnalyseFlow = ({ dialogProps }) => {
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed to save Analytic Configuration: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToSaveAnalyticConfiguration', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -425,7 +429,7 @@ const AnalyseFlow = ({ dialogProps }) => {
             ))}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%', mt: 2 }}>
                 <StyledButton variant='contained' onClick={onSave} sx={{ minWidth: 100 }}>
-                    Save
+                    {t('common:save')}
                 </StyledButton>
             </Box>
         </>

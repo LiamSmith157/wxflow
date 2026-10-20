@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { Trans, useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
 import { CodeEditor } from '@/ui-component/editor/CodeEditor'
@@ -12,6 +13,7 @@ const overrideConfig = `{
 }`
 
 const HowToUseVariablesDialog = ({ show, onCancel }) => {
+    const { t } = useTranslation('variables')
     const portalElement = document.getElementById('portal')
 
     const component = show ? (
@@ -24,12 +26,10 @@ const HowToUseVariablesDialog = ({ show, onCancel }) => {
             aria-describedby='alert-dialog-description'
         >
             <DialogTitle sx={{ fontSize: '1rem' }} id='alert-dialog-title'>
-                How To Use Variables
+                {t('howToUseVariables')}
             </DialogTitle>
             <DialogContent>
-                <p style={{ marginBottom: '10px' }}>
-                    Variables can be used in Custom Tool, Custom Function, Custom Loader, If Else Function with the $ prefix.
-                </p>
+                <p style={{ marginBottom: '10px' }}>{t('variablesCanBeUsedIn')}</p>
                 <CodeEditor
                     disabled={true}
                     value={`$vars.<variable-name>`}
@@ -38,9 +38,7 @@ const HowToUseVariablesDialog = ({ show, onCancel }) => {
                     lang={'js'}
                     basicSetup={{ highlightActiveLine: false, highlightActiveLineGutter: false }}
                 />
-                <p style={{ marginBottom: '10px' }}>
-                    Variables can also be used in Text Field parameter of any node. For example, in System Message of Agent:
-                </p>
+                <p style={{ marginBottom: '10px' }}>{t('variablesCanAlsoBeUsed')}</p>
                 <CodeEditor
                     disabled={true}
                     value={`You are a {{$vars.personality}} AI assistant`}
@@ -50,11 +48,10 @@ const HowToUseVariablesDialog = ({ show, onCancel }) => {
                     basicSetup={{ highlightActiveLine: false, highlightActiveLineGutter: false }}
                 />
                 <p style={{ marginBottom: '10px' }}>
-                    If variable type is Static, the value will be retrieved as it is. If variable type is Runtime, the value will be
-                    retrieved from .env file.
+                    <Trans t={t} i18nKey='variables:typesExplained' components={{}} />
                 </p>
                 <p style={{ marginBottom: '10px' }}>
-                    You can also override variable values in API overrideConfig using <b>vars</b>:
+                    <Trans t={t} i18nKey='variables:overrideVars' components={{ b: <b /> }} />
                 </p>
                 <CodeEditor
                     disabled={true}
@@ -65,9 +62,9 @@ const HowToUseVariablesDialog = ({ show, onCancel }) => {
                     basicSetup={{ highlightActiveLine: false, highlightActiveLineGutter: false }}
                 />
                 <p>
-                    Read more from{' '}
+                    {t('readMoreFrom')}{' '}
                     <a target='_blank' rel='noreferrer' href='https://docs.flowiseai.com/using-flowise/variables'>
-                        docs
+                        {t('docs')}
                     </a>
                 </p>
             </DialogContent>

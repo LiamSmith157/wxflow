@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -50,6 +51,7 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 // ==============================|| Dataset Items ||============================== //
 
 const EvalDatasetRows = () => {
+    const { t } = useTranslation('evaluations')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const dispatch = useDispatch()
@@ -159,8 +161,8 @@ const EvalDatasetRows = () => {
     const addNew = () => {
         const dialogProp = {
             type: 'ADD',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Add',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:add'),
             data: {
                 datasetId: datasetId,
                 datasetName: dataset.name
@@ -173,8 +175,8 @@ const EvalDatasetRows = () => {
     const uploadCSV = () => {
         const dialogProp = {
             type: 'ADD',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Upload',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:upload'),
             data: {
                 datasetId: datasetId,
                 datasetName: dataset.name
@@ -187,8 +189,8 @@ const EvalDatasetRows = () => {
     const editDs = () => {
         const dialogProp = {
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Save',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:save'),
             data: dataset
         }
         setDatasetDialogProps(dialogProp)
@@ -198,8 +200,8 @@ const EvalDatasetRows = () => {
     const edit = (item) => {
         const dialogProp = {
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Save',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:save'),
             data: {
                 datasetName: dataset.name,
                 ...item
@@ -211,10 +213,10 @@ const EvalDatasetRows = () => {
 
     const deleteDatasetItems = async () => {
         const confirmPayload = {
-            title: `Delete`,
-            description: `Delete ${selected.length} dataset items?`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('delete'),
+            description: t('deleteV1DatasetItems', { v1: selected.length }),
+            confirmButtonName: t('common:delete'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -223,7 +225,7 @@ const EvalDatasetRows = () => {
                 const deleteResp = await datasetsApi.deleteDatasetItems(selected)
                 if (deleteResp.data) {
                     enqueueSnackbar({
-                        message: 'Dataset Items deleted',
+                        message: t('datasetItemsDeleted'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -238,9 +240,9 @@ const EvalDatasetRows = () => {
                 }
             } catch (error) {
                 enqueueSnackbar({
-                    message: `Failed to delete dataset items: ${
-                        typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                    }`,
+                    message: t('failedToDeleteDatasetItems', {
+                        v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                    }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -295,7 +297,7 @@ const EvalDatasetRows = () => {
                             onEdit={editDs}
                             onBack={() => window.history.back()}
                             search={false}
-                            title={`Dataset : ${dataset?.name || ''}`}
+                            title={t('datasetV1', { v1: dataset?.name || '' })}
                             description={dataset?.description}
                         >
                             <StyledPermissionButton
@@ -306,7 +308,7 @@ const EvalDatasetRows = () => {
                                 onClick={uploadCSV}
                                 startIcon={<IconUpload />}
                             >
-                                Upload CSV
+                                {t('uploadCsv')}
                             </StyledPermissionButton>
                             <StyledPermissionButton
                                 permissionId={'datasets:create,datasets:update'}
@@ -315,7 +317,7 @@ const EvalDatasetRows = () => {
                                 onClick={addNew}
                                 startIcon={<IconPlus />}
                             >
-                                New Item
+                                {t('newItem')}
                             </StyledPermissionButton>
                         </ViewHeader>
                         {selected.length > 0 && (
@@ -339,7 +341,7 @@ const EvalDatasetRows = () => {
                                         alt='empty_datasetSVG'
                                     />
                                 </Box>
-                                <div>No Dataset Items Yet</div>
+                                <div>{t('noDatasetItemsYet')}</div>
                                 <StyledPermissionButton
                                     permissionId={'datasets:create,datasets:update'}
                                     variant='contained'
@@ -347,7 +349,7 @@ const EvalDatasetRows = () => {
                                     startIcon={<IconPlus />}
                                     onClick={addNew}
                                 >
-                                    New Item
+                                    {t('newItem')}
                                 </StyledPermissionButton>
                             </Stack>
                         ) : (
@@ -376,8 +378,8 @@ const EvalDatasetRows = () => {
                                                         }}
                                                     />
                                                 </StyledTableCell>
-                                                <StyledTableCell>Input</StyledTableCell>
-                                                <StyledTableCell>Expected Output</StyledTableCell>
+                                                <StyledTableCell>{t('input')}</StyledTableCell>
+                                                <StyledTableCell>{t('expectedOutput')}</StyledTableCell>
                                                 <StyledTableCell style={{ width: '1%' }}>
                                                     <IconArrowsDownUp />
                                                 </StyledTableCell>
@@ -470,7 +472,7 @@ const EvalDatasetRows = () => {
                                     </Table>
                                 </TableContainer>
                                 <Typography sx={{ color: theme.palette.grey[600], marginTop: -2 }} variant='subtitle2'>
-                                    <i>Use the drag icon at (extreme right) to reorder the dataset items</i>
+                                    <i>{t('useTheDragIconAt')}</i>
                                 </Typography>
                                 {/* Pagination and Page Size Controls */}
                                 <TablePagination currentPage={currentPage} limit={pageLimit} total={total} onChange={onChange} />

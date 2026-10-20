@@ -1,4 +1,6 @@
 import PropTypes from 'prop-types'
+import { useTranslatedConfig } from '@/i18n/useTranslatedConfig'
+import { useTranslation } from 'react-i18next'
 import { Box, Button, FormControl, ListItem, ListItemAvatar, ListItemText, MenuItem, Select, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
@@ -42,7 +44,7 @@ const FollowUpPromptProviders = {
     OLLAMA: 'ollama'
 }
 
-const followUpPromptsOptions = {
+const followUpPromptsOptionsRaw = {
     [FollowUpPromptProviders.ANTHROPIC]: {
         label: 'Anthropic Claude',
         name: FollowUpPromptProviders.ANTHROPIC,
@@ -302,6 +304,8 @@ const followUpPromptsOptions = {
 }
 
 const FollowUpPrompts = ({ dialogProps }) => {
+    const followUpPromptsOptions = useTranslatedConfig(followUpPromptsOptionsRaw)
+    const { t } = useTranslation('components')
     const dispatch = useDispatch()
 
     useNotifier()
@@ -380,7 +384,7 @@ const FollowUpPrompts = ({ dialogProps }) => {
             })
             if (saveResp.data) {
                 enqueueSnackbar({
-                    message: 'Follow-up Prompts configuration saved',
+                    message: t('followUpPromptsConfigurationSaved'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -396,7 +400,7 @@ const FollowUpPrompts = ({ dialogProps }) => {
         } catch (error) {
             const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`
             enqueueSnackbar({
-                message: `Failed to save follow-up prompts configuration: ${errorData}`,
+                message: t('failedToSaveFollowUp', { errorData }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -473,13 +477,13 @@ const FollowUpPrompts = ({ dialogProps }) => {
                 }}
             >
                 <SwitchInput
-                    label='Enable Follow-up Prompts'
+                    label={t('enableFollowUpPrompts')}
                     onChange={(value) => handleChange('status', value)}
                     value={followUpPromptsConfig.status}
                 />
                 {followUpPromptsConfig && followUpPromptsConfig.status && (
                     <>
-                        <Typography variant='h5'>Providers</Typography>
+                        <Typography variant='h5'>{t('providers')}</Typography>
                         <FormControl fullWidth>
                             <Select
                                 size='small'
@@ -615,7 +619,7 @@ const FollowUpPrompts = ({ dialogProps }) => {
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%', mt: 2 }}>
                 <StyledButton disabled={checkDisabled()} variant='contained' onClick={onSave} sx={{ minWidth: 100 }}>
-                    Save
+                    {t('common:save')}
                 </StyledButton>
             </Box>
         </>

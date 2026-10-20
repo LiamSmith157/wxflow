@@ -1,4 +1,5 @@
 import { Box, Button, Stack, Typography } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 import unauthorizedSVG from '@/assets/images/unauthorized.svg'
 import MainCard from '@/ui-component/cards/MainCard'
@@ -6,6 +7,7 @@ import MainCard from '@/ui-component/cards/MainCard'
 // ==============================|| RateLimitedPage ||============================== //
 
 const RateLimitedPage = () => {
+    const { t } = useTranslation('auth')
     const location = useLocation()
 
     const retryAfter = location.state?.retryAfter || 60
@@ -39,7 +41,7 @@ const RateLimitedPage = () => {
                     </Typography>
                     <Link to='/'>
                         <Button variant='contained' color='primary'>
-                            Back to Home
+                            {t('backToHome')}
                         </Button>
                     </Link>
                 </Stack>

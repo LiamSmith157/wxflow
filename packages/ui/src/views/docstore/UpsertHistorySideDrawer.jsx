@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import moment from 'moment/moment'
 
@@ -19,6 +20,7 @@ import vectorstoreApi from '@/api/vectorstore'
 import useApi from '@/hooks/useApi'
 
 const UpsertHistorySideDrawer = ({ show, dialogProps, onClickFunction, onSelectHistoryDetails }) => {
+    const { t } = useTranslation('docstore')
     const onOpen = () => {}
     const [upsertHistory, setUpsertHistory] = useState([])
 
@@ -40,7 +42,7 @@ const UpsertHistorySideDrawer = ({ show, dialogProps, onClickFunction, onSelectH
         <>
             <SwipeableDrawer anchor='right' open={show} onClose={() => onClickFunction()} onOpen={onOpen}>
                 <Button startIcon={<IconSquareRoundedChevronsRight />} onClick={() => onClickFunction()}>
-                    Close
+                    {t('common:close')}
                 </Button>
                 <Box style={{ width: 350, margin: 10 }} role='presentation' onClick={onClickFunction}>
                     <Timeline
@@ -79,7 +81,7 @@ const UpsertHistorySideDrawer = ({ show, dialogProps, onClickFunction, onSelectH
                                             variant='outlined'
                                             onClick={() => onSelectHistoryDetails(history)}
                                         >
-                                            Details
+                                            {t('common:details')}
                                         </Button>
                                     </TimelineContent>
                                 </TimelineItem>
@@ -93,7 +95,7 @@ const UpsertHistorySideDrawer = ({ show, dialogProps, onClickFunction, onSelectH
                                         alt='HistoryEmptySVG'
                                     />
                                 </Box>
-                                <div>No Upsert History Yet</div>
+                                <div>{t('noUpsertHistoryYet')}</div>
                             </Stack>
                         )}
                     </Timeline>

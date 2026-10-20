@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
@@ -34,6 +35,7 @@ const CSVFORMAT = `Only the first 2 columns will be considered:
 `
 
 const UploadCSVFileDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
+    const { t } = useTranslation('evaluations')
     const portalElement = document.getElementById('portal')
 
     const dispatch = useDispatch()
@@ -81,7 +83,7 @@ const UploadCSVFileDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             const createResp = await datasetApi.createDatasetRow(obj)
             if (createResp.data) {
                 enqueueSnackbar({
-                    message: 'New Row added for the given Dataset',
+                    message: t('newRowAddedForThe'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -96,9 +98,9 @@ const UploadCSVFileDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed to add new row in the Dataset: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToAddNewRow', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -151,7 +153,7 @@ const UploadCSVFileDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 <Box sx={{ p: 2 }}>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Typography>
-                            Upload CSV
+                            {t('uploadCsv')}
                             <TooltipWithParser style={{ mb: 1, mt: 2 }} title={`<pre>${CSVFORMAT}</pre>`} />
                         </Typography>
                         <div style={{ flexGrow: 1 }}></div>

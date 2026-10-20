@@ -1,4 +1,6 @@
 import { createPortal } from 'react-dom'
+import { useTranslatedConfig } from '@/i18n/useTranslatedConfig'
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
@@ -10,7 +12,7 @@ import { IconX, IconWand, IconArrowLeft, IconNotebook, IconLanguage, IconMail, I
 import useNotifier from '@/utils/useNotifier'
 import { LoadingButton } from '@mui/lab'
 
-const defaultInstructions = [
+const defaultInstructionsRaw = [
     {
         text: 'Summarize a document',
         img: <IconNotebook />
@@ -38,6 +40,8 @@ const defaultInstructions = [
 ]
 
 const AssistantPromptGenerator = ({ show, dialogProps, onCancel, onConfirm }) => {
+    const defaultInstructions = useTranslatedConfig(defaultInstructionsRaw)
+    const { t } = useTranslation('components')
     const portalElement = document.getElementById('portal')
     const [customAssistantInstruction, setCustomAssistantInstruction] = useState('')
     const [generatedInstruction, setGeneratedInstruction] = useState('')
@@ -168,7 +172,7 @@ const AssistantPromptGenerator = ({ show, dialogProps, onCancel, onConfirm }) =>
                             }}
                             startIcon={<IconWand size={20} />}
                         >
-                            Generate
+                            {t('generate')}
                         </LoadingButton>
                     )}
                     {generatedInstruction && (
@@ -179,12 +183,12 @@ const AssistantPromptGenerator = ({ show, dialogProps, onCancel, onConfirm }) =>
                                 setGeneratedInstruction('')
                             }}
                         >
-                            Back
+                            {t('common:back')}
                         </Button>
                     )}
                     {generatedInstruction && (
                         <StyledButton variant='contained' onClick={() => onConfirm(generatedInstruction)}>
-                            Apply
+                            {t('common:apply')}
                         </StyledButton>
                     )}
                 </DialogActions>

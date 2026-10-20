@@ -1,4 +1,6 @@
 import { useDispatch } from 'react-redux'
+import { useTranslatedConfig } from '@/i18n/useTranslatedConfig'
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction, SET_CHATFLOW } from '@/store/actions'
@@ -45,7 +47,7 @@ const TextToSpeechType = {
 }
 
 // Weird quirk - the key must match the name property value.
-const textToSpeechProviders = {
+const textToSpeechProvidersRaw = {
     [TextToSpeechType.OPENAI_TTS]: {
         label: 'OpenAI TTS',
         name: TextToSpeechType.OPENAI_TTS,
@@ -93,6 +95,8 @@ const textToSpeechProviders = {
 }
 
 const TextToSpeech = ({ dialogProps }) => {
+    const textToSpeechProviders = useTranslatedConfig(textToSpeechProvidersRaw)
+    const { t } = useTranslation('components')
     const dispatch = useDispatch()
 
     useNotifier()
@@ -129,7 +133,7 @@ const TextToSpeech = ({ dialogProps }) => {
             })
             if (saveResp.data) {
                 enqueueSnackbar({
-                    message: 'Text To Speech Configuration Saved',
+                    message: t('textToSpeechConfigurationSaved'),
                     options: {
                         key: Date.now() + Math.random(),
                         variant: 'success',
@@ -144,9 +148,9 @@ const TextToSpeech = ({ dialogProps }) => {
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed to save Text To Speech Configuration: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToSaveTextTo', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: Date.now() + Math.random(),
                     variant: 'error',
@@ -233,7 +237,7 @@ const TextToSpeech = ({ dialogProps }) => {
     const testTTS = async () => {
         if (selectedProvider === 'none' || !textToSpeech?.[selectedProvider]?.credentialId) {
             enqueueSnackbar({
-                message: 'Please select a provider and configure credentials first',
+                message: t('pleaseSelectAProviderAnd'),
                 options: { variant: 'warning' }
             })
             return
@@ -244,7 +248,7 @@ const TextToSpeech = ({ dialogProps }) => {
         try {
             const providerConfig = textToSpeech?.[selectedProvider] || {}
             const body = {
-                text: 'Today is a wonderful day to build something with Flowise!',
+                text: t('todayIsAWonderfulDay'),
                 provider: selectedProvider,
                 credentialId: providerConfig.credentialId,
                 voice: providerConfig.voice,
@@ -317,7 +321,7 @@ const TextToSpeech = ({ dialogProps }) => {
         } catch (error) {
             console.error('Error testing TTS:', error)
             enqueueSnackbar({
-                message: `TTS test failed: ${error.message}`,
+                message: t('ttsTestFailedMessage', { message: error.message }),
                 options: { variant: 'error' }
             })
         } finally {
@@ -419,7 +423,7 @@ const TextToSpeech = ({ dialogProps }) => {
     return (
         <>
             <Box fullWidth sx={{ mb: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Typography>Providers</Typography>
+                <Typography>{t('providers')}</Typography>
                 <FormControl fullWidth>
                     <Select
                         size='small'
@@ -431,7 +435,7 @@ const TextToSpeech = ({ dialogProps }) => {
                             }
                         }}
                     >
-                        <MenuItem value='none'>None</MenuItem>
+                        <MenuItem value='none'>{t('none')}</MenuItem>
                         {Object.values(textToSpeechProviders).map((provider) => (
                             <MenuItem key={provider.name} value={provider.name}>
                                 {provider.label}
@@ -463,7 +467,7 @@ const TextToSpeech = ({ dialogProps }) => {
                                         padding: 10,
                                         objectFit: 'contain'
                                     }}
-                                    alt='TTS Provider'
+                                    alt={t('ttsProvider')}
                                     src={textToSpeechProviders[selectedProvider].icon}
                                 />
                             </div>
@@ -589,11 +593,8 @@ const TextToSpeech = ({ dialogProps }) => {
                     <Box sx={{ p: 2 }}>
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                             <Typography>
-                                Automatically play audio
-                                <TooltipWithParser
-                                    style={{ marginLeft: 10 }}
-                                    title='When enabled, bot responses will be automatically converted to speech and played'
-                                />
+                                {t('automaticallyPlayAudio')}
+                                <TooltipWithParser style={{ marginLeft: 10 }} title={t('whenEnabledBotResponsesWill')} />
                             </Typography>
                         </div>
                         <SwitchInput
@@ -606,7 +607,7 @@ const TextToSpeech = ({ dialogProps }) => {
                     <Box sx={{ p: 2 }}>
                         <Typography variant='h6' sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                             <IconVolume size={20} />
-                            Test Voice
+                            {t('testVoice')}
                         </Typography>
 
                         <Typography variant='body2' color='textSecondary' sx={{ mb: 2 }}>
@@ -648,7 +649,7 @@ const TextToSpeech = ({ dialogProps }) => {
                     onClick={onSave}
                     sx={{ minWidth: 100 }}
                 >
-                    Save
+                    {t('common:save')}
                 </StyledButton>
             </Box>
         </>

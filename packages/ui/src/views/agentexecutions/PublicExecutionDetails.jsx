@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { ExecutionDetails } from './ExecutionDetails'
 import { omit } from 'lodash'
@@ -17,6 +18,7 @@ import { alpha } from '@mui/material/styles'
 // ==============================|| PublicExecutionDetails ||============================== //
 
 const PublicExecutionDetails = () => {
+    const { t } = useTranslation('executions')
     const { id: executionId } = useParams()
     const theme = useTheme()
 
@@ -77,7 +79,7 @@ const PublicExecutionDetails = () => {
                                     <Stack spacing={2} alignItems='center'>
                                         <IconCircleXFilled size={50} color={theme.palette.error.main} />
                                         <Typography variant='h3' color='error.main' align='center'>
-                                            Invalid Execution
+                                            {t('invalidExecution')}
                                         </Typography>
                                         <Typography variant='body1' color='text.secondary' align='center'>
                                             {`The execution you're looking for doesn't exist or you don't have permission to view it.`}

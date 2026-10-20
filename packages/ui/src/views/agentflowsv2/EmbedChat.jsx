@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 
 import { Tabs, Tab, Box } from '@mui/material'
@@ -286,6 +287,7 @@ const App = () => {
 }
 
 const EmbedChat = ({ chatflowid }) => {
+    const { t } = useTranslation('agentflows')
     const codes = ['Popup Html', 'Fullpage Html', 'Popup React', 'Fullpage React']
     const [value, setValue] = useState(0)
     const [embedChatCheckboxVal, setEmbedChatCheckbox] = useState(false)
@@ -363,7 +365,7 @@ const EmbedChat = ({ chatflowid }) => {
                     )}
                     <CopyBlock theme={atomOneDark} text={getCode(codeLang)} language='javascript' showLineNumbers={false} wrapLines />
 
-                    <CheckboxInput label='Show Embed Chat Config' value={embedChatCheckboxVal} onChange={onCheckBoxEmbedChatChanged} />
+                    <CheckboxInput label={t('showEmbedChatConfig')} value={embedChatCheckboxVal} onChange={onCheckBoxEmbedChatChanged} />
 
                     {embedChatCheckboxVal && (
                         <CopyBlock

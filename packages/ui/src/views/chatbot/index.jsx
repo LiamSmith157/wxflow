@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FullPageChat } from 'flowise-embed-react'
 
 // API
@@ -18,6 +19,7 @@ import { baseURL } from '@/store/constant'
 // ==============================|| Chatbot ||============================== //
 
 const ChatbotFull = () => {
+    const { t } = useTranslation('executions')
     const URLpath = document.location.pathname.toString().split('/')
     const chatflowId = URLpath[URLpath.length - 1] === 'chatbot' ? '' : URLpath[URLpath.length - 1]
     const theme = useTheme()
@@ -92,7 +94,7 @@ const ChatbotFull = () => {
                                     <Stack spacing={2} alignItems='center'>
                                         <IconCircleXFilled size={50} color={theme.palette.error.main} />
                                         <Typography variant='h3' color='error.main' align='center'>
-                                            Invalid Chatbot
+                                            {t('invalidChatbot')}
                                         </Typography>
                                         <Typography variant='body1' color='text.secondary' align='center'>
                                             {`The chatbot you're looking for doesn't exist or requires API key authentication.`}

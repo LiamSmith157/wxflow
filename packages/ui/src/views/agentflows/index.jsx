@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
@@ -34,6 +35,7 @@ import { IconLayoutGrid, IconList, IconPlus } from '@tabler/icons-react'
 // ==============================|| AGENTS ||============================== //
 
 const Agentflows = () => {
+    const { t } = useTranslation('agentflows')
     const navigate = useNavigate()
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
@@ -199,8 +201,8 @@ const Agentflows = () => {
                         onSearchChange={onSearchChange}
                         search={true}
                         searchPlaceholder='Search Name or Category'
-                        title='Agentflows'
-                        description='Multi-agent systems, workflow orchestration'
+                        title={t('agentflows')}
+                        description={t('multiAgentSystemsWorkflowOrchestrati')}
                     >
                         <ToggleButtonGroup
                             sx={{ borderRadius: 2, maxHeight: 40 }}
@@ -218,7 +220,7 @@ const Agentflows = () => {
                                 }}
                                 variant='contained'
                                 value='card'
-                                title='Card View'
+                                title={t('cardView')}
                             >
                                 <IconLayoutGrid />
                             </ToggleButton>
@@ -230,7 +232,7 @@ const Agentflows = () => {
                                 }}
                                 variant='contained'
                                 value='list'
-                                title='List View'
+                                title={t('listView')}
                             >
                                 <IconList />
                             </ToggleButton>
@@ -242,7 +244,7 @@ const Agentflows = () => {
                             startIcon={<IconPlus />}
                             sx={{ borderRadius: 2, height: 40 }}
                         >
-                            Add New
+                            {t('common:addNew')}
                         </StyledPermissionButton>
                     </ViewHeader>
 
@@ -289,7 +291,7 @@ const Agentflows = () => {
                                     alt='AgentsEmptySVG'
                                 />
                             </Box>
-                            <div>No Agents Yet</div>
+                            <div>{t('noAgentsYet')}</div>
                         </Stack>
                     )}
                 </Stack>

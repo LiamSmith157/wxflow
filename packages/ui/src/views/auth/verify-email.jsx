@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 // material-ui
@@ -19,6 +20,7 @@ import { useState } from 'react'
 import { IconX } from '@tabler/icons-react'
 
 const VerifyEmail = () => {
+    const { t } = useTranslation('auth')
     const accountVerifyApi = useApi(accountApi.verifyAccountEmail)
 
     const [searchParams] = useSearchParams()
@@ -73,7 +75,7 @@ const VerifyEmail = () => {
                                         height: '48px'
                                     }}
                                 />
-                                <Typography variant='h1'>Verifying Email...</Typography>
+                                <Typography variant='h1'>{t('verifyingEmail')}</Typography>
                             </>
                         )}
                         {verificationError && (
@@ -92,7 +94,7 @@ const VerifyEmail = () => {
                                 >
                                     <IconX />
                                 </Box>
-                                <Typography variant='h1'>Verification Failed.</Typography>
+                                <Typography variant='h1'>{t('verificationFailed')}</Typography>
                             </>
                         )}
                         {verificationSuccess && (
@@ -111,7 +113,7 @@ const VerifyEmail = () => {
                                 >
                                     <IconCheck />
                                 </Box>
-                                <Typography variant='h1'>Email Verified Successfully.</Typography>
+                                <Typography variant='h1'>{t('emailVerifiedSuccessfully')}</Typography>
                             </>
                         )}
                     </Stack>

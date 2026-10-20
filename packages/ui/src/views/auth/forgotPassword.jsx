@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 // material-ui
@@ -27,11 +28,12 @@ import { IconCircleCheck, IconExclamationCircle } from '@tabler/icons-react'
 // ==============================|| ForgotPasswordPage ||============================== //
 
 const ForgotPasswordPage = () => {
+    const { t } = useTranslation('auth')
     const theme = useTheme()
     useNotifier()
 
     const usernameInput = {
-        label: 'Username',
+        label: t('username'),
         name: 'username',
         type: 'email',
         placeholder: 'user@company.com'
@@ -109,11 +111,11 @@ const ForgotPasswordPage = () => {
                         </Alert>
                     )}
                     <Stack sx={{ gap: 1 }}>
-                        <Typography variant='h1'>Forgot Password?</Typography>
+                        <Typography variant='h1'>{t('forgotPassword')}</Typography>
                         <Typography variant='body2' sx={{ color: theme.palette.grey[600] }}>
                             Have a reset password code?{' '}
                             <Link style={{ color: theme.palette.primary.main }} to='/reset-password'>
-                                Change your password here
+                                {t('changeYourPasswordHere')}
                             </Link>
                             .
                         </Typography>
@@ -123,7 +125,8 @@ const ForgotPasswordPage = () => {
                             <Box>
                                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                                     <Typography>
-                                        Email<span style={{ color: 'red' }}>&nbsp;*</span>
+                                        {t('email')}
+                                        <span style={{ color: 'red' }}>&nbsp;*</span>
                                     </Typography>
                                     <Typography align='left'></Typography>
                                     <div style={{ flexGrow: 1 }}></div>
@@ -136,7 +139,7 @@ const ForgotPasswordPage = () => {
                                 />
                                 {isEnterpriseLicensed && (
                                     <Typography variant='caption'>
-                                        <i>If you forgot the email you used for signing up, please contact your administrator.</i>
+                                        <i>{t('ifYouForgotTheEmail')}</i>
                                     </Typography>
                                 )}
                             </Box>
@@ -146,7 +149,7 @@ const ForgotPasswordPage = () => {
                                 disabled={!usernameVal}
                                 type='submit'
                             >
-                                Send Reset Password Instructions
+                                {t('sendResetPasswordInstructions')}
                             </StyledButton>
                         </Stack>
                     </form>

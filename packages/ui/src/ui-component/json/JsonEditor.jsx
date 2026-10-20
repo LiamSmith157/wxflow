@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { FormControl, Popover } from '@mui/material'
 import ReactJson from 'flowise-react-json-view'
@@ -7,6 +8,7 @@ import { cloneDeep } from 'lodash'
 import { getAvailableNodesForVariable } from '@/utils/genericHelper'
 
 export const JsonEditorInput = ({ value, onChange, inputParam, nodes, edges, nodeId, disabled = false, isDarkMode = false }) => {
+    const { t } = useTranslation('components')
     const [myValue, setMyValue] = useState(value ? JSON.parse(value) : {})
     const [availableNodesForVariable, setAvailableNodesForVariable] = useState([])
     const [mouseUpKey, setMouseUpKey] = useState('')
@@ -67,7 +69,7 @@ export const JsonEditorInput = ({ value, onChange, inputParam, nodes, edges, nod
                             }
                         }}
                         role='button'
-                        aria-label='JSON Editor'
+                        aria-label={t('jsonEditor')}
                         tabIndex={0}
                         key={JSON.stringify(myValue)}
                     >

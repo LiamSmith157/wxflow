@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 
@@ -17,6 +18,7 @@ import { TooltipWithParser } from '@/ui-component/tooltip/TooltipWithParser'
 // ===========================|| NodeInputHandler ||=========================== //
 
 const CredentialInputHandler = ({ inputParam, data, disabled = false, onReveal }) => {
+    const { t } = useTranslation('credentials')
     const customization = useSelector((state) => state.customization)
     const ref = useRef(null)
 
@@ -28,8 +30,8 @@ const CredentialInputHandler = ({ inputParam, data, disabled = false, onReveal }
             value,
             inputParam,
             disabled,
-            confirmButtonName: 'Save',
-            cancelButtonName: 'Cancel'
+            confirmButtonName: t('common:save'),
+            cancelButtonName: t('common:cancel')
         }
         setExpandDialogProps(dialogProp)
         setShowExpandDialog(true)
@@ -59,7 +61,7 @@ const CredentialInputHandler = ({ inputParam, data, disabled = false, onReveal }
                                         height: 25,
                                         width: 25
                                     }}
-                                    title='Expand'
+                                    title={t('expand')}
                                     color='primary'
                                     onClick={() => onExpandDialogClicked(data[inputParam.name] ?? inputParam.default ?? '', inputParam)}
                                 >

@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useState, useEffect, useMemo } from 'react'
 
@@ -21,6 +22,7 @@ import useNotifier from '@/utils/useNotifier'
 import { evaluationPrompts } from '@/views/evaluators/evaluationPrompts'
 
 const SamplePromptDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
+    const { t } = useTranslation('evaluations')
     const portalElement = document.getElementById('portal')
     useNotifier()
 
@@ -65,16 +67,16 @@ const SamplePromptDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
 
     const columns = useMemo(
         () => [
-            { field: 'property', headerName: 'Property', flex: 1 },
+            { field: 'property', headerName: t('property'), flex: 1 },
             {
                 field: 'type',
-                headerName: 'Type',
+                headerName: t('common:type'),
                 type: 'singleSelect',
                 valueOptions: ['string', 'number', 'boolean'],
                 width: 120
             },
-            { field: 'description', headerName: 'Description', flex: 1 },
-            { field: 'required', headerName: 'Required', type: 'boolean', width: 80 },
+            { field: 'description', headerName: t('common:description'), flex: 1 },
+            { field: 'required', headerName: t('common:required'), type: 'boolean', width: 80 },
             {
                 field: 'actions',
                 type: 'actions',
@@ -82,7 +84,7 @@ const SamplePromptDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 getActions: () => []
             }
         ],
-        []
+        [t]
     )
 
     const component = show ? (
@@ -97,7 +99,7 @@ const SamplePromptDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             <DialogTitle sx={{ fontSize: '1rem' }} id='alert-dialog-title'>
                 <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                     <IconTestPipe2 style={{ marginRight: '10px' }} />
-                    Sample Prompts
+                    {t('samplePrompts')}
                 </div>
             </DialogTitle>
             <DialogContent>
@@ -105,7 +107,8 @@ const SamplePromptDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                     <Divider />
                     <Box>
                         <Typography variant='overline'>
-                            Available Prompts<span style={{ color: 'red' }}>&nbsp;*</span>
+                            {t('availablePrompts')}
+                            <span style={{ color: 'red' }}>&nbsp;*</span>
                         </Typography>
                         <Dropdown
                             key={selectedPromptName}
@@ -120,7 +123,7 @@ const SamplePromptDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                         <Box sx={{ pb: 2 }}>
                             <Stack style={{ position: 'relative', justifyContent: 'space-between' }} direction='row'>
                                 <Stack style={{ position: 'relative', alignItems: 'center' }} direction='row'>
-                                    <Typography variant='overline'>Output Schema</Typography>
+                                    <Typography variant='overline'>{t('outputSchema')}</Typography>
                                     <TooltipWithParser title={'Instruct the LLM to give formatted JSON output'} />
                                 </Stack>
                             </Stack>
@@ -130,7 +133,7 @@ const SamplePromptDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                     {selectedPromptName && (
                         <Box sx={{ pb: 2 }}>
                             <div style={{ display: 'flex', flexDirection: 'row' }}>
-                                <Typography variant='overline'>Prompt</Typography>
+                                <Typography variant='overline'>{t('prompt')}</Typography>
                             </div>
                             <OutlinedInput
                                 size='small'

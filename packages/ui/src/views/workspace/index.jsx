@@ -1,4 +1,5 @@
 import moment from 'moment/moment'
+import { useTranslation } from 'react-i18next'
 import * as PropTypes from 'prop-types'
 import { Fragment, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -60,6 +61,7 @@ import { workspaceSwitchSuccess } from '@/store/reducers/authSlice'
 import { Link } from 'react-router-dom'
 
 function ShowWorkspaceRow(props) {
+    const { t } = useTranslation('admin')
     const customization = useSelector((state) => state.customization)
     const currentUser = useSelector((state) => state.auth.user)
     const [open, setOpen] = useState(false)
@@ -130,7 +132,7 @@ function ShowWorkspaceRow(props) {
                     {props.workspace.name !== 'Default Workspace' && (
                         <PermissionIconButton
                             permissionId={'workspace:update'}
-                            title='Edit'
+                            title={t('common:edit')}
                             color='primary'
                             onClick={() => props.onEditClick(props.workspace)}
                         >
@@ -138,19 +140,24 @@ function ShowWorkspaceRow(props) {
                         </PermissionIconButton>
                     )}
                     <Link to={`/workspace-users/${props.workspace.id}`}>
-                        <IconButton title='Workspace Users' color='primary'>
+                        <IconButton title={t('workspaceUsers')} color='primary'>
                             <IconUsers />
                         </IconButton>
                     </Link>
                     {props.workspace.name !== 'Default Workspace' &&
                         (props.workspace.userCount > 1 || props.workspace.isOrgDefault === true ? (
-                            <IconButton title='Delete' disabled={true} color='error' onClick={() => props.onDeleteClick(props.workspace)}>
+                            <IconButton
+                                title={t('common:delete')}
+                                disabled={true}
+                                color='error'
+                                onClick={() => props.onDeleteClick(props.workspace)}
+                            >
                                 <IconTrashOff />
                             </IconButton>
                         ) : (
                             <PermissionIconButton
                                 permissionId={'workspace:delete'}
-                                title='Delete'
+                                title={t('common:delete')}
                                 color='error'
                                 onClick={() => props.onDeleteClick(props.workspace)}
                             >
@@ -162,7 +169,7 @@ function ShowWorkspaceRow(props) {
             <Drawer anchor='right' open={open} onClose={() => setOpen(false)} sx={{ minWidth: 320 }}>
                 <Box sx={{ p: 4, height: 'auto', width: 650 }}>
                     <Typography sx={{ textAlign: 'left', mb: 2 }} variant='h2'>
-                        Users
+                        {t('users')}
                     </Typography>
                     <TableContainer
                         style={{ display: 'flex', flexDirection: 'row' }}
@@ -177,8 +184,8 @@ function ShowWorkspaceRow(props) {
                                 }}
                             >
                                 <TableRow>
-                                    <StyledTableCell sx={{ width: '60%' }}>User</StyledTableCell>
-                                    <StyledTableCell sx={{ width: '40%' }}>Role</StyledTableCell>
+                                    <StyledTableCell sx={{ width: '60%' }}>{t('user')}</StyledTableCell>
+                                    <StyledTableCell sx={{ width: '40%' }}>{t('role')}</StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -189,9 +196,9 @@ function ShowWorkspaceRow(props) {
                                             <StyledTableCell>{item.user.name || item.user.email}</StyledTableCell>
                                             <StyledTableCell>
                                                 {item.isOrgOwner ? (
-                                                    <Chip label='ORGANIZATION OWNER' size={'small'} />
+                                                    <Chip label={t('organizationOwner')} size={'small'} />
                                                 ) : item.role.name === 'personal workspace' ? (
-                                                    <Chip label='PERSONAL WORKSPACE' size={'small'} />
+                                                    <Chip label={t('personalWorkspace')} size={'small'} />
                                                 ) : (
                                                     item.role.name
                                                 )}
@@ -220,6 +227,7 @@ ShowWorkspaceRow.propTypes = {
 // ==============================|| Workspaces ||============================== //
 
 const Workspaces = () => {
+    const { t } = useTranslation('admin')
     const navigate = useNavigate()
     const theme = useTheme()
     const { confirm } = useConfirm()
@@ -254,8 +262,8 @@ const Workspaces = () => {
     const addNew = () => {
         const dialogProp = {
             type: 'ADD',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Add',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:add'),
             data: {}
         }
         setWorkspaceDialogProps(dialogProp)
@@ -265,8 +273,8 @@ const Workspaces = () => {
     const edit = (workspace) => {
         const dialogProp = {
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Save',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:save'),
             data: workspace
         }
         setWorkspaceDialogProps(dialogProp)
@@ -275,10 +283,10 @@ const Workspaces = () => {
 
     const deleteWorkspace = async (workspace) => {
         const confirmPayload = {
-            title: `Delete Workspace ${workspace.name}`,
-            description: `This is irreversible and will remove all associated data inside the workspace. Are you sure you want to delete?`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('deleteWorkspaceName', { name: workspace.name }),
+            description: t('thisIsIrreversibleAndWill'),
+            confirmButtonName: t('common:delete'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -289,7 +297,7 @@ const Workspaces = () => {
                 const deleteResp = await workspaceApi.deleteWorkspace(deleteWorkspaceId)
                 if (deleteResp.data) {
                     enqueueSnackbar({
-                        message: 'Workspace deleted',
+                        message: t('workspaceDeleted'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -305,9 +313,9 @@ const Workspaces = () => {
             } catch (error) {
                 console.error('Failed to delete workspace:', error)
                 enqueueSnackbar({
-                    message: `Failed to delete workspace: ${
-                        typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                    }`,
+                    message: t('failedToDeleteWorkspaceV1', {
+                        v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                    }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -407,7 +415,7 @@ const Workspaces = () => {
                             isEditButton={false}
                             onSearchChange={onSearchChange}
                             search={true}
-                            title='Workspaces'
+                            title={t('workspaces')}
                             searchPlaceholder='Search Workspaces'
                         >
                             <StyledPermissionButton
@@ -417,7 +425,7 @@ const Workspaces = () => {
                                 onClick={addNew}
                                 startIcon={<IconPlus />}
                             >
-                                Add New
+                                {t('common:addNew')}
                             </StyledPermissionButton>
                         </ViewHeader>
                         {!isLoading && workspaces.length <= 0 ? (
@@ -429,7 +437,7 @@ const Workspaces = () => {
                                         alt='workspaces_emptySVG'
                                     />
                                 </Box>
-                                <div>No Workspaces Yet</div>
+                                <div>{t('noWorkspacesYet')}</div>
                             </Stack>
                         ) : (
                             <TableContainer
@@ -446,10 +454,10 @@ const Workspaces = () => {
                                         }}
                                     >
                                         <TableRow>
-                                            <TableCell>Name</TableCell>
-                                            <TableCell>Description</TableCell>
-                                            <TableCell>Users</TableCell>
-                                            <TableCell>Last Updated</TableCell>
+                                            <TableCell>{t('common:name')}</TableCell>
+                                            <TableCell>{t('common:description')}</TableCell>
+                                            <TableCell>{t('users')}</TableCell>
+                                            <TableCell>{t('lastUpdated')}</TableCell>
                                             <TableCell> </TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -526,7 +534,7 @@ const Workspaces = () => {
                     <Stack spacing={2} alignItems='center'>
                         <CircularProgress />
                         <Typography variant='body1' style={{ color: 'white' }}>
-                            Switching workspace...
+                            {t('switchingWorkspace')}
                         </Typography>
                     </Stack>
                 </DialogContent>
@@ -536,7 +544,7 @@ const Workspaces = () => {
                     <Stack spacing={2} alignItems='center'>
                         <CircularProgress />
                         <Typography variant='body1' style={{ color: 'white' }}>
-                            Deleting workspace...
+                            {t('deletingWorkspace')}
                         </Typography>
                     </Stack>
                 </DialogContent>

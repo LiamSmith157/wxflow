@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import moment from 'moment'
 import { useNavigate } from 'react-router-dom'
@@ -49,6 +50,7 @@ import { useError } from '@/store/context/ErrorContext'
 import { closeSnackbar as closeSnackbarAction, enqueueSnackbar as enqueueSnackbarAction } from '@/store/actions'
 
 const WorkspaceDetails = () => {
+    const { t } = useTranslation('admin')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const currentUser = useSelector((state) => state.auth.user)
@@ -120,8 +122,8 @@ const WorkspaceDetails = () => {
     const addUser = () => {
         const dialogProp = {
             type: 'ADD',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Send Invite',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('sendInvite'),
             data: workspace
         }
         setDialogProps(dialogProp)
@@ -139,8 +141,8 @@ const WorkspaceDetails = () => {
     const editInvite = (user) => {
         const dialogProp = {
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Update Invite',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('updateInvite'),
             data: {
                 ...user,
                 isWorkspaceUser: true
@@ -164,8 +166,8 @@ const WorkspaceDetails = () => {
         }
         const dialogProp = {
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Update Role',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('updateRole'),
             data: userObj
         }
         setWorkspaceUserRoleDialogProps(dialogProp)
@@ -176,10 +178,10 @@ const WorkspaceDetails = () => {
         const userList = usersSelected.map((user) => (user.name ? `${user.name} (${user.email})` : user.email)).join(', ')
 
         const confirmPayload = {
-            title: `Remove Users`,
-            description: `Remove the following users from the workspace?\n${userList}`,
-            confirmButtonName: 'Remove',
-            cancelButtonName: 'Cancel'
+            title: t('removeUsers'),
+            description: t('removeTheFollowingUsersFrom', { userList }),
+            confirmButtonName: t('common:remove'),
+            cancelButtonName: t('common:cancel')
         }
 
         const orgOwner = workspaceUsers.find(
@@ -187,7 +189,7 @@ const WorkspaceDetails = () => {
         )
         if (orgOwner) {
             enqueueSnackbar({
-                message: `Organization owner cannot be removed from workspace.`,
+                message: t('organizationOwnerCannotBeRemoved'),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -209,7 +211,7 @@ const WorkspaceDetails = () => {
                 await Promise.all(deletePromises)
 
                 enqueueSnackbar({
-                    message: `${usersSelected.length} User(s) removed from workspace.`,
+                    message: t('v1UserSRemovedFrom', { v1: usersSelected.length }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -231,9 +233,9 @@ const WorkspaceDetails = () => {
                 onConfirm()
             } catch (error) {
                 enqueueSnackbar({
-                    message: `Failed to unlink users: ${
-                        typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                    }`,
+                    message: t('failedToUnlinkUsersV1', {
+                        v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                    }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -331,7 +333,7 @@ const WorkspaceDetails = () => {
                                         color='error'
                                         startIcon={<IconUnlink />}
                                     >
-                                        Remove Users
+                                        {t('removeUsers')}
                                     </PermissionButton>
                                     <StyledPermissionButton
                                         permissionId={'workspace:add-user'}
@@ -340,7 +342,7 @@ const WorkspaceDetails = () => {
                                         onClick={addUser}
                                         startIcon={<IconUserPlus />}
                                     >
-                                        Add User
+                                        {t('addUser')}
                                     </StyledPermissionButton>
                                 </>
                             )}
@@ -354,7 +356,7 @@ const WorkspaceDetails = () => {
                                         alt='empty_datasetSVG'
                                     />
                                 </Box>
-                                <div>No Assigned Users Yet</div>
+                                <div>{t('noAssignedUsersYet')}</div>
                                 <StyledPermissionButton
                                     permissionId={'workspace:add-user'}
                                     variant='contained'
@@ -362,7 +364,7 @@ const WorkspaceDetails = () => {
                                     startIcon={<IconUserPlus />}
                                     onClick={addUser}
                                 >
-                                    Add User
+                                    {t('addUser')}
                                 </StyledPermissionButton>
                             </Stack>
                         ) : (
@@ -391,10 +393,10 @@ const WorkspaceDetails = () => {
                                                         }}
                                                     />
                                                 </StyledTableCell>
-                                                <StyledTableCell>Email/Name</StyledTableCell>
-                                                <StyledTableCell>Role</StyledTableCell>
-                                                <StyledTableCell>Status</StyledTableCell>
-                                                <StyledTableCell>Last Login</StyledTableCell>
+                                                <StyledTableCell>{t('emailName')}</StyledTableCell>
+                                                <StyledTableCell>{t('role')}</StyledTableCell>
+                                                <StyledTableCell>{t('common:status')}</StyledTableCell>
+                                                <StyledTableCell>{t('lastLogin')}</StyledTableCell>
                                                 <StyledTableCell> </StyledTableCell>
                                             </TableRow>
                                         </TableHead>
@@ -503,7 +505,7 @@ const WorkspaceDetails = () => {
                                                             <StyledTableCell>
                                                                 {!item.isOrgOwner && item.status.toUpperCase() === 'INVITED' && (
                                                                     <IconButton
-                                                                        title='Edit'
+                                                                        title={t('common:edit')}
                                                                         color='primary'
                                                                         onClick={() => onEditClick(item)}
                                                                     >
@@ -512,7 +514,7 @@ const WorkspaceDetails = () => {
                                                                 )}
                                                                 {!item.isOrgOwner && item.status.toUpperCase() === 'ACTIVE' && (
                                                                     <IconButton
-                                                                        title='Change Role'
+                                                                        title={t('changeRole')}
                                                                         color='primary'
                                                                         onClick={() => onEditClick(item)}
                                                                     >

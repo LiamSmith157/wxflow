@@ -1,14 +1,16 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { TableContainer, Table, TableHead, TableCell, TableRow, TableBody, Paper, Chip, Stack, Typography } from '@mui/material'
 import { TooltipWithParser } from '@/ui-component/tooltip/TooltipWithParser'
 
 export const TableViewOnly = ({ columns, rows, sx }) => {
+    const { t } = useTranslation('components')
     // Helper function to safely render cell content
     const renderCellContent = (key, row) => {
         if (row[key] === null || row[key] === undefined) {
             return ''
         } else if (key === 'enabled') {
-            return row[key] ? <Chip label='Enabled' color='primary' /> : <Chip label='Disabled' />
+            return row[key] ? <Chip label={t('enabled')} color='primary' /> : <Chip label={t('disabled')} />
         } else if (key === 'type' && row.schema) {
             // If there's schema information, add a tooltip
             let schemaContent
@@ -60,7 +62,7 @@ export const TableViewOnly = ({ columns, rows, sx }) => {
                                 <TableCell key={index}>
                                     {col === 'enabled' ? (
                                         <>
-                                            Override
+                                            {t('override')}
                                             <TooltipWithParser
                                                 style={{ mb: 1, mt: 2, marginLeft: 10 }}
                                                 title={

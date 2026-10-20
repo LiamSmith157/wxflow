@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -47,6 +48,7 @@ import { ExecutionDetails } from './ExecutionDetails'
 // ==============================|| AGENT EXECUTIONS ||============================== //
 
 const AgentExecutions = () => {
+    const { t } = useTranslation('executions')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const borderColor = theme.palette.grey[900] + 25
@@ -236,18 +238,18 @@ const AgentExecutions = () => {
                 <ErrorBoundary error={error} />
             ) : (
                 <Stack flexDirection='column' sx={{ gap: 3 }}>
-                    <ViewHeader title='Agent Executions' description='Monitor and manage agentflows executions' />
+                    <ViewHeader title={t('agentExecutions')} description={t('monitorAndManageAgentflowsExecutions')} />
 
                     {/* Filter Section */}
                     <Box sx={{ mb: 2, width: '100%' }}>
                         <Grid container spacing={2} alignItems='center'>
                             <Grid item xs={12} md={2}>
                                 <FormControl fullWidth size='small'>
-                                    <InputLabel id='state-select-label'>State</InputLabel>
+                                    <InputLabel id='state-select-label'>{t('state')}</InputLabel>
                                     <Select
                                         labelId='state-select-label'
                                         value={filters.state}
-                                        label='State'
+                                        label={t('state')}
                                         onChange={(e) => handleFilterChange('state', e.target.value)}
                                         size='small'
                                         sx={{
@@ -259,13 +261,13 @@ const AgentExecutions = () => {
                                             }
                                         }}
                                     >
-                                        <MenuItem value=''>All</MenuItem>
-                                        <MenuItem value='INPROGRESS'>In Progress</MenuItem>
-                                        <MenuItem value='FINISHED'>Finished</MenuItem>
-                                        <MenuItem value='ERROR'>Error</MenuItem>
-                                        <MenuItem value='TERMINATED'>Terminated</MenuItem>
-                                        <MenuItem value='TIMEOUT'>Timeout</MenuItem>
-                                        <MenuItem value='STOPPED'>Stopped</MenuItem>
+                                        <MenuItem value=''>{t('all')}</MenuItem>
+                                        <MenuItem value='INPROGRESS'>{t('inProgress')}</MenuItem>
+                                        <MenuItem value='FINISHED'>{t('finished')}</MenuItem>
+                                        <MenuItem value='ERROR'>{t('common:error')}</MenuItem>
+                                        <MenuItem value='TERMINATED'>{t('terminated')}</MenuItem>
+                                        <MenuItem value='TIMEOUT'>{t('timeout')}</MenuItem>
+                                        <MenuItem value='STOPPED'>{t('stopped')}</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>
@@ -281,7 +283,7 @@ const AgentExecutions = () => {
                                     customInput={
                                         <TextField
                                             size='small'
-                                            label='Start date'
+                                            label={t('startDate')}
                                             fullWidth
                                             sx={{
                                                 '& .MuiOutlinedInput-notchedOutline': {
@@ -305,7 +307,7 @@ const AgentExecutions = () => {
                                     customInput={
                                         <TextField
                                             size='small'
-                                            label='End date'
+                                            label={t('endDate')}
                                             fullWidth
                                             sx={{
                                                 '& .MuiOutlinedInput-notchedOutline': {
@@ -333,7 +335,7 @@ const AgentExecutions = () => {
                             <Grid sx={{ ml: -1 }} item xs={12} md={2}>
                                 <TextField
                                     fullWidth
-                                    label='Session ID'
+                                    label={t('sessionId')}
                                     value={filters.sessionId}
                                     onChange={(e) => handleFilterChange('sessionId', e.target.value)}
                                     size='small'
@@ -352,13 +354,13 @@ const AgentExecutions = () => {
                                         onClick={() => applyFilters(currentPage, pageLimit)}
                                         size='small'
                                     >
-                                        Apply
+                                        {t('common:apply')}
                                     </Button>
                                     <Button variant='outlined' onClick={resetFilters} size='small'>
-                                        Reset
+                                        {t('common:reset')}
                                     </Button>
                                     <Available permissions={['executions:delete']}>
-                                        <Tooltip title='Delete selected executions'>
+                                        <Tooltip title={t('deleteSelectedExecutions')}>
                                             <span>
                                                 <IconButton
                                                     sx={{ height: 30, width: 30 }}
@@ -427,7 +429,7 @@ const AgentExecutions = () => {
                         aria-labelledby='alert-dialog-title'
                         aria-describedby='alert-dialog-description'
                     >
-                        <DialogTitle id='alert-dialog-title'>Confirm Deletion</DialogTitle>
+                        <DialogTitle id='alert-dialog-title'>{t('confirmDeletion')}</DialogTitle>
                         <DialogContent>
                             <DialogContentText id='alert-dialog-description'>
                                 Are you sure you want to delete {selectedExecutionIds.length} execution
@@ -436,10 +438,10 @@ const AgentExecutions = () => {
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={handleDeleteDialogClose} color='primary'>
-                                Cancel
+                                {t('common:cancel')}
                             </Button>
                             <Button onClick={handleDeleteExecutions} color='error'>
-                                Delete
+                                {t('common:delete')}
                             </Button>
                         </DialogActions>
                     </Dialog>
@@ -453,7 +455,7 @@ const AgentExecutions = () => {
                                     alt='execution_empty'
                                 />
                             </Box>
-                            <div>No Executions Yet</div>
+                            <div>{t('noExecutionsYet')}</div>
                         </Stack>
                     )}
                 </Stack>

@@ -1,4 +1,5 @@
 import { useDispatch } from 'react-redux'
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
@@ -24,6 +25,7 @@ const endTitle = `Thank you!
 What can I do for you?`
 
 const Leads = ({ dialogProps }) => {
+    const { t } = useTranslation('components')
     const dispatch = useDispatch()
 
     useNotifier()
@@ -52,7 +54,7 @@ const Leads = ({ dialogProps }) => {
             })
             if (saveResp.data) {
                 enqueueSnackbar({
-                    message: 'Leads configuration Saved',
+                    message: t('leadsConfigurationSaved'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -68,7 +70,7 @@ const Leads = ({ dialogProps }) => {
         } catch (error) {
             const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`
             enqueueSnackbar({
-                message: `Failed to save Leads configuration: ${errorData}`,
+                message: t('failedToSaveLeadsConfiguration', { errorData }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -108,11 +110,15 @@ const Leads = ({ dialogProps }) => {
                     mb: 2
                 }}
             >
-                <SwitchInput label='Enable Lead Capture' onChange={(value) => handleChange('status', value)} value={leadsConfig.status} />
+                <SwitchInput
+                    label={t('enableLeadCapture')}
+                    onChange={(value) => handleChange('status', value)}
+                    value={leadsConfig.status}
+                />
                 {leadsConfig && leadsConfig['status'] && (
                     <>
                         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1 }}>
-                            <Typography>Form Title</Typography>
+                            <Typography>{t('formTitle')}</Typography>
                             <OutlinedInput
                                 id='form-title'
                                 type='text'
@@ -129,7 +135,7 @@ const Leads = ({ dialogProps }) => {
                             />
                         </Box>
                         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1 }}>
-                            <Typography>Message after lead captured</Typography>
+                            <Typography>{t('messageAfterLeadCaptured')}</Typography>
                             <OutlinedInput
                                 id='success-message'
                                 type='text'
@@ -145,16 +151,24 @@ const Leads = ({ dialogProps }) => {
                                 }}
                             />
                         </Box>
-                        <Typography variant='h4'>Form fields</Typography>
+                        <Typography variant='h4'>{t('formFields')}</Typography>
                         <Box sx={{ width: '100%' }}>
                             <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1 }}>
-                                <SwitchInput label='Name' onChange={(value) => handleChange('name', value)} value={leadsConfig.name} />
                                 <SwitchInput
-                                    label='Email Address'
+                                    label={t('common:name')}
+                                    onChange={(value) => handleChange('name', value)}
+                                    value={leadsConfig.name}
+                                />
+                                <SwitchInput
+                                    label={t('emailAddress')}
                                     onChange={(value) => handleChange('email', value)}
                                     value={leadsConfig.email}
                                 />
-                                <SwitchInput label='Phone' onChange={(value) => handleChange('phone', value)} value={leadsConfig.phone} />
+                                <SwitchInput
+                                    label={t('phone')}
+                                    onChange={(value) => handleChange('phone', value)}
+                                    value={leadsConfig.phone}
+                                />
                             </Box>
                         </Box>
                     </>
@@ -167,7 +181,7 @@ const Leads = ({ dialogProps }) => {
                     onClick={onSave}
                     sx={{ minWidth: 100 }}
                 >
-                    Save
+                    {t('common:save')}
                 </StyledButton>
             </Box>
         </>

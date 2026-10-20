@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { FormControl, OutlinedInput, InputAdornment, IconButton, CircularProgress, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
@@ -9,6 +10,7 @@ const MASKED_CHARS = '\u2022\u2022\u2022\u2022\u2022\u2022'
 const MULTILINE_DOTS = '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022'
 
 export const SensitiveInput = ({ inputParam, value, onChange, disabled = false, onReveal }) => {
+    const { t } = useTranslation('components')
     const theme = useTheme()
     const [myValue, setMyValue] = useState(value ?? '')
     const [isVisible, setIsVisible] = useState(false)
@@ -121,7 +123,7 @@ export const SensitiveInput = ({ inputParam, value, onChange, disabled = false, 
             </FormControl>
             {isUrl && onReveal && (
                 <Typography variant='caption' sx={{ color: 'text.secondary', mt: 0.5, display: 'block' }}>
-                    Click the eye icon to reveal the value before editing.
+                    {t('clickTheEyeIconTo')}
                 </Typography>
             )}
         </>

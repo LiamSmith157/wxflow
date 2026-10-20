@@ -1,4 +1,5 @@
 import { cloneDeep } from 'lodash'
+import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 import { validate as uuidValidate, v4 as uuidv4 } from 'uuid'
 import { useDispatch, useSelector } from 'react-redux'
@@ -60,6 +61,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 // ===========================|| DOCUMENT LOADER CHUNKS ||=========================== //
 
 const LoaderConfigPreviewChunks = () => {
+    const { t } = useTranslation('docstore')
     const customization = useSelector((state) => state.customization)
     const navigate = useNavigate()
     const theme = useTheme()
@@ -158,7 +160,7 @@ const LoaderConfigPreviewChunks = () => {
         if (!canSubmit) {
             const fieldsList = missingFields.join(', ')
             enqueueSnackbar({
-                message: `Please fill in the following mandatory fields: ${fieldsList}`,
+                message: t('pleaseFillInTheFollowing', { fieldsList }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'warning',
@@ -190,9 +192,9 @@ const LoaderConfigPreviewChunks = () => {
             } catch (error) {
                 setLoading(false)
                 enqueueSnackbar({
-                    message: `Failed to preview chunks: ${
-                        typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                    }`,
+                    message: t('failedToPreviewChunksV1', {
+                        v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                    }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -216,7 +218,7 @@ const LoaderConfigPreviewChunks = () => {
                 setLoading(false)
                 if (saveResp.data) {
                     enqueueSnackbar({
-                        message: 'File submitted for processing. Redirecting to Document Store..',
+                        message: t('fileSubmittedForProcessingRedirectin'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -234,9 +236,9 @@ const LoaderConfigPreviewChunks = () => {
             } catch (error) {
                 setLoading(false)
                 enqueueSnackbar({
-                    message: `Failed to process chunking: ${
-                        typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                    }`,
+                    message: t('failedToProcessChunkingV1', {
+                        v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                    }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -338,7 +340,7 @@ const LoaderConfigPreviewChunks = () => {
                 label: splitter.label,
                 name: splitter.name
             }))
-            options.unshift({ label: 'None', name: 'none' })
+            options.unshift({ label: t('none'), name: 'none' })
             setTextSplitterOptions(options)
 
             // If this is a document store edit config, set the existing input values
@@ -397,7 +399,13 @@ const LoaderConfigPreviewChunks = () => {
                                 }}
                             >
                                 <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
-                                    <StyledFab size='small' color='secondary' aria-label='back' title='Back' onClick={() => navigate(-1)}>
+                                    <StyledFab
+                                        size='small'
+                                        color='secondary'
+                                        aria-label='back'
+                                        title={t('common:back')}
+                                        onClick={() => navigate(-1)}
+                                    >
                                         <IconArrowLeft />
                                     </StyledFab>
                                     <Typography sx={{ ml: 2, mr: 2 }} variant='h3'>
@@ -439,7 +447,7 @@ const LoaderConfigPreviewChunks = () => {
                                         sx={{ borderRadius: 2, height: '100%' }}
                                         startIcon={<IconDatabaseImport />}
                                     >
-                                        Process
+                                        {t('process')}
                                     </StyledButton>
                                 </Box>
                             </Toolbar>
@@ -518,7 +526,7 @@ const LoaderConfigPreviewChunks = () => {
                                                     </div>
                                                 </Box>
                                                 <Box sx={{ p: 2 }}>
-                                                    <Typography>Splitter</Typography>
+                                                    <Typography>{t('splitter')}</Typography>
                                                     <Dropdown
                                                         key={JSON.stringify(selectedTextSplitter)}
                                                         name='textSplitter'
@@ -601,12 +609,12 @@ const LoaderConfigPreviewChunks = () => {
                                                     <StyledFab
                                                         color='secondary'
                                                         aria-label='preview'
-                                                        title='Preview'
+                                                        title={t('common:preview')}
                                                         variant='extended'
                                                         onClick={onPreviewChunks}
                                                     >
                                                         <IconEye style={{ marginRight: '5px' }} />
-                                                        Preview Chunks
+                                                        {t('previewChunks')}
                                                     </StyledFab>
                                                 </div>
                                             </div>
@@ -617,7 +625,7 @@ const LoaderConfigPreviewChunks = () => {
                                                 {currentPreviewCount} of {totalChunks} Chunks
                                             </Typography>
                                             <Box sx={{ mb: 3 }}>
-                                                <Typography>Show Chunks in Preview</Typography>
+                                                <Typography>{t('showChunksInPreview')}</Typography>
                                                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                                                     <OutlinedInput
                                                         size='small'
@@ -631,12 +639,12 @@ const LoaderConfigPreviewChunks = () => {
                                                     <StyledFab
                                                         color='secondary'
                                                         aria-label='preview'
-                                                        title='Preview'
+                                                        title={t('common:preview')}
                                                         variant='extended'
                                                         onClick={onPreviewChunks}
                                                     >
                                                         <IconEye style={{ marginRight: '5px' }} />
-                                                        Preview
+                                                        {t('common:preview')}
                                                     </StyledFab>
                                                 </div>
                                             </Box>

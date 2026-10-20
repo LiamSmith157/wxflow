@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { useContext, memo, useRef, useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { Handle, Position, useUpdateNodeInternals, NodeToolbar } from 'reactflow'
@@ -59,6 +60,7 @@ const StyledNodeToolbar = styled(NodeToolbar)(({ theme }) => ({
 // ===========================|| CANVAS NODE ||=========================== //
 
 const AgentFlowNode = ({ data }) => {
+    const { t } = useTranslation('agentflows')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const canvas = useSelector((state) => state.canvas)
@@ -212,7 +214,7 @@ const AgentFlowNode = ({ data }) => {
                     {data.name !== 'startAgentflow' && (
                         <IconButton
                             size={'small'}
-                            title='Duplicate'
+                            title={t('common:duplicate')}
                             onClick={() => {
                                 duplicateNode(data.id)
                             }}
@@ -228,7 +230,7 @@ const AgentFlowNode = ({ data }) => {
                     )}
                     <IconButton
                         size={'small'}
-                        title='Delete'
+                        title={t('common:delete')}
                         onClick={() => {
                             deleteNode(data.id)
                         }}
@@ -243,7 +245,7 @@ const AgentFlowNode = ({ data }) => {
                     </IconButton>
                     <IconButton
                         size={'small'}
-                        title='Info'
+                        title={t('common:info')}
                         onClick={() => {
                             setInfoDialogProps({ data })
                             setShowInfoDialog(true)

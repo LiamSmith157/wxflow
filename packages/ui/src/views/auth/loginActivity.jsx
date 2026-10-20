@@ -1,4 +1,5 @@
 import moment from 'moment/moment'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { forwardRef, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -86,6 +87,7 @@ DatePickerCustomInput.propTypes = {
     onClick: PropTypes.func
 }
 const LoginActivity = () => {
+    const { t } = useTranslation('auth')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     useNotifier()
@@ -217,7 +219,7 @@ const LoginActivity = () => {
                     <ErrorBoundary error={error} />
                 ) : (
                     <Stack flexDirection='column' sx={{ gap: 3 }}>
-                        <ViewHeader search={false} title='Login Activity'></ViewHeader>
+                        <ViewHeader search={false} title={t('loginActivity')}></ViewHeader>
                         <Stack flexDirection='row'>
                             <Box sx={{ p: 2, height: 'auto', width: '100%' }}>
                                 <div
@@ -238,7 +240,7 @@ const LoginActivity = () => {
                                         }}
                                     >
                                         <div style={{ marginRight: 10 }}>
-                                            <b style={{ marginRight: 10 }}>From: </b>
+                                            <b style={{ marginRight: 10 }}>{t('from')} </b>
                                             <DatePicker
                                                 selected={startDate}
                                                 onChange={(date) => onStartDateSelected(date)}
@@ -249,7 +251,7 @@ const LoginActivity = () => {
                                             />
                                         </div>
                                         <div style={{ marginRight: 10 }}>
-                                            <b style={{ marginRight: 10 }}>To: </b>
+                                            <b style={{ marginRight: 10 }}>{t('to')} </b>
                                             <DatePicker
                                                 selected={endDate}
                                                 onChange={(date) => onEndDateSelected(date)}
@@ -273,7 +275,7 @@ const LoginActivity = () => {
                                                 }}
                                             >
                                                 <InputLabel size='small' id='type-label'>
-                                                    Filter By
+                                                    {t('filterBy')}
                                                 </InputLabel>
                                                 <Select
                                                     size='small'
@@ -282,7 +284,7 @@ const LoginActivity = () => {
                                                     value={typeFilter}
                                                     onChange={handleTypeFilterChange}
                                                     id='type-checkbox'
-                                                    input={<OutlinedInput label='Badge' />}
+                                                    input={<OutlinedInput label={t('badge')} />}
                                                     renderValue={(selected) => selected.join(', ')}
                                                     MenuProps={MenuProps}
                                                     sx={SelectStyles}
@@ -372,11 +374,11 @@ const LoginActivity = () => {
                                             }}
                                         >
                                             <TableRow>
-                                                <StyledTableCell>Activity</StyledTableCell>
-                                                <StyledTableCell>User</StyledTableCell>
-                                                <StyledTableCell>Date</StyledTableCell>
-                                                <StyledTableCell>Method</StyledTableCell>
-                                                <StyledTableCell>Message</StyledTableCell>
+                                                <StyledTableCell>{t('activity')}</StyledTableCell>
+                                                <StyledTableCell>{t('user')}</StyledTableCell>
+                                                <StyledTableCell>{t('date')}</StyledTableCell>
+                                                <StyledTableCell>{t('method')}</StyledTableCell>
+                                                <StyledTableCell>{t('message')}</StyledTableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>

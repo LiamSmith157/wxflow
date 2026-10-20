@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -25,6 +26,7 @@ import { AGENTFLOW_ICONS } from '@/store/constant'
 // Utils
 
 const ValidationPopUp = ({ chatflowid, hidden }) => {
+    const { t } = useTranslation('executions')
     const theme = useTheme()
     const dispatch = useDispatch()
     const customization = useSelector((state) => state.customization)
@@ -60,7 +62,7 @@ const ValidationPopUp = ({ chatflowid, hidden }) => {
 
             if (response.data.length === 0) {
                 enqueueSnackbar({
-                    message: 'No issues found in your flow!',
+                    message: t('noIssuesFoundInYour'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -146,7 +148,7 @@ const ValidationPopUp = ({ chatflowid, hidden }) => {
                     size='small'
                     color='teal'
                     aria-label='validation'
-                    title='Validate Nodes'
+                    title={t('validateNodes')}
                     onClick={handleToggle}
                 >
                     {open ? <IconX /> : <IconChecklist />}

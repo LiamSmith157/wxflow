@@ -1,4 +1,6 @@
 import { useDispatch } from 'react-redux'
+import { useTranslatedConfig } from '@/i18n/useTranslatedConfig'
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction, SET_CHATFLOW } from '@/store/actions'
@@ -38,7 +40,7 @@ const SpeechToTextType = {
 }
 
 // Weird quirk - the key must match the name property value.
-const speechToTextProviders = {
+const speechToTextProvidersRaw = {
     [SpeechToTextType.OPENAI_WHISPER]: {
         label: 'OpenAI Whisper',
         name: SpeechToTextType.OPENAI_WHISPER,
@@ -240,6 +242,8 @@ const speechToTextProviders = {
 }
 
 const SpeechToText = ({ dialogProps, onConfirm }) => {
+    const speechToTextProviders = useTranslatedConfig(speechToTextProvidersRaw)
+    const { t } = useTranslation('components')
     const dispatch = useDispatch()
 
     useNotifier()
@@ -259,7 +263,7 @@ const SpeechToText = ({ dialogProps, onConfirm }) => {
             })
             if (saveResp.data) {
                 enqueueSnackbar({
-                    message: 'Speech To Text Configuration Saved',
+                    message: t('speechToTextConfigurationSaved'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -275,9 +279,9 @@ const SpeechToText = ({ dialogProps, onConfirm }) => {
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed to save Speech To Text Configuration: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToSaveSpeechTo', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -326,7 +330,7 @@ const SpeechToText = ({ dialogProps, onConfirm }) => {
             try {
                 const speechToText = JSON.parse(dialogProps.chatflow.speechToText)
                 let selectedProvider = 'none'
-                Object.keys(speechToTextProviders).forEach((key) => {
+                Object.keys(speechToTextProvidersRaw).forEach((key) => {
                     const providerConfig = speechToText[key]
                     if (providerConfig && providerConfig.status) {
                         selectedProvider = key
@@ -350,7 +354,7 @@ const SpeechToText = ({ dialogProps, onConfirm }) => {
     return (
         <>
             <Box fullWidth sx={{ mb: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Typography>Providers</Typography>
+                <Typography>{t('providers')}</Typography>
                 <FormControl fullWidth>
                     <Select
                         size='small'
@@ -362,7 +366,7 @@ const SpeechToText = ({ dialogProps, onConfirm }) => {
                             }
                         }}
                     >
-                        <MenuItem value='none'>None</MenuItem>
+                        <MenuItem value='none'>{t('none')}</MenuItem>
                         {Object.values(speechToTextProviders).map((provider) => (
                             <MenuItem key={provider.name} value={provider.name}>
                                 {provider.label}
@@ -485,7 +489,7 @@ const SpeechToText = ({ dialogProps, onConfirm }) => {
                     onClick={onSave}
                     sx={{ minWidth: 100 }}
                 >
-                    Save
+                    {t('common:save')}
                 </StyledButton>
             </Box>
         </>

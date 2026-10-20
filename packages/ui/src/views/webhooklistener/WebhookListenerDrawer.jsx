@@ -1,4 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { td } from '@/i18n/dynamic'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 import { fetchEventSource } from '@microsoft/fetch-event-source'
@@ -87,6 +89,7 @@ Caption.propTypes = { children: PropTypes.node }
 
 const StatusPill = ({ status }) => {
     const theme = useTheme()
+    useTranslation('misc') // re-render the status label when the language changes
     const meta = STATUS_META[status] ?? STATUS_META.idle
     const color = TONE_COLOR(theme, meta.tone)
     const animated = status === 'listening' || status === 'running'
@@ -114,7 +117,9 @@ const StatusPill = ({ status }) => {
                     animation: animated ? `${subtleBlink} 1.4s ease-in-out infinite` : 'none'
                 }}
             />
-            <Typography sx={{ fontFamily: MONO_STACK, fontSize: 10.5, letterSpacing: '0.12em', fontWeight: 600 }}>{meta.label}</Typography>
+            <Typography sx={{ fontFamily: MONO_STACK, fontSize: 10.5, letterSpacing: '0.12em', fontWeight: 600 }}>
+                {td(meta.label)}
+            </Typography>
         </Stack>
     )
 }
@@ -170,6 +175,7 @@ const SonarIdle = () => {
 // ─── Endpoint block ───────────────────────────────────────────────────────────
 
 const EndpointBlock = ({ method, url, isDark, onCopy }) => {
+    const { t } = useTranslation('misc')
     const theme = useTheme()
     const [showCurl, setShowCurl] = useState(false)
     const [copied, setCopied] = useState(false)
@@ -257,7 +263,7 @@ const EndpointBlock = ({ method, url, isDark, onCopy }) => {
                         '&:hover': { bgcolor: 'transparent', color: isDark ? 'common.white' : 'text.primary' }
                     }}
                 >
-                    cURL example
+                    {t('curlExample')}
                 </Button>
                 <Collapse in={showCurl} timeout='auto' unmountOnExit>
                     <Box
@@ -303,6 +309,7 @@ EndpointBlock.propTypes = {
 // ─── Drawer ───────────────────────────────────────────────────────────────────
 
 const WebhookListenerDrawer = ({ open, chatflowid, onClose, onStatusChange }) => {
+    const { t } = useTranslation('misc')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const isDark = customization?.isDarkMode
@@ -555,7 +562,7 @@ const WebhookListenerDrawer = ({ open, chatflowid, onClose, onStatusChange }) =>
         >
             {/* Resize handle */}
             <button
-                aria-label='Resize panel'
+                aria-label={t('resizePanel')}
                 onMouseDown={onMouseDown}
                 style={{
                     position: 'absolute',
@@ -623,9 +630,11 @@ const WebhookListenerDrawer = ({ open, chatflowid, onClose, onStatusChange }) =>
                                 lineHeight: 1
                             }}
                         >
-                            Webhook Listener
+                            {t('webhookListener')}
                         </Typography>
-                        <Typography sx={{ fontSize: 14, fontWeight: 600, mt: 0.25, color: 'text.primary' }}>Live observatory</Typography>
+                        <Typography sx={{ fontSize: 14, fontWeight: 600, mt: 0.25, color: 'text.primary' }}>
+                            {t('liveObservatory')}
+                        </Typography>
                     </Box>
                     <Tooltip title={maximized ? 'Restore width' : 'Expand'}>
                         <IconButton
@@ -668,7 +677,7 @@ const WebhookListenerDrawer = ({ open, chatflowid, onClose, onStatusChange }) =>
             <Box sx={{ flex: 1, overflow: 'auto', px: 2.5, py: 2 }}>
                 {/* Endpoint */}
                 <Box sx={{ mb: 3 }}>
-                    <Caption>Endpoint</Caption>
+                    <Caption>{t('endpoint')}</Caption>
                     <EndpointBlock method={method} url={webhookUrl} isDark={isDark} />
                 </Box>
 
@@ -677,9 +686,9 @@ const WebhookListenerDrawer = ({ open, chatflowid, onClose, onStatusChange }) =>
                 {/* Process flow — same expandable tree the chat panel uses, with per-node JSON drilldown */}
                 <Box sx={{ mb: 3 }}>
                     <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{ mb: 1 }}>
-                        <Caption>Process flow</Caption>
+                        <Caption>{t('processFlow')}</Caption>
                         {status === 'running' && (
-                            <Typography sx={{ fontFamily: MONO_STACK, fontSize: 10, color: 'warning.main' }}>streaming…</Typography>
+                            <Typography sx={{ fontFamily: MONO_STACK, fontSize: 10, color: 'warning.main' }}>{t('streaming')}</Typography>
                         )}
                     </Stack>
 
@@ -703,12 +712,12 @@ const WebhookListenerDrawer = ({ open, chatflowid, onClose, onStatusChange }) =>
                     ) : status === 'connecting' ? (
                         <Stack direction='row' alignItems='center' spacing={1} sx={{ color: 'text.secondary' }}>
                             <IconLoader2 size={14} style={{ animation: `${spin} 0.9s linear infinite` }} />
-                            <Typography sx={{ fontSize: 12 }}>Opening event stream…</Typography>
+                            <Typography sx={{ fontSize: 12 }}>{t('openingStream')}</Typography>
                         </Stack>
                     ) : status === 'running' ? (
                         <Stack direction='row' alignItems='center' spacing={1} sx={{ color: 'text.secondary' }}>
                             <IconLoader2 size={14} style={{ animation: `${spin} 0.9s linear infinite` }} />
-                            <Typography sx={{ fontSize: 12 }}>Flow started — first node executing…</Typography>
+                            <Typography sx={{ fontSize: 12 }}>{t('flowStarted')}</Typography>
                         </Stack>
                     ) : status === 'error' ? (
                         <Box
@@ -735,7 +744,7 @@ const WebhookListenerDrawer = ({ open, chatflowid, onClose, onStatusChange }) =>
                     <>
                         <Divider sx={{ my: 2.5, opacity: 0.6 }} />
                         <Box>
-                            <Caption>Response</Caption>
+                            <Caption>{t('response')}</Caption>
                             <Box
                                 sx={{
                                     border: `1px solid ${theme.palette.divider}`,
@@ -762,7 +771,7 @@ const WebhookListenerDrawer = ({ open, chatflowid, onClose, onStatusChange }) =>
                                     <MemoizedReactMarkdown chatflowid={chatflowid}>{finalMessage}</MemoizedReactMarkdown>
                                 ) : (
                                     <Typography sx={{ fontFamily: MONO_STACK, fontSize: 12, color: 'text.secondary' }}>
-                                        Flow completed without a text response.
+                                        {t('flowCompletedWithoutAText')}
                                     </Typography>
                                 )}
                             </Box>
@@ -775,7 +784,7 @@ const WebhookListenerDrawer = ({ open, chatflowid, onClose, onStatusChange }) =>
                     <>
                         <Divider sx={{ my: 2.5, opacity: 0.6 }} />
                         <Box>
-                            <Caption>Error</Caption>
+                            <Caption>{t('common:error')}</Caption>
                             <Box
                                 sx={{
                                     border: `1px solid ${alpha(theme.palette.error.main, 0.4)}`,
@@ -819,7 +828,7 @@ const WebhookListenerDrawer = ({ open, chatflowid, onClose, onStatusChange }) =>
                         '&:hover': { color: isDark ? 'common.white' : 'text.primary', bgcolor: 'transparent' }
                     }}
                 >
-                    Reset trace
+                    {t('resetTrace')}
                 </Button>
             </Box>
         </Drawer>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import moment from 'moment/moment'
 
@@ -19,6 +20,7 @@ import evaluationApi from '@/api/evaluations'
 import useApi from '@/hooks/useApi'
 
 const EvaluationResultVersionsSideDrawer = ({ show, dialogProps, onClickFunction, onSelectVersion }) => {
+    const { t } = useTranslation('evaluations')
     const onOpen = () => {}
     const [versions, setVersions] = useState([])
 
@@ -43,7 +45,7 @@ const EvaluationResultVersionsSideDrawer = ({ show, dialogProps, onClickFunction
     return (
         <SwipeableDrawer anchor='right' open={show} onClose={() => onClickFunction()} onOpen={onOpen}>
             <Button startIcon={<IconSquareRoundedChevronsRight />} onClick={() => onClickFunction()}>
-                Close
+                {t('common:close')}
             </Button>
             <Box style={{ width: 350, margin: 10 }} role='presentation' onClick={onClickFunction}>
                 <Timeline

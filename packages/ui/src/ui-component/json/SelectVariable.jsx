@@ -1,4 +1,5 @@
 import { useSelector } from 'react-redux'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { Box, List, ListItemButton, ListItem, ListItemAvatar, ListItemText, Typography, Stack } from '@mui/material'
 import PerfectScrollbar from 'react-perfect-scrollbar'
@@ -8,6 +9,7 @@ import fileAttachmentPNG from '@/assets/images/fileAttachment.png'
 import { baseURL } from '@/store/constant'
 
 const SelectVariable = ({ availableNodesForVariable, disabled = false, onSelectAndReturnVal }) => {
+    const { t } = useTranslation('components')
     const customization = useSelector((state) => state.customization)
 
     const onSelectOutputResponseClick = (node, prefix) => {
@@ -21,7 +23,7 @@ const SelectVariable = ({ availableNodesForVariable, disabled = false, onSelectA
             {!disabled && (
                 <div style={{ flex: 30 }}>
                     <Stack flexDirection='row' sx={{ mb: 1, ml: 2, mt: 2 }}>
-                        <Typography variant='h5'>Select Variable</Typography>
+                        <Typography variant='h5'>{t('selectVariable')}</Typography>
                     </Stack>
                     <PerfectScrollbar style={{ height: '100%', maxHeight: 'calc(100vh - 220px)', overflowX: 'hidden' }}>
                         <Box sx={{ pl: 2, pr: 2 }}>
@@ -58,7 +60,7 @@ const SelectVariable = ({ availableNodesForVariable, disabled = false, onSelectA
                                                 />
                                             </div>
                                         </ListItemAvatar>
-                                        <ListItemText sx={{ ml: 1 }} primary='question' secondary={`User's question from chatbox`} />
+                                        <ListItemText sx={{ ml: 1 }} primary='question' secondary={t('userSQuestionFromChatbox')} />
                                     </ListItem>
                                 </ListItemButton>
                                 <ListItemButton
@@ -96,7 +98,7 @@ const SelectVariable = ({ availableNodesForVariable, disabled = false, onSelectA
                                         <ListItemText
                                             sx={{ ml: 1 }}
                                             primary='chat_history'
-                                            secondary={`Past conversation history between user and AI`}
+                                            secondary={t('pastConversationHistoryBetweenUser')}
                                         />
                                     </ListItem>
                                 </ListItemButton>
@@ -132,11 +134,7 @@ const SelectVariable = ({ availableNodesForVariable, disabled = false, onSelectA
                                                 />
                                             </div>
                                         </ListItemAvatar>
-                                        <ListItemText
-                                            sx={{ ml: 1 }}
-                                            primary='file_attachment'
-                                            secondary={`Files uploaded from the chat when Full File Upload is enabled on the Configuration`}
-                                        />
+                                        <ListItemText sx={{ ml: 1 }} primary='file_attachment' secondary={t('filesUploadedFromTheChat')} />
                                     </ListItem>
                                 </ListItemButton>
                                 {availableNodesForVariable &&
@@ -188,7 +186,10 @@ const SelectVariable = ({ availableNodesForVariable, disabled = false, onSelectA
                                                             node.data.inputs.variableName ??
                                                             node.data.id
                                                         }
-                                                        secondary={`${selectedOutputAnchor?.label ?? 'output'} from ${node.data.label}`}
+                                                        secondary={t('outputFromLabel', {
+                                                            output: selectedOutputAnchor?.label ?? 'output',
+                                                            label: node.data.label
+                                                        })}
                                                     />
                                                 </ListItem>
                                             </ListItemButton>

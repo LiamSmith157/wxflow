@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
+import { useTranslatedConfig } from '@/i18n/useTranslatedConfig'
 import { useState, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useSelector } from 'react-redux'
@@ -37,7 +39,7 @@ import FileUpload from '@/ui-component/extended/FileUpload'
 import PostProcessing from '@/ui-component/extended/PostProcessing'
 import McpServer from '@/ui-component/extended/McpServer'
 
-const CONFIGURATION_GROUPS = [
+const CONFIGURATION_GROUPSRaw = [
     {
         label: 'General',
         sections: [
@@ -215,11 +217,12 @@ function getSectionStatus(sectionId, chatflow) {
 }
 
 // Flatten all sections for quick lookup
-const ALL_SECTIONS = CONFIGURATION_GROUPS.flatMap((g) => g.sections)
-
 const SIDEBAR_WIDTH = 220
 
 const ChatflowConfigurationDialog = ({ show, dialogProps, onCancel }) => {
+    const { t } = useTranslation('components')
+    const CONFIGURATION_GROUPS = useTranslatedConfig(CONFIGURATION_GROUPSRaw)
+    const ALL_SECTIONS = CONFIGURATION_GROUPS.flatMap((g) => g.sections)
     const portalElement = document.getElementById('portal')
     const theme = useTheme()
     const chatflow = useSelector((state) => state.canvas.chatflow)
@@ -436,7 +439,7 @@ const ChatflowConfigurationDialog = ({ show, dialogProps, onCancel }) => {
                                                             color: isDark ? '#4ade80' : '#16a34a'
                                                         }}
                                                     >
-                                                        ON
+                                                        {t('on')}
                                                     </Box>
                                                 )}
                                             </Box>

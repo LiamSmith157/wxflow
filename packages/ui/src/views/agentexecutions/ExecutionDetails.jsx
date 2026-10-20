@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, forwardRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import { useSelector, useDispatch } from 'react-redux'
@@ -294,6 +295,7 @@ const DEFAULT_DRAWER_WIDTH = window.innerWidth - 400
 const MAX_DRAWER_WIDTH = window.innerWidth
 
 export const ExecutionDetails = ({ open, isPublic, execution, metadata, onClose, onProceedSuccess, onUpdateSharing, onRefresh }) => {
+    const { t } = useTranslation('executions')
     const [drawerWidth, setDrawerWidth] = useState(Math.min(DEFAULT_DRAWER_WIDTH, MAX_DRAWER_WIDTH))
     const [executionTree, setExecution] = useState([])
     const [expandedItems, setExpandedItems] = useState([])
@@ -321,7 +323,7 @@ export const ExecutionDetails = ({ open, isPublic, execution, metadata, onClose,
         // Show success message
         dispatch(
             enqueueSnackbarAction({
-                message: 'ID copied to clipboard',
+                message: t('idCopiedToClipboard'),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
@@ -755,7 +757,7 @@ export const ExecutionDetails = ({ open, isPublic, execution, metadata, onClose,
 
                         {!isPublic && (
                             <Tooltip
-                                title={`Execution ID: ${localMetadata?.id || ''}`}
+                                title={t('executionIdV1', { v1: localMetadata?.id || '' })}
                                 placement='top'
                                 disableHoverListener={!localMetadata?.id}
                             >
@@ -821,7 +823,7 @@ export const ExecutionDetails = ({ open, isPublic, execution, metadata, onClose,
                                         backgroundColor: (theme) => theme.palette.primary.main + '20'
                                     }
                                 }}
-                                title='Refresh execution data'
+                                title={t('refreshExecutionData')}
                             >
                                 <IconRefresh size={20} />
                             </IconButton>
@@ -856,7 +858,7 @@ export const ExecutionDetails = ({ open, isPublic, execution, metadata, onClose,
                         onProceedSuccess={onProceedSuccess}
                     />
                 ) : (
-                    <Typography color='text.secondary'>No data available for this item</Typography>
+                    <Typography color='text.secondary'>{t('noDataAvailableForThis')}</Typography>
                 )}
             </Box>
         </Box>
@@ -865,7 +867,7 @@ export const ExecutionDetails = ({ open, isPublic, execution, metadata, onClose,
     // Resize handle component (shared between modes)
     const resizeHandle = (
         <button
-            aria-label='Resize drawer'
+            aria-label={t('resizeDrawer')}
             style={{
                 position: 'absolute',
                 left: 0,

@@ -1,4 +1,6 @@
 import { createPortal } from 'react-dom'
+import { Trans, useTranslation } from 'react-i18next'
+import i18n from '@/i18n'
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -16,7 +18,8 @@ import {
     AccordionDetails,
     Typography,
     Stack,
-    Card
+    Card,
+    Link
 } from '@mui/material'
 import { CopyBlock, atomOneDark } from 'react-code-blocks'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -85,6 +88,7 @@ function a11yProps(index) {
 }
 
 const APICodeDialog = ({ show, dialogProps, onCancel }) => {
+    const { t } = useTranslation('agentflows')
     const portalElement = document.getElementById('portal')
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -141,7 +145,7 @@ const APICodeDialog = ({ show, dialogProps, onCancel }) => {
 
         const options = [
             {
-                label: 'No Authorization',
+                label: t('noAuthorization'),
                 name: ''
             }
         ]
@@ -161,7 +165,7 @@ const APICodeDialog = ({ show, dialogProps, onCancel }) => {
         }
 
         return options
-    }, [getAllAPIKeysApi.data, isGlobal, hasPermission])
+    }, [getAllAPIKeysApi.data, isGlobal, hasPermission, t])
 
     const onCheckBoxChanged = (newVal) => {
         setCheckbox(newVal)
@@ -764,9 +768,7 @@ formData.append("agentModelConfig[agentAgentflow_1][openAIApiKey]", "sk-my-opena
                     >
                         <IconExclamationCircle size={28} color='rgb(116,66,16)' style={{ flexShrink: 0 }} />
                         <span style={{ color: 'rgb(116,66,16)', marginLeft: 10, fontWeight: 500 }}>
-                            This flow is configured as a <b>Scheduled Trigger</b>. It is fired automatically by the in-process scheduler on
-                            its cron schedule and cannot be invoked via the prediction API. To call this flow from an API, change the Start
-                            node Input Type to <b>Chat Input</b>, <b>Form Input</b>, or <b>Webhook Trigger</b>.
+                            <Trans t={t} i18nKey='agentflows:scheduleFlowNotice' components={{ b: <b /> }} />
                         </span>
                     </div>
                 ) : (
@@ -841,9 +843,9 @@ formData.append("agentModelConfig[agentAgentflow_1][openAIApiKey]", "sk-my-opena
                             <TabPanel key={index} value={value} index={index}>
                                 {(codeLang === 'Embed' || codeLang === 'Share Chatbot') && chatflowApiKeyId && (
                                     <>
-                                        <p>You cannot use API key while embedding/sharing chatbot.</p>
+                                        <p>{i18n.t('agentflows:youCannotUseApiKey')}</p>
                                         <p>
-                                            Please select <b>&quot;No Authorization&quot;</b> from the dropdown at the top right corner.
+                                            <Trans t={t} i18nKey='agentflows:selectNoAuthorization' components={{ b: <b /> }} />
                                         </p>
                                     </>
                                 )}
@@ -857,12 +859,15 @@ formData.append("agentModelConfig[agentAgentflow_1][openAIApiKey]", "sk-my-opena
                                             showLineNumbers={false}
                                             wrapLines
                                         />
-                                        <CheckboxInput label='Show Override Config' value={checkboxVal} onChange={onCheckBoxChanged} />
+                                        <CheckboxInput
+                                            label={i18n.t('agentflows:showOverrideConfig')}
+                                            value={checkboxVal}
+                                            onChange={onCheckBoxChanged}
+                                        />
                                         {checkboxVal && getConfigApi.data && getConfigApi.data.length > 0 && (
                                             <>
                                                 <Typography sx={{ mt: 2 }}>
-                                                    You can override existing input configuration of the chatflow with overrideConfig
-                                                    property.
+                                                    <Trans t={t} i18nKey='agentflows:overrideConfigIntro' components={{}} />
                                                 </Typography>
                                                 <div
                                                     style={{
@@ -884,18 +889,19 @@ formData.append("agentModelConfig[agentAgentflow_1][openAIApiKey]", "sk-my-opena
                                                     >
                                                         <IconExclamationCircle size={30} color='rgb(116,66,16)' />
                                                         <span style={{ color: 'rgb(116,66,16)', marginLeft: 10, fontWeight: 500 }}>
-                                                            {
-                                                                'For security reason, override config is disabled by default. You can change this by going into Chatflow Configuration -> Security tab, and enable the property you want to override.'
-                                                            }
-                                                            &nbsp;Refer{' '}
-                                                            <a
-                                                                rel='noreferrer'
-                                                                target='_blank'
-                                                                href='https://docs.flowiseai.com/using-flowise/prediction#configuration-override'
-                                                            >
-                                                                here
-                                                            </a>{' '}
-                                                            for more details
+                                                            <Trans
+                                                                t={t}
+                                                                i18nKey='agentflows:overrideConfigSecurity'
+                                                                components={{
+                                                                    docLink: (
+                                                                        <Link
+                                                                            rel='noreferrer'
+                                                                            target='_blank'
+                                                                            href='https://docs.flowiseai.com/using-flowise/prediction#configuration-override'
+                                                                        />
+                                                                    )
+                                                                }}
+                                                            />
                                                         </span>
                                                     </div>
                                                 </div>
@@ -907,7 +913,7 @@ formData.append("agentModelConfig[agentAgentflow_1][openAIApiKey]", "sk-my-opena
                                                             spacing={2}
                                                         >
                                                             <IconBox />
-                                                            <Typography variant='h4'>Nodes</Typography>
+                                                            <Typography variant='h4'>{i18n.t('agentflows:nodes')}</Typography>
                                                         </Stack>
                                                         {Object.keys(nodeConfig)
                                                             .sort()
@@ -977,7 +983,7 @@ formData.append("agentModelConfig[agentAgentflow_1][openAIApiKey]", "sk-my-opena
                                                             spacing={2}
                                                         >
                                                             <IconVariable />
-                                                            <Typography variant='h4'>Variables</Typography>
+                                                            <Typography variant='h4'>{i18n.t('agentflows:variables')}</Typography>
                                                         </Stack>
                                                         <TableViewOnly rows={variableOverrides} columns={['name', 'type', 'enabled']} />
                                                     </Card>
@@ -1017,8 +1023,7 @@ formData.append("agentModelConfig[agentAgentflow_1][openAIApiKey]", "sk-my-opena
                                                     >
                                                         <IconBulb size={30} color='#2d6a4f' />
                                                         <span style={{ color: '#2d6a4f', marginLeft: 10, fontWeight: 500 }}>
-                                                            You can also specify multiple values for a config parameter by specifying the
-                                                            node id
+                                                            <Trans t={t} i18nKey='agentflows:multiValuesHint' components={{}} />
                                                         </span>
                                                     </div>
                                                     <div style={{ padding: 10 }}>
@@ -1039,15 +1044,19 @@ formData.append("agentModelConfig[agentAgentflow_1][openAIApiKey]", "sk-my-opena
                                         )}
                                         {getIsChatflowStreamingApi.data?.isStreaming && (
                                             <p>
-                                                Read&nbsp;
-                                                <a
-                                                    rel='noreferrer'
-                                                    target='_blank'
-                                                    href='https://docs.flowiseai.com/using-flowise/streaming'
-                                                >
-                                                    here
-                                                </a>
-                                                &nbsp;on how to stream response back to application
+                                                <Trans
+                                                    t={t}
+                                                    i18nKey='agentflows:streamingDocs'
+                                                    components={{
+                                                        docLink: (
+                                                            <Link
+                                                                rel='noreferrer'
+                                                                target='_blank'
+                                                                href='https://docs.flowiseai.com/using-flowise/streaming'
+                                                            />
+                                                        )
+                                                    }}
+                                                />
                                             </p>
                                         )}
                                     </>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import ReactJson from 'flowise-react-json-view'
@@ -52,6 +53,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 }))
 
 const ShowStoredChunks = () => {
+    const { t } = useTranslation('docstore')
     const customization = useSelector((state) => state.customization)
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -105,7 +107,7 @@ const ShowStoredChunks = () => {
             )
             if (editResp.data) {
                 enqueueSnackbar({
-                    message: 'Document chunk successfully edited!',
+                    message: t('documentChunkSuccessfullyEdited'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -122,9 +124,9 @@ const ShowStoredChunks = () => {
         } catch (error) {
             setLoading(false)
             enqueueSnackbar({
-                message: `Failed to edit chunk: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToEditChunkV1', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -140,10 +142,10 @@ const ShowStoredChunks = () => {
 
     const onDeleteChunk = async (chunk) => {
         const confirmPayload = {
-            title: `Delete`,
-            description: `Delete chunk ${chunk.id} ? This action cannot be undone.`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('delete'),
+            description: t('deleteChunkIdThisAction', { id: chunk.id }),
+            confirmButtonName: t('common:delete'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -154,7 +156,7 @@ const ShowStoredChunks = () => {
                 const delResp = await documentsApi.deleteChunkFromStore(chunk.storeId, chunk.docId, chunk.id)
                 if (delResp.data) {
                     enqueueSnackbar({
-                        message: 'Document chunk successfully deleted!',
+                        message: t('documentChunkSuccessfullyDeleted'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -171,9 +173,9 @@ const ShowStoredChunks = () => {
             } catch (error) {
                 setLoading(false)
                 enqueueSnackbar({
-                    message: `Failed to delete chunk: ${
-                        typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                    }`,
+                    message: t('failedToDeleteChunkV1', {
+                        v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                    }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -364,7 +366,7 @@ const ShowStoredChunks = () => {
                                                 alt='chunks_emptySVG'
                                             />
                                         </Box>
-                                        <div>No Chunks</div>
+                                        <div>{t('noChunks')}</div>
                                     </div>
                                 )}
                                 {documentChunks.length > 0 &&

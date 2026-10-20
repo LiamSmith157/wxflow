@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
@@ -9,6 +10,7 @@ import { HIDE_CANVAS_DIALOG, SHOW_CANVAS_DIALOG } from '@/store/actions'
 import { IconZoomScan } from '@tabler/icons-react'
 
 const UpsertResultDialog = ({ show, dialogProps, onCancel, onGoToRetrievalQuery }) => {
+    const { t } = useTranslation('docstore')
     const portalElement = document.getElementById('portal')
     const dispatch = useDispatch()
     const customization = useSelector((state) => state.customization)
@@ -29,7 +31,7 @@ const UpsertResultDialog = ({ show, dialogProps, onCancel, onGoToRetrievalQuery 
             aria-describedby='upsert-result-dialog-description'
         >
             <DialogTitle sx={{ fontSize: '1rem' }} id='upsert-result-dialog-title'>
-                Upsert Record
+                {t('upsertRecord')}
             </DialogTitle>
             <DialogContent>
                 <>
@@ -40,10 +42,10 @@ const UpsertResultDialog = ({ show, dialogProps, onCancel, onGoToRetrievalQuery 
                             gap: 5
                         }}
                     >
-                        <StatsCard title='Added' stat={dialogProps.numAdded ?? 0} />
-                        <StatsCard title='Updated' stat={dialogProps.numUpdated ?? 0} />
-                        <StatsCard title='Skipped' stat={dialogProps.numSkipped ?? 0} />
-                        <StatsCard title='Deleted' stat={dialogProps.numDeleted ?? 0} />
+                        <StatsCard title={t('added')} stat={dialogProps.numAdded ?? 0} />
+                        <StatsCard title={t('common:updated')} stat={dialogProps.numUpdated ?? 0} />
+                        <StatsCard title={t('skipped')} stat={dialogProps.numSkipped ?? 0} />
+                        <StatsCard title={t('deleted')} stat={dialogProps.numDeleted ?? 0} />
                     </div>
                     {dialogProps.addedDocs && dialogProps.addedDocs.length > 0 && (
                         <Typography sx={{ mt: 2, mb: 2, fontWeight: 500 }}>{dialogProps.numAdded} Added Documents</Typography>
@@ -94,14 +96,14 @@ const UpsertResultDialog = ({ show, dialogProps, onCancel, onGoToRetrievalQuery 
                             startIcon={<IconZoomScan />}
                             onClick={onGoToRetrievalQuery}
                         >
-                            Test Retrieval
+                            {t('testRetrieval')}
                         </Button>
                         <Button fullWidth onClick={onCancel}>
-                            Close
+                            {t('common:close')}
                         </Button>
                     </div>
                 )}
-                {!dialogProps.goToRetrievalQuery && <Button onClick={onCancel}>Close</Button>}
+                {!dialogProps.goToRetrievalQuery && <Button onClick={onCancel}>{t('common:close')}</Button>}
             </DialogActions>
         </Dialog>
     ) : null

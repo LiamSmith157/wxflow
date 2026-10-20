@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Chip, Box, Button, IconButton } from '@mui/material'
@@ -11,8 +12,9 @@ import { cloneDeep } from 'lodash'
 import { flowContext } from '@/store/context/ReactFlowContext'
 
 export const ArrayRenderer = ({ inputParam, data, disabled, isDocStore = false }) => {
+    const { t } = useTranslation('components')
     const [arrayItems, setArrayItems] = useState([]) // these are the actual values. Ex: [{name: 'John', age: 30}, {name: 'Jane', age: 25}]
-    const [itemParameters, setItemParameters] = useState([]) // these are the input parameters for each array item. Ex: [{label: 'Name', type: 'string', display: true}, {label: 'age', type: 'number', display: false}]
+    const [itemParameters, setItemParameters] = useState([]) // these are the input parameters for each array item. Ex: [{label: t('common:name'), type: 'string', display: true}, {label: 'age', type: 'number', display: false}]
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const flowContextValue = useContext(flowContext)
@@ -81,7 +83,7 @@ export const ArrayRenderer = ({ inputParam, data, disabled, isDocStore = false }
             id: `${data.id}-output-${i}`,
             label: i,
             name: i,
-            description: `Condition ${i}`
+            description: t('conditionI', { i })
         }))
 
         // always append additional output anchor for ELSE for condition
@@ -90,7 +92,7 @@ export const ArrayRenderer = ({ inputParam, data, disabled, isDocStore = false }
                 id: `${data.id}-output-${items.length}`,
                 label: items.length,
                 name: items.length,
-                description: 'Else'
+                description: t('else')
             })
         }
         data.outputAnchors = updatedOutputs
@@ -201,7 +203,7 @@ export const ArrayRenderer = ({ inputParam, data, disabled, isDocStore = false }
                         {/* Delete button for array item */}
                         {isDeleteButtonVisible && (
                             <IconButton
-                                title='Delete'
+                                title={t('common:delete')}
                                 onClick={() => handleDeleteItem(index)}
                                 sx={{
                                     position: 'absolute',

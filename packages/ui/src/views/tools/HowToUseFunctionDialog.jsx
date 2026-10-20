@@ -1,8 +1,10 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
 
 const HowToUseFunctionDialog = ({ show, onCancel }) => {
+    const { t } = useTranslation('tools')
     const portalElement = document.getElementById('portal')
 
     const component = show ? (
@@ -15,13 +17,13 @@ const HowToUseFunctionDialog = ({ show, onCancel }) => {
             aria-describedby='alert-dialog-description'
         >
             <DialogTitle sx={{ fontSize: '1rem' }} id='alert-dialog-title'>
-                How To Use Function
+                {t('howToUseFunction')}
             </DialogTitle>
             <DialogContent>
                 <ul>
-                    <li style={{ marginTop: 10 }}>You can use any libraries imported in Flowise</li>
+                    <li style={{ marginTop: 10 }}>{t('youCanUseAnyLibraries')}</li>
                     <li style={{ marginTop: 10 }}>
-                        You can use properties specified in Input Schema as variables with prefix $:
+                        {t('youCanUsePropertiesSpecified')}
                         <ul style={{ marginTop: 10 }}>
                             <li>
                                 Property = <code>userid</code>
@@ -32,7 +34,7 @@ const HowToUseFunctionDialog = ({ show, onCancel }) => {
                         </ul>
                     </li>
                     <li style={{ marginTop: 10 }}>
-                        You can get default flow config:
+                        {t('youCanGetDefaultFlow')}
                         <ul style={{ marginTop: 10 }}>
                             <li>
                                 <code>$flow.sessionId</code>
@@ -54,7 +56,7 @@ const HowToUseFunctionDialog = ({ show, onCancel }) => {
                     <li style={{ marginTop: 10 }}>
                         You can get custom variables:&nbsp;<code>{`$vars.<variable-name>`}</code>
                     </li>
-                    <li style={{ marginTop: 10 }}>Must return a string value at the end of function</li>
+                    <li style={{ marginTop: 10 }}>{t('mustReturnAStringValue')}</li>
                 </ul>
             </DialogContent>
         </Dialog>

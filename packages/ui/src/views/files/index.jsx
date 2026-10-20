@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 // material-ui
 import { Box, Button, Stack } from '@mui/material'
@@ -28,6 +29,7 @@ import { useError } from '@/store/context/ErrorContext'
 // ==============================|| CHATFLOWS ||============================== //
 
 const Files = () => {
+    const { t } = useTranslation('docstore')
     const { confirm } = useConfirm()
 
     const [isLoading, setLoading] = useState(true)
@@ -56,10 +58,10 @@ const Files = () => {
 
     const handleDeleteFile = async (file) => {
         const confirmPayload = {
-            title: `Delete`,
-            description: `Delete ${file.name}? This process cannot be undone.`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('delete'),
+            description: t('deleteNameThisProcessCannot', { name: file.name }),
+            confirmButtonName: t('common:delete'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -68,7 +70,7 @@ const Files = () => {
                 const deleteResponse = await filesApi.deleteFile(file.path)
                 if (deleteResponse?.data) {
                     enqueueSnackbar({
-                        message: 'File deleted',
+                        message: t('fileDeleted'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -127,7 +129,7 @@ const Files = () => {
                 <ErrorBoundary error={error} />
             ) : (
                 <Stack flexDirection='column' sx={{ gap: 3 }}>
-                    <ViewHeader onSearchChange={onSearchChange} search={true} searchPlaceholder='Search File' title='Files' />
+                    <ViewHeader onSearchChange={onSearchChange} search={true} searchPlaceholder='Search File' title={t('files')} />
                     <FilesTable data={files} filterFunction={filterFiles} handleDelete={handleDeleteFile} isLoading={isLoading} />
                     {!isLoading && (!getAllFilesApi.data || getAllFilesApi.data.length === 0) && (
                         <Stack sx={{ alignItems: 'center', justifyContent: 'center' }} flexDirection='column'>
@@ -138,7 +140,7 @@ const Files = () => {
                                     alt='WorkflowEmptySVG'
                                 />
                             </Box>
-                            <div>No Files Yet</div>
+                            <div>{t('noFilesYet')}</div>
                         </Stack>
                     )}
                 </Stack>

@@ -15,11 +15,13 @@ import {
     TextField
 } from '@mui/material'
 import axios from 'axios'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 const NvidiaNIMDialog = ({ open, onClose, onComplete }) => {
+    const { t } = useTranslation('components')
     const portalElement = document.getElementById('portal')
 
     const modelOptions = {
@@ -321,7 +323,7 @@ const NvidiaNIMDialog = ({ open, onClose, onComplete }) => {
     const component = open ? (
         <>
             <Dialog open={open}>
-                <DialogTitle>NIM Setup</DialogTitle>
+                <DialogTitle>{t('nimSetup')}</DialogTitle>
                 <DialogContent>
                     <Stepper activeStep={activeStep}>
                         {steps.map((label) => (
@@ -333,9 +335,7 @@ const NvidiaNIMDialog = ({ open, onClose, onComplete }) => {
 
                     {activeStep === 0 && (
                         <div style={{ marginTop: 20 }}>
-                            <p style={{ marginBottom: 20 }}>
-                                Would you like to download the NIM installer? Click Next if it has been installed
-                            </p>
+                            <p style={{ marginBottom: 20 }}>{t('wouldYouLikeToDownload')}</p>
                             {loading && <CircularProgress />}
                         </div>
                     )}
@@ -343,8 +343,8 @@ const NvidiaNIMDialog = ({ open, onClose, onComplete }) => {
                     {activeStep === 1 && (
                         <div>
                             <FormControl fullWidth sx={{ mt: 2 }}>
-                                <InputLabel>Model</InputLabel>
-                                <Select label='Model' value={imageTag} onChange={(e) => setImageTag(e.target.value)}>
+                                <InputLabel>{t('model')}</InputLabel>
+                                <Select label={t('model')} value={imageTag} onChange={(e) => setImageTag(e.target.value)}>
                                     {Object.entries(modelOptions).map(([value, { label }]) => (
                                         <MenuItem key={value} value={value}>
                                             {label}
@@ -359,14 +359,14 @@ const NvidiaNIMDialog = ({ open, onClose, onComplete }) => {
                                     sx={{ mt: 1 }}
                                     onClick={() => window.open(modelOptions[imageTag].licenseUrl, '_blank')}
                                 >
-                                    View License
+                                    {t('viewLicense')}
                                 </Button>
                             )}
                             {loading && (
                                 <div>
                                     <div style={{ marginBottom: 20 }} />
                                     <CircularProgress />
-                                    <p>Pulling image...</p>
+                                    <p>{t('pullingImage')}</p>
                                 </div>
                             )}
                         </div>
@@ -378,31 +378,31 @@ const NvidiaNIMDialog = ({ open, onClose, onComplete }) => {
                                 <>
                                     <div style={{ marginBottom: 20 }} />
                                     <CircularProgress />
-                                    <p>Starting container...</p>
+                                    <p>{t('startingContainer')}</p>
                                 </>
                             ) : (
                                 <>
                                     <FormControl fullWidth sx={{ mt: 2 }}>
-                                        <InputLabel>Relax Memory Constraints</InputLabel>
+                                        <InputLabel>{t('relaxMemoryConstraints')}</InputLabel>
                                         <Select
-                                            label='Relax Memory Constraints'
+                                            label={t('relaxMemoryConstraints')}
                                             value={nimRelaxMemConstraints}
                                             onChange={(e) => setNimRelaxMemConstraints(e.target.value)}
                                         >
-                                            <MenuItem value='1'>Yes</MenuItem>
-                                            <MenuItem value='0'>No</MenuItem>
+                                            <MenuItem value='1'>{t('common:yes')}</MenuItem>
+                                            <MenuItem value='0'>{t('common:no')}</MenuItem>
                                         </Select>
                                     </FormControl>
                                     <TextField
                                         fullWidth
                                         type='number'
-                                        label='Host Port'
+                                        label={t('hostPort')}
                                         value={hostPort}
                                         onChange={(e) => setHostPort(e.target.value)}
                                         inputProps={{ min: 1, max: 65535 }}
                                         sx={{ mt: 2 }}
                                     />
-                                    <p style={{ marginTop: 20 }}>Click Next to start the container.</p>
+                                    <p style={{ marginTop: 20 }}>{t('clickNextToStartThe')}</p>
                                 </>
                             )}
                         </div>
@@ -410,11 +410,11 @@ const NvidiaNIMDialog = ({ open, onClose, onComplete }) => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={onClose} variant='outline'>
-                        Cancel
+                        {t('common:cancel')}
                     </Button>
                     {activeStep === 0 && (
                         <Button onClick={handleNext} variant='outline' color='secondary'>
-                            Next
+                            {t('common:next')}
                         </Button>
                     )}
                     <Button
@@ -426,21 +426,21 @@ const NvidiaNIMDialog = ({ open, onClose, onComplete }) => {
                 </DialogActions>
             </Dialog>
             <Dialog open={showContainerConfirm} onClose={() => setShowContainerConfirm(false)}>
-                <DialogTitle>Container Already Exists</DialogTitle>
+                <DialogTitle>{t('containerAlreadyExists')}</DialogTitle>
                 <DialogContent>
-                    <p>A container for this image already exists:</p>
+                    <p>{t('aContainerForThisImage')}</p>
                     <div>
                         <p>
-                            <strong>Name:</strong> {existingContainer?.name || 'N/A'}
+                            <strong>{t('name')}</strong> {existingContainer?.name || 'N/A'}
                         </p>
                         <p>
-                            <strong>Status:</strong> {existingContainer?.status || 'N/A'}
+                            <strong>{t('status')}</strong> {existingContainer?.status || 'N/A'}
                         </p>
                     </div>
-                    <p>You can:</p>
+                    <p>{t('youCan')}</p>
                     <ul>
-                        <li>Use the existing container (recommended)</li>
-                        <li>Change the port and try again</li>
+                        <li>{t('useTheExistingContainerRecommended')}</li>
+                        <li>{t('changeThePortAndTry')}</li>
                     </ul>
                 </DialogContent>
                 <DialogActions>
@@ -450,7 +450,7 @@ const NvidiaNIMDialog = ({ open, onClose, onComplete }) => {
                             setExistingContainer(null)
                         }}
                     >
-                        Cancel
+                        {t('common:cancel')}
                     </Button>
                     <Button
                         onClick={() => {
@@ -458,7 +458,7 @@ const NvidiaNIMDialog = ({ open, onClose, onComplete }) => {
                             handleUseExistingContainer()
                         }}
                     >
-                        Use Existing
+                        {t('useExisting')}
                     </Button>
                 </DialogActions>
             </Dialog>

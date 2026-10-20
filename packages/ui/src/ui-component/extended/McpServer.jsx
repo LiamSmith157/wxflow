@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux'
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
@@ -24,6 +25,7 @@ import mcpServerApi from '@/api/mcpserver'
 import chatflowsApi from '@/api/chatflows'
 
 const McpServer = ({ dialogProps, onStatusChange }) => {
+    const { t } = useTranslation('components')
     const dispatch = useDispatch()
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
@@ -167,11 +169,11 @@ const McpServer = ({ dialogProps, onStatusChange }) => {
 
     const handleRefreshCode = async () => {
         const confirmPayload = {
-            title: 'Rotate Token',
+            title: t('rotateToken2'),
             description:
                 'This will invalidate the existing token. Any clients using the old token will need to be updated with the new one. Are you sure?',
-            confirmButtonName: 'Rotate',
-            cancelButtonName: 'Cancel'
+            confirmButtonName: t('rotate'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
         if (!isConfirmed) return
@@ -231,7 +233,7 @@ const McpServer = ({ dialogProps, onStatusChange }) => {
     if (getMcpServerConfigApi.loading) {
         return (
             <Box sx={{ p: 2, textAlign: 'center' }}>
-                <Typography>Loading MCP Server configuration...</Typography>
+                <Typography>{t('loadingMcpServerConfiguration')}</Typography>
             </Box>
         )
     }
@@ -239,7 +241,7 @@ const McpServer = ({ dialogProps, onStatusChange }) => {
     return (
         <>
             <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-                <SwitchInput label='Expose as MCP Server' onChange={handleToggle} value={mcpEnabled} disabled={loading} />
+                <SwitchInput label={t('exposeAsMcpServer')} onChange={handleToggle} value={mcpEnabled} disabled={loading} />
             </Box>
 
             {mcpEnabled && (
@@ -254,7 +256,7 @@ const McpServer = ({ dialogProps, onStatusChange }) => {
                             size='small'
                             value={toolName}
                             onChange={(e) => handleToolNameChange(e.target.value)}
-                            placeholder='e.g. product_qa'
+                            placeholder={t('mcpToolNamePlaceholder')}
                             error={!!toolNameError}
                             disabled={loading}
                         />
@@ -267,7 +269,7 @@ const McpServer = ({ dialogProps, onStatusChange }) => {
                             variant='caption'
                             sx={{ mt: 0.5, display: 'block', color: customization.isDarkMode ? theme.palette.grey[400] : 'text.secondary' }}
                         >
-                            Used as the MCP tool identifier by LLM clients.
+                            {t('usedAsTheMcpTool')}
                         </Typography>
                     </Box>
 
@@ -283,21 +285,21 @@ const McpServer = ({ dialogProps, onStatusChange }) => {
                             rows={3}
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder='e.g. Answers product catalog questions'
+                            placeholder={t('mcpToolDescPlaceholder')}
                             disabled={loading}
                         />
                         <Typography
                             variant='caption'
                             sx={{ mt: 0.5, display: 'block', color: customization.isDarkMode ? theme.palette.grey[400] : 'text.secondary' }}
                         >
-                            Helps LLMs understand when to route queries to this tool. Good descriptions improve tool selection accuracy.
+                            {t('helpsLlmsUnderstandWhenTo')}
                         </Typography>
                     </Box>
 
                     {/* MCP Endpoint URL — visible only when has token */}
                     {token && (
                         <Box>
-                            <Typography sx={{ mb: 1 }}>Streamable HTTP Endpoint</Typography>
+                            <Typography sx={{ mb: 1 }}>{t('streamableHttpEndpoint')}</Typography>
                             <OutlinedInput
                                 fullWidth
                                 size='small'
@@ -312,7 +314,7 @@ const McpServer = ({ dialogProps, onStatusChange }) => {
                                         <IconButton
                                             size='small'
                                             onClick={() => handleCopyUrl(endpointUrl)}
-                                            title='Copy URL to clipboard'
+                                            title={t('copyUrlToClipboard')}
                                             sx={{ color: customization.isDarkMode ? theme.palette.grey[300] : 'inherit' }}
                                         >
                                             <IconCopy size={18} />
@@ -328,10 +330,10 @@ const McpServer = ({ dialogProps, onStatusChange }) => {
                                     color: customization.isDarkMode ? theme.palette.grey[400] : 'text.secondary'
                                 }}
                             >
-                                For clients that support the Streamable HTTP transport
+                                {t('forClientsThatSupportThe')}
                             </Typography>
 
-                            <Typography sx={{ mb: 1, mt: 2 }}>Token (Bearer Token)</Typography>
+                            <Typography sx={{ mb: 1, mt: 2 }}>{t('tokenBearerToken')}</Typography>
                             <OutlinedInput
                                 fullWidth
                                 size='small'
@@ -350,7 +352,7 @@ const McpServer = ({ dialogProps, onStatusChange }) => {
                                                 navigator.clipboard.writeText(token)
                                                 showSuccess('Token copied to clipboard')
                                             }}
-                                            title='Copy token'
+                                            title={t('copyToken')}
                                             sx={{ color: customization.isDarkMode ? theme.palette.grey[300] : 'inherit' }}
                                         >
                                             <IconCopy size={18} />
@@ -358,7 +360,7 @@ const McpServer = ({ dialogProps, onStatusChange }) => {
                                         <IconButton
                                             size='small'
                                             onClick={handleRefreshCode}
-                                            title='Rotate token'
+                                            title={t('rotateToken')}
                                             disabled={loading}
                                             sx={{ color: customization.isDarkMode ? theme.palette.grey[300] : 'inherit' }}
                                         >
@@ -380,8 +382,7 @@ const McpServer = ({ dialogProps, onStatusChange }) => {
                                     })
                                 }}
                             >
-                                Use the URL above as the MCP endpoint and pass the token as a Bearer token in the Authorization header.
-                                Configure your MCP client with:{' '}
+                                {t('mcpUsage1')} {t('mcpUsage2')}{' '}
                                 <code
                                     style={{
                                         display: 'block',

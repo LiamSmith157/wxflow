@@ -1,5 +1,7 @@
 /* File temporarily not used until we allow user to change role */
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
+import { useTranslatedConfig } from '@/i18n/useTranslatedConfig'
 import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -25,7 +27,7 @@ import useNotifier from '@/utils/useNotifier'
 import { HIDE_CANVAS_DIALOG, SHOW_CANVAS_DIALOG } from '@/store/actions'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from '@/store/actions'
 
-const statuses = [
+const statusesRaw = [
     {
         label: 'Active',
         name: 'active'
@@ -37,6 +39,8 @@ const statuses = [
 ]
 
 const EditUserDialog = ({ show, dialogProps, onCancel, onConfirm, setError }) => {
+    const { t } = useTranslation('admin')
+    const statuses = useTranslatedConfig(statusesRaw)
     const portalElement = document.getElementById('portal')
     const currentUser = useSelector((state) => state.auth.user)
 
@@ -86,7 +90,7 @@ const EditUserDialog = ({ show, dialogProps, onCancel, onConfirm, setError }) =>
             const saveResp = await userApi.updateOrganizationUser(saveObj)
             if (saveResp.data) {
                 enqueueSnackbar({
-                    message: 'User Details Updated',
+                    message: t('userDetailsUpdated'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -102,9 +106,9 @@ const EditUserDialog = ({ show, dialogProps, onCancel, onConfirm, setError }) =>
         } catch (error) {
             setError(err)
             enqueueSnackbar({
-                message: `Failed to update User: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToUpdateUserV1', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -139,7 +143,8 @@ const EditUserDialog = ({ show, dialogProps, onCancel, onConfirm, setError }) =>
                 <Box sx={{ p: 1 }}>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Typography>
-                            Email<span style={{ color: 'red' }}>&nbsp;*</span>
+                            {t('email2')}
+                            <span style={{ color: 'red' }}>&nbsp;*</span>
                         </Typography>
 
                         <div style={{ flexGrow: 1 }}></div>
@@ -157,7 +162,7 @@ const EditUserDialog = ({ show, dialogProps, onCancel, onConfirm, setError }) =>
                 </Box>
                 <Box sx={{ p: 1 }}>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
-                        <Typography>Name</Typography>
+                        <Typography>{t('common:name')}</Typography>
 
                         <div style={{ flexGrow: 1 }}></div>
                     </div>
@@ -175,7 +180,8 @@ const EditUserDialog = ({ show, dialogProps, onCancel, onConfirm, setError }) =>
                 <Box sx={{ p: 1 }}>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Typography>
-                            Account Status<span style={{ color: 'red' }}>&nbsp;*</span>
+                            {t('accountStatus')}
+                            <span style={{ color: 'red' }}>&nbsp;*</span>
                         </Typography>
                         <div style={{ flexGrow: 1 }}></div>
                     </div>
@@ -190,7 +196,7 @@ const EditUserDialog = ({ show, dialogProps, onCancel, onConfirm, setError }) =>
                     />
                     {dialogProps?.data?.isOrgOwner && (
                         <Typography variant='caption'>
-                            <i>Cannot change status of the organization owner!</i>
+                            <i>{t('cannotChangeStatusOfThe')}</i>
                         </Typography>
                     )}
                 </Box>

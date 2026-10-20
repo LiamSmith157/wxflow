@@ -1,7 +1,9 @@
 import PropTypes from 'prop-types'
 import { DataGrid } from '@mui/x-data-grid'
+import { useDataGridLocale } from '@/i18n/useDataGridLocale'
 
 export const Grid = ({ columns, rows, style, disabled = false, onRowUpdate }) => {
+    const localeText = useDataGridLocale()
     const handleProcessRowUpdate = (newRow) => {
         onRowUpdate(newRow)
         return newRow
@@ -19,6 +21,7 @@ export const Grid = ({ columns, rows, style, disabled = false, onRowUpdate }) =>
                         onProcessRowUpdateError={(error) => console.error(error)}
                         rows={rows}
                         columns={columns}
+                        localeText={localeText}
                     />
                 </div>
             )}

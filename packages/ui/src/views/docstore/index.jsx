@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 
@@ -47,6 +48,7 @@ const getDocStoreActionButtonSx = (theme) => ({
 })
 
 const Documents = () => {
+    const { t } = useTranslation('docstore')
     const theme = useTheme()
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -116,10 +118,10 @@ const Documents = () => {
 
     const addNew = () => {
         const dialogProp = {
-            title: 'Add New Document Store',
+            title: t('addNewDocumentStore'),
             type: 'ADD',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Add'
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:add')
         }
         setDialogProps(dialogProp)
         setShowDialog(true)
@@ -161,10 +163,10 @@ const Documents = () => {
     const renameDocumentStore = () => {
         if (!selectedDocumentStore) return
         const dialogProp = {
-            title: 'Rename Document Store',
+            title: t('renameDocumentStore'),
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Save',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:save'),
             data: {
                 id: selectedDocumentStore.id,
                 name: selectedDocumentStore.name,
@@ -193,7 +195,7 @@ const Documents = () => {
         }
 
         setDeleteDocStoreDialogProps({
-            title: 'Delete',
+            title: t('common:delete'),
             description,
             vectorStoreConfig: documentStoreToDelete.vectorStoreConfig,
             recordManagerConfig: documentStoreToDelete.recordManagerConfig,
@@ -214,7 +216,7 @@ const Documents = () => {
             const deleteResp = await documentsApi.deleteDocumentStore(storeId)
             if (deleteResp.data) {
                 enqueueSnackbar({
-                    message: 'Document Store deleted.',
+                    message: t('documentStoreDeleted'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -238,7 +240,7 @@ const Documents = () => {
             const errorMessage = getDeleteErrorMessage(error)
 
             enqueueSnackbar({
-                message: `Failed to delete Document Store: ${errorMessage}`,
+                message: t('failedToDeleteDocumentStore2', { errorMessage }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -329,8 +331,8 @@ const Documents = () => {
                         onSearchChange={onSearchChange}
                         search={hasDocStores}
                         searchPlaceholder='Search Name'
-                        title='Document Store'
-                        description='Store and upsert documents for LLM retrieval (RAG)'
+                        title={t('documentStore')}
+                        description={t('storeAndUpsertDocumentsFor')}
                     >
                         {hasDocStores && (
                             <ToggleButtonGroup
@@ -348,7 +350,7 @@ const Documents = () => {
                                     }}
                                     variant='contained'
                                     value='card'
-                                    title='Card View'
+                                    title={t('cardView')}
                                 >
                                     <IconLayoutGrid />
                                 </ToggleButton>
@@ -360,7 +362,7 @@ const Documents = () => {
                                     }}
                                     variant='contained'
                                     value='list'
-                                    title='List View'
+                                    title={t('listView')}
                                 >
                                     <IconList />
                                 </ToggleButton>
@@ -374,7 +376,7 @@ const Documents = () => {
                             startIcon={<IconPlus />}
                             id='btn_createVariable'
                         >
-                            Add New
+                            {t('common:addNew')}
                         </StyledPermissionButton>
                     </ViewHeader>
                     {!hasDocStores ? (
@@ -386,7 +388,7 @@ const Documents = () => {
                                     alt='doc_store_empty'
                                 />
                             </Box>
-                            <div>No Document Stores Created Yet</div>
+                            <div>{t('noDocumentStoresCreatedYet')}</div>
                         </Stack>
                     ) : (
                         <React.Fragment>
@@ -403,7 +405,7 @@ const Documents = () => {
                                             {canManageDocumentStore && (
                                                 <IconButton
                                                     size='small'
-                                                    aria-label='Document store actions'
+                                                    aria-label={t('documentStoreActions')}
                                                     sx={{
                                                         position: 'absolute',
                                                         top: 16,
@@ -472,7 +474,7 @@ const Documents = () => {
                         <ListItemIcon>
                             <IconEdit size={16} />
                         </ListItemIcon>
-                        <ListItemText>Rename</ListItemText>
+                        <ListItemText>{t('common:rename')}</ListItemText>
                     </MenuItem>
                 )}
                 {canDeleteDocumentStore && (
@@ -480,7 +482,7 @@ const Documents = () => {
                         <ListItemIcon>
                             <IconTrash size={16} />
                         </ListItemIcon>
-                        <ListItemText>Delete</ListItemText>
+                        <ListItemText>{t('common:delete')}</ListItemText>
                     </MenuItem>
                 )}
             </Menu>

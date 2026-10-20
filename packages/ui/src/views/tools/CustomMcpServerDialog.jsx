@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -120,6 +121,7 @@ HintChip.propTypes = {
 }
 
 const DiscoveredToolRow = ({ tool, expanded, onToggle, isDarkMode, theme }) => {
+    const { t } = useTranslation('tools')
     const icon = pickToolIcon(tool?.icons, isDarkMode)
     const title = tool?.annotations?.title
     const props = tool?.inputSchema?.properties || {}
@@ -207,8 +209,8 @@ const DiscoveredToolRow = ({ tool, expanded, onToggle, isDarkMode, theme }) => {
                     {readOnly && (
                         <HintChip
                             icon={IconEye}
-                            label='READ-ONLY'
-                            tooltip='This tool does not modify any data'
+                            label={t('readOnly')}
+                            tooltip={t('thisToolDoesNotModify')}
                             bg={isDarkMode ? 'rgba(46,125,50,0.18)' : 'rgba(46,125,50,0.12)'}
                             fg={isDarkMode ? '#81C784' : '#2E7D32'}
                         />
@@ -216,8 +218,8 @@ const DiscoveredToolRow = ({ tool, expanded, onToggle, isDarkMode, theme }) => {
                     {destructive && (
                         <HintChip
                             icon={IconAlertTriangle}
-                            label='DESTRUCTIVE'
-                            tooltip='This tool may perform destructive actions'
+                            label={t('destructive')}
+                            tooltip={t('thisToolMayPerformDestructive')}
                             bg={isDarkMode ? 'rgba(211,47,47,0.2)' : 'rgba(211,47,47,0.12)'}
                             fg={isDarkMode ? '#EF9A9A' : '#C62828'}
                         />
@@ -225,13 +227,13 @@ const DiscoveredToolRow = ({ tool, expanded, onToggle, isDarkMode, theme }) => {
                     {openWorld && (
                         <HintChip
                             icon={IconWorld}
-                            label='EXTERNAL'
-                            tooltip='This tool interacts with external systems'
+                            label={t('external')}
+                            tooltip={t('thisToolInteractsWithExternal')}
                             bg={isDarkMode ? 'rgba(25,118,210,0.18)' : 'rgba(25,118,210,0.1)'}
                             fg={isDarkMode ? '#90CAF9' : '#1565C0'}
                         />
                     )}
-                    <Tooltip title={`${paramNames.length} parameter${paramNames.length === 1 ? '' : 's'}`} arrow>
+                    <Tooltip title={t('parameterCount', { count: paramNames.length })} arrow>
                         <Chip
                             label={paramNames.length}
                             size='small'
@@ -276,7 +278,7 @@ const DiscoveredToolRow = ({ tool, expanded, onToggle, isDarkMode, theme }) => {
                                     mb: 0.75
                                 }}
                             >
-                                Parameters
+                                {t('parameters')}
                             </Typography>
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
                                 {paramNames.map((pname) => {
@@ -310,7 +312,7 @@ const DiscoveredToolRow = ({ tool, expanded, onToggle, isDarkMode, theme }) => {
                                                     <Typography
                                                         sx={{ fontSize: '0.62rem', color: theme.palette.error.main, fontWeight: 700 }}
                                                     >
-                                                        REQUIRED
+                                                        {t('required')}
                                                     </Typography>
                                                 ) : (
                                                     <Typography
@@ -321,7 +323,7 @@ const DiscoveredToolRow = ({ tool, expanded, onToggle, isDarkMode, theme }) => {
                                                             letterSpacing: 0.3
                                                         }}
                                                     >
-                                                        OPTIONAL
+                                                        {t('optional')}
                                                     </Typography>
                                                 )}
                                                 {p.type && (
@@ -388,6 +390,7 @@ DiscoveredToolRow.propTypes = {
 }
 
 const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAuthorize, onCreated }) => {
+    const { t } = useTranslation('tools')
     const portalElement = document.getElementById('portal')
     const dispatch = useDispatch()
     const theme = useTheme()
@@ -718,10 +721,10 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
 
     const deleteServer = async () => {
         const isConfirmed = await confirm({
-            title: 'Delete MCP Server',
-            description: `Delete MCP server "${serverName}"?`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('deleteMcpServer'),
+            description: t('deleteMcpServerServername', { serverName }),
+            confirmButtonName: t('common:delete'),
+            cancelButtonName: t('common:cancel')
         })
         if (isConfirmed) {
             try {
@@ -757,7 +760,7 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         {dialogProps.type === 'EDIT' && !isEditing && (
                             <StyledButton variant='outlined' size='small' startIcon={<IconEdit size={16} />} onClick={startEditing}>
-                                Edit
+                                {t('common:edit')}
                             </StyledButton>
                         )}
                     </Box>
@@ -769,13 +772,13 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 2 }}>
                         <Box>
                             <Typography variant='overline' sx={{ color: 'text.secondary' }}>
-                                Server Name
+                                {t('serverName')}
                             </Typography>
                             <Typography variant='body1'>{serverName}</Typography>
                         </Box>
                         <Box>
                             <Typography variant='overline' sx={{ color: 'text.secondary' }}>
-                                Server URL
+                                {t('serverUrl')}
                             </Typography>
                             <Typography variant='body1' sx={{ wordBreak: 'break-all' }}>
                                 {serverUrl}
@@ -784,14 +787,14 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                         {iconSrc && (
                             <Box>
                                 <Typography variant='overline' sx={{ color: 'text.secondary' }}>
-                                    Icon Source
+                                    {t('iconSource')}
                                 </Typography>
                                 <Typography variant='body1'>{iconSrc}</Typography>
                             </Box>
                         )}
                         <Box>
                             <Typography variant='overline' sx={{ color: 'text.secondary' }}>
-                                Authentication
+                                {t('authentication')}
                             </Typography>
                             <Typography variant='body1'>
                                 {authType === MCP_AUTH_TYPE.NONE ? 'No Authentication' : 'Custom Headers'}
@@ -800,7 +803,7 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                         {authType === MCP_AUTH_TYPE.CUSTOM_HEADERS && headers.some((h) => h.key) && (
                             <Box>
                                 <Typography variant='overline' sx={{ color: 'text.secondary' }}>
-                                    Headers
+                                    {t('headers')}
                                 </Typography>
                                 {headers
                                     .filter((h) => h.key)
@@ -820,16 +823,16 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                         <Box>
                             <Stack sx={{ position: 'relative', alignItems: 'center' }} direction='row'>
                                 <Typography variant='overline'>
-                                    Server Name
+                                    {t('serverName')}
                                     <span style={{ color: 'red' }}>&nbsp;*</span>
                                 </Typography>
-                                <TooltipWithParser title='Display name for the MCP server (max 40 characters)' />
+                                <TooltipWithParser title={t('displayNameForTheMcp')} />
                             </Stack>
                             <OutlinedInput
                                 id='serverName'
                                 type='string'
                                 fullWidth
-                                placeholder='My Server Name'
+                                placeholder={t('myServerName')}
                                 value={serverName}
                                 name='serverName'
                                 inputProps={{ maxLength: 40 }}
@@ -839,10 +842,10 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                         <Box>
                             <Stack sx={{ position: 'relative', alignItems: 'center' }} direction='row'>
                                 <Typography variant='overline'>
-                                    Server URL
+                                    {t('serverUrl')}
                                     <span style={{ color: 'red' }}>&nbsp;*</span>
                                 </Typography>
-                                <TooltipWithParser title='The HTTP(S) endpoint of the MCP server (SSE or Streamable HTTP)' />
+                                <TooltipWithParser title={t('theHttpSEndpointOf')} />
                             </Stack>
                             <OutlinedInput
                                 id='serverUrl'
@@ -862,7 +865,7 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                         </Box>
                         <Box>
                             <Stack sx={{ position: 'relative' }} direction='row'>
-                                <Typography variant='overline'>Icon Source</Typography>
+                                <Typography variant='overline'>{t('iconSource')}</Typography>
                             </Stack>
                             <OutlinedInput
                                 id='iconSrc'
@@ -878,13 +881,13 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                         {/* Authentication */}
                         <Box>
                             <Stack sx={{ position: 'relative', alignItems: 'center' }} direction='row'>
-                                <Typography variant='overline'>Authentication</Typography>
-                                <TooltipWithParser title='Authentication method to connect to the MCP server' />
+                                <Typography variant='overline'>{t('authentication')}</Typography>
+                                <TooltipWithParser title={t('authenticationMethodToConnectTo')} />
                             </Stack>
                             <FormControl fullWidth>
                                 <Select value={authType} onChange={(e) => setAuthType(e.target.value)} size='small'>
-                                    <MenuItem value={MCP_AUTH_TYPE.NONE}>No Authentication</MenuItem>
-                                    <MenuItem value={MCP_AUTH_TYPE.CUSTOM_HEADERS}>Custom Headers</MenuItem>
+                                    <MenuItem value={MCP_AUTH_TYPE.NONE}>{t('noAuthentication')}</MenuItem>
+                                    <MenuItem value={MCP_AUTH_TYPE.CUSTOM_HEADERS}>{t('customHeaders')}</MenuItem>
                                 </Select>
                             </FormControl>
                         </Box>
@@ -893,7 +896,7 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                                 {headers.map((header, index) => (
                                     <Box key={index} sx={{ display: 'flex', gap: 2, alignItems: 'flex-end' }}>
                                         <Box sx={{ flex: 1 }}>
-                                            {index === 0 && <Typography variant='overline'>Header Key</Typography>}
+                                            {index === 0 && <Typography variant='overline'>{t('headerKey')}</Typography>}
                                             <OutlinedInput
                                                 fullWidth
                                                 placeholder='Authorization'
@@ -906,7 +909,7 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                                             />
                                         </Box>
                                         <Box sx={{ flex: 1 }}>
-                                            {index === 0 && <Typography variant='overline'>Header Value</Typography>}
+                                            {index === 0 && <Typography variant='overline'>{t('headerValue')}</Typography>}
                                             <OutlinedInput
                                                 fullWidth
                                                 placeholder='Bearer <token>'
@@ -938,7 +941,7 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                                         startIcon={<IconPlus size={16} />}
                                         onClick={() => setHeaders([...headers, { key: '', value: '' }])}
                                     >
-                                        Add Header
+                                        {t('addHeader')}
                                     </Button>
                                 </Box>
                             </Box>
@@ -951,7 +954,7 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                     <Accordion defaultExpanded>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Typography variant='overline'>Discovered Tools</Typography>
+                                <Typography variant='overline'>{t('discoveredTools')}</Typography>
                                 <Chip
                                     label={discoveredTools.length}
                                     size='small'
@@ -968,7 +971,7 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                                     size='small'
                                     value={toolSearch}
                                     onChange={(e) => setToolSearch(e.target.value)}
-                                    placeholder='Filter tools by name, title, or description'
+                                    placeholder={t('filterToolsByNameTitle')}
                                     startAdornment={
                                         <InputAdornment position='start' sx={{ color: 'text.secondary' }}>
                                             <IconSearch size={16} stroke={1.75} />
@@ -1047,7 +1050,7 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                 <Box>
                     {dialogProps.type === 'EDIT' && (
                         <StyledPermissionButton permissionId={'tools:delete'} color='error' variant='contained' onClick={deleteServer}>
-                            Delete
+                            {t('common:delete')}
                         </StyledPermissionButton>
                     )}
                 </Box>
@@ -1066,7 +1069,7 @@ const CustomMcpServerDialog = ({ show, dialogProps, onCancel, onConfirm, onAutho
                         <>
                             {dialogProps.type === 'EDIT' && (
                                 <Button variant='outlined' onClick={cancelEditing}>
-                                    Cancel
+                                    {t('common:cancel')}
                                 </Button>
                             )}
                             <StyledPermissionButton

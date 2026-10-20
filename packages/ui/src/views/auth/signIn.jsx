@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
@@ -38,19 +39,20 @@ import GithubSSOLoginIcon from '@/assets/images/github.svg'
 // ==============================|| SignInPage ||============================== //
 
 const SignInPage = () => {
+    const { t } = useTranslation('auth')
     const theme = useTheme()
     useSelector((state) => state.customization)
     useNotifier()
     const { isEnterpriseLicensed, isCloud, isOpenSource } = useConfig()
 
     const usernameInput = {
-        label: 'Username',
+        label: t('username'),
         name: 'username',
         type: 'email',
         placeholder: 'user@company.com'
     }
     const passwordInput = {
-        label: 'Password',
+        label: t('password'),
         name: 'password',
         type: 'password',
         placeholder: '********',
@@ -198,22 +200,22 @@ const SignInPage = () => {
                     {showResendButton && (
                         <Stack sx={{ gap: 1 }}>
                             <Button variant='text' onClick={handleResendVerification}>
-                                Resend Verification Email
+                                {t('resendVerificationEmail')}
                             </Button>
                         </Stack>
                     )}
                     <Stack sx={{ gap: 1 }}>
-                        <Typography variant='h1'>Sign In</Typography>
+                        <Typography variant='h1'>{t('signIn')}</Typography>
                         {isCloud && (
                             <Typography variant='body2' sx={{ color: theme.palette.grey[600] }}>
-                                New sign-ups are currently closed.
+                                {t('newSignUpsAreCurrently')}
                             </Typography>
                         )}
                         {isEnterpriseLicensed && (
                             <Typography variant='body2' sx={{ color: theme.palette.grey[600] }}>
                                 Have an invite code?{' '}
                                 <Link style={{ color: `${theme.palette.primary.main}` }} to='/register'>
-                                    Sign up for an account
+                                    {t('signUpForAnAccount')}
                                 </Link>
                                 .
                             </Typography>
@@ -224,7 +226,8 @@ const SignInPage = () => {
                             <Box sx={{ p: 0 }}>
                                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                                     <Typography>
-                                        Email<span style={{ color: 'red' }}>&nbsp;*</span>
+                                        {t('email')}
+                                        <span style={{ color: 'red' }}>&nbsp;*</span>
                                     </Typography>
                                     <div style={{ flexGrow: 1 }}></div>
                                 </div>
@@ -238,14 +241,15 @@ const SignInPage = () => {
                             <Box sx={{ p: 0 }}>
                                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                                     <Typography>
-                                        Password<span style={{ color: 'red' }}>&nbsp;*</span>
+                                        {t('password')}
+                                        <span style={{ color: 'red' }}>&nbsp;*</span>
                                     </Typography>
                                     <div style={{ flexGrow: 1 }}></div>
                                 </div>
                                 <Input inputParam={passwordInput} onChange={(newValue) => setPasswordVal(newValue)} value={passwordVal} />
                                 <Typography variant='body2' sx={{ color: theme.palette.grey[600], mt: 1, textAlign: 'right' }}>
                                     <Link style={{ color: theme.palette.primary.main }} to='/forgot-password'>
-                                        Forgot password?
+                                        {t('forgotPassword2')}
                                     </Link>
                                 </Typography>
                             </Box>
@@ -255,7 +259,7 @@ const SignInPage = () => {
                                 style={{ borderRadius: 12, height: 40, marginRight: 5 }}
                                 type='submit'
                             >
-                                Login
+                                {t('login')}
                             </LoadingButton>
                             {configuredSsoProviders && configuredSsoProviders.length > 0 && <Divider sx={{ width: '100%' }}>OR</Divider>}
                             {configuredSsoProviders &&
@@ -274,7 +278,7 @@ const SignInPage = () => {
                                                     </Icon>
                                                 }
                                             >
-                                                Sign In With Microsoft
+                                                {t('signInWithMicrosoft')}
                                             </Button>
                                         )
                                 )}
@@ -293,7 +297,7 @@ const SignInPage = () => {
                                                     </Icon>
                                                 }
                                             >
-                                                Sign In With Google
+                                                {t('signInWithGoogle')}
                                             </Button>
                                         )
                                 )}
@@ -312,7 +316,7 @@ const SignInPage = () => {
                                                     </Icon>
                                                 }
                                             >
-                                                Sign In With Auth0 by Okta
+                                                {t('signInWithAuth0By')}
                                             </Button>
                                         )
                                 )}
@@ -331,7 +335,7 @@ const SignInPage = () => {
                                                     </Icon>
                                                 }
                                             >
-                                                Sign In With Github
+                                                {t('signInWithGithub')}
                                             </Button>
                                         )
                                 )}

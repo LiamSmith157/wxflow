@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
@@ -6,6 +7,7 @@ import { Box, Dialog, DialogContent, DialogTitle, Typography } from '@mui/materi
 import ReactJson from 'flowise-react-json-view'
 
 const SourceDocDialog = ({ show, dialogProps, onCancel }) => {
+    const { t } = useTranslation('components')
     const portalElement = document.getElementById('portal')
     const customization = useSelector((state) => state.customization)
 
@@ -44,7 +46,7 @@ const SourceDocDialog = ({ show, dialogProps, onCancel }) => {
                         }}
                     >
                         <Typography variant='body2' fontWeight='medium'>
-                            Error:
+                            {t('error')}
                         </Typography>
                         <Typography variant='body2' sx={{ whiteSpace: 'pre-wrap' }}>
                             {data.error}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 import moment from 'moment'
@@ -87,6 +88,7 @@ const getIconColor = (state) => {
 }
 
 export const ExecutionsListTable = ({ data, isLoading, onExecutionRowClick, onSelectionChange }) => {
+    const { t } = useTranslation('components')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
 
@@ -173,14 +175,14 @@ export const ExecutionsListTable = ({ data, isLoading, onExecutionRowClick, onSe
                                     }}
                                 />
                             </StyledTableCell>
-                            <StyledTableCell>Status</StyledTableCell>
+                            <StyledTableCell>{t('common:status')}</StyledTableCell>
                             <StyledTableCell>
                                 <TableSortLabel
                                     active={orderBy === 'updatedDate'}
                                     direction={order}
                                     onClick={() => handleRequestSort('updatedDate')}
                                 >
-                                    Last Updated
+                                    {t('lastUpdated')}
                                 </TableSortLabel>
                             </StyledTableCell>
                             <StyledTableCell component='th' scope='row'>
@@ -188,14 +190,14 @@ export const ExecutionsListTable = ({ data, isLoading, onExecutionRowClick, onSe
                                     Agentflow
                                 </TableSortLabel>
                             </StyledTableCell>
-                            <StyledTableCell>Session</StyledTableCell>
+                            <StyledTableCell>{t('session')}</StyledTableCell>
                             <StyledTableCell>
                                 <TableSortLabel
                                     active={orderBy === 'createdDate'}
                                     direction={order}
                                     onClick={() => handleRequestSort('createdDate')}
                                 >
-                                    Created
+                                    {t('common:created')}
                                 </TableSortLabel>
                             </StyledTableCell>
                         </TableRow>

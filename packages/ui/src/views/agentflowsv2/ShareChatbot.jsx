@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction, SET_CHATFLOW } from '@/store/actions'
 import { SketchPicker } from 'react-color'
@@ -46,6 +47,7 @@ const defaultConfig = {
 }
 
 const ShareChatbot = ({ isSessionMemory }) => {
+    const { t } = useTranslation('agentflows')
     const dispatch = useDispatch()
     const theme = useTheme()
     const chatflow = useSelector((state) => state.canvas.chatflow)
@@ -182,7 +184,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
             })
             if (saveResp.data) {
                 enqueueSnackbar({
-                    message: 'Chatbot Configuration Saved',
+                    message: t('chatbotConfigurationSaved'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -197,9 +199,9 @@ const ShareChatbot = ({ isSessionMemory }) => {
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed to save Chatbot Configuration: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToSaveChatbotConfiguration', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -219,7 +221,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
             const saveResp = await chatflowsApi.updateChatflow(chatflowid, { isPublic: checked })
             if (saveResp.data) {
                 enqueueSnackbar({
-                    message: 'Chatbot Configuration Saved',
+                    message: t('chatbotConfigurationSaved'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -234,9 +236,9 @@ const ShareChatbot = ({ isSessionMemory }) => {
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed to save Chatbot Configuration: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToSaveChatbotConfiguration', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -427,7 +429,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
                     {`${baseURL}/chatbot/${chatflowid}`}
                 </Typography>
                 <IconButton
-                    title='Copy Link'
+                    title={t('copyLink')}
                     color='success'
                     onClick={(event) => {
                         navigator.clipboard.writeText(`${baseURL}/chatbot/${chatflowid}`)
@@ -439,7 +441,11 @@ const ShareChatbot = ({ isSessionMemory }) => {
                 >
                     <IconCopy />
                 </IconButton>
-                <IconButton title='Open New Tab' color='primary' onClick={() => window.open(`${baseURL}/chatbot/${chatflowid}`, '_blank')}>
+                <IconButton
+                    title={t('openNewTab')}
+                    color='primary'
+                    onClick={() => window.open(`${baseURL}/chatbot/${chatflowid}`, '_blank')}
+                >
                     <IconArrowUpRightCircle />
                 </IconButton>
                 <div style={{ flex: 1 }} />
@@ -452,7 +458,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
                                 onSwitchChange(event.target.checked)
                             }}
                         />
-                        <Typography>Make Public</Typography>
+                        <Typography>{t('makePublic')}</Typography>
                         <TooltipWithParser
                             style={{ marginLeft: 10 }}
                             title={'Making public will allow anyone to access the chatbot without authentication'}
@@ -463,7 +469,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
 
             <Card sx={{ borderColor: theme.palette.primary[200] + 75, p: 3, mt: 2 }} variant='outlined'>
                 <Stack sx={{ mt: 1, mb: 2, alignItems: 'center' }} direction='row' spacing={2}>
-                    <Typography variant='h4'>Title Settings</Typography>
+                    <Typography variant='h4'>{t('titleSettings')}</Typography>
                 </Stack>
                 {textField(title, 'title', 'Title', 'string', 'Flowise Assistant')}
                 {textField(
@@ -479,7 +485,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
 
             <Card sx={{ borderColor: theme.palette.primary[200] + 75, p: 3, mt: 2 }} variant='outlined'>
                 <Stack sx={{ mt: 1, mb: 2, alignItems: 'center' }} direction='row' spacing={2}>
-                    <Typography variant='h4'>General Settings</Typography>
+                    <Typography variant='h4'>{t('generalSettings')}</Typography>
                 </Stack>
                 {textField(welcomeMessage, 'welcomeMessage', 'Welcome Message', 'string', 'Hello! This is custom welcome message')}
                 {textField(errorMessage, 'errorMessage', 'Error Message', 'string', 'This is custom error message')}
@@ -494,7 +500,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
 
             <Card sx={{ borderColor: theme.palette.primary[200] + 75, p: 3, mt: 2 }} variant='outlined'>
                 <Stack sx={{ mt: 1, mb: 2, alignItems: 'center' }} direction='row' spacing={2}>
-                    <Typography variant='h4'>Bot Message</Typography>
+                    <Typography variant='h4'>{t('botMessage')}</Typography>
                 </Stack>
                 {colorField(botMessageBackgroundColor, 'botMessageBackgroundColor', 'Background Color')}
                 {colorField(botMessageTextColor, 'botMessageTextColor', 'Text Color')}
@@ -510,7 +516,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
 
             <Card sx={{ borderColor: theme.palette.primary[200] + 75, p: 3, mt: 2 }} variant='outlined'>
                 <Stack sx={{ mt: 1, mb: 2, alignItems: 'center' }} direction='row' spacing={2}>
-                    <Typography variant='h4'>User Message</Typography>
+                    <Typography variant='h4'>{t('userMessage')}</Typography>
                 </Stack>
                 {colorField(userMessageBackgroundColor, 'userMessageBackgroundColor', 'Background Color')}
                 {colorField(userMessageTextColor, 'userMessageTextColor', 'Text Color')}
@@ -526,7 +532,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
 
             <Card sx={{ borderColor: theme.palette.primary[200] + 75, p: 3, mt: 2 }} variant='outlined'>
                 <Stack sx={{ mt: 1, mb: 2, alignItems: 'center' }} direction='row' spacing={2}>
-                    <Typography variant='h4'>Text Input</Typography>
+                    <Typography variant='h4'>{t('textInput')}</Typography>
                 </Stack>
                 {colorField(textInputBackgroundColor, 'textInputBackgroundColor', 'Background Color')}
                 {colorField(textInputTextColor, 'textInputTextColor', 'Text Color')}
@@ -546,7 +552,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
                 variant='contained'
                 onClick={() => onSave()}
             >
-                Save Changes
+                {t('saveChanges')}
             </StyledPermissionButton>
             <Popover
                 open={openColorPopOver}
@@ -577,7 +583,7 @@ const ShareChatbot = ({ isSessionMemory }) => {
                 }}
             >
                 <Typography variant='h6' sx={{ pl: 1, pr: 1, color: 'white', background: theme.palette.success.dark }}>
-                    Copied!
+                    {t('copied')}
                 </Typography>
             </Popover>
         </>

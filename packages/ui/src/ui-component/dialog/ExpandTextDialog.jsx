@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
@@ -23,6 +24,7 @@ import useApi from '@/hooks/useApi'
 import './ExpandTextDialog.css'
 
 const ExpandTextDialog = ({ show, dialogProps, onCancel, onInputHintDialogClicked, onConfirm }) => {
+    const { t } = useTranslation('components')
     const portalElement = document.getElementById('portal')
 
     const theme = useTheme()
@@ -169,7 +171,7 @@ const ExpandTextDialog = ({ show, dialogProps, onCancel, onInputHintDialogClicke
                             executeCustomFunctionNodeApi.request({ javascriptFunction: inputValue })
                         }}
                     >
-                        Execute
+                        {t('execute')}
                     </PermissionLoadingButton>
                 )}
                 {codeExecutedResult && (

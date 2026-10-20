@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import axios from 'axios'
@@ -40,6 +41,7 @@ import SourceDocDialog from '@/ui-component/dialog/SourceDocDialog'
 import predictionApi from '@/api/prediction'
 
 export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, onProceedSuccess }) => {
+    const { t } = useTranslation('executions')
     const [dataView, setDataView] = useState('rendered')
     const [openFeedbackDialog, setOpenFeedbackDialog] = useState(false)
     const [feedback, setFeedback] = useState('')
@@ -213,7 +215,7 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                         }}
                     >
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant='body1'>Else condition fulfilled</Typography>
+                            <Typography variant='body1'>{t('elseConditionFulfilled')}</Typography>
                             <Chip
                                 label={condition.isFulfilled ? 'Fulfilled' : 'Not Fulfilled'}
                                 size='small'
@@ -310,7 +312,7 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                 {data.output && data.output.timeMetadata && data.output.timeMetadata.delta && (
                     <Chip
                         icon={<IconClock size={17} />}
-                        label={`${(data.output.timeMetadata.delta / 1000).toFixed(2)} seconds`}
+                        label={t('v1Seconds', { v1: (data.output.timeMetadata.delta / 1000).toFixed(2) })}
                         variant='contained'
                         color='secondary'
                         size='small'
@@ -320,7 +322,7 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                 {data.output && data.output.usageMetadata && data.output.usageMetadata.total_tokens && (
                     <Chip
                         icon={<IconCoins size={17} />}
-                        label={`${data.output.usageMetadata.total_tokens} tokens`}
+                        label={t('totalTokensTokens', { total_tokens: data.output.usageMetadata.total_tokens })}
                         variant='contained'
                         color='primary'
                         size='small'
@@ -362,9 +364,9 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                         }}
                         variant='contained'
                         value='rendered'
-                        title='Rendered'
+                        title={t('rendered')}
                     >
-                        Rendered
+                        {t('rendered')}
                     </ToggleButton>
                     <ToggleButton
                         sx={{
@@ -374,9 +376,9 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                         }}
                         variant='contained'
                         value='raw'
-                        title='Raw'
+                        title={t('raw')}
                     >
-                        Raw
+                        {t('raw')}
                     </ToggleButton>
                 </ToggleButtonGroup>
             </Box>
@@ -386,7 +388,7 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                     {data.output && data.output.availableTools && data.output.availableTools.length > 0 && (
                         <Box>
                             <Typography sx={{ mt: 2 }} variant='h5' gutterBottom>
-                                Tools
+                                {t('tools')}
                             </Typography>
                             {(showAllTools ? data.output.availableTools : data.output.availableTools.slice(0, 5)).map((tool, index) => {
                                 // Check if this tool is in the usedTools array
@@ -474,7 +476,7 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                                                 </Typography>
                                                 {isToolUsed && (
                                                     <Chip
-                                                        label='Used'
+                                                        label={t('used')}
                                                         size='small'
                                                         sx={{ ml: 2, color: 'white', backgroundColor: theme.palette.success.dark }}
                                                     />
@@ -499,7 +501,7 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                         </Box>
                     )}
                     <Typography sx={{ mt: 2 }} variant='h5' gutterBottom>
-                        Input
+                        {t('input')}
                     </Typography>
                     {data && data.input && data.input.messages && Array.isArray(data.input.messages) && data.input.messages.length > 0 ? (
                         data.input.messages.map((message, index) => (
@@ -631,7 +633,7 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                                                             })()}
                                                         </Typography>
                                                         <Chip
-                                                            label='Called'
+                                                            label={t('called')}
                                                             size='small'
                                                             sx={{
                                                                 ml: 2,
@@ -961,7 +963,7 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                         </Box>
                     )}
                     <Typography sx={{ mt: 2 }} variant='h5' gutterBottom>
-                        Output
+                        {t('output')}
                     </Typography>
                     {data?.output?.form || data?.output?.http ? (
                         <JSONViewer data={data.output.form || data.output.http} />
@@ -1135,7 +1137,7 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                     {data.error && (
                         <>
                             <Typography sx={{ mt: 2 }} variant='h5' gutterBottom color='error'>
-                                Error
+                                {t('common:error')}
                             </Typography>
                             <Box
                                 sx={{
@@ -1160,7 +1162,7 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                     {data.state && Object.keys(data.state).length > 0 && (
                         <>
                             <Typography sx={{ mt: 2 }} variant='h5' gutterBottom>
-                                State
+                                {t('state')}
                             </Typography>
                             <JSONViewer data={data.state} />
                         </>
@@ -1206,7 +1208,7 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                         }}
                     >
                         <Button variant='outlined' color='error' sx={{ borderRadius: '25px' }} onClick={handleReject} disabled={isLoading}>
-                            Reject
+                            {t('reject')}
                         </Button>
                         <Button
                             variant='contained'
@@ -1215,18 +1217,18 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                             onClick={handleProceed}
                             disabled={isLoading}
                         >
-                            Proceed
+                            {t('proceed')}
                         </Button>
                     </Box>
 
                     <Dialog maxWidth='md' fullWidth open={openFeedbackDialog} onClose={() => !isLoading && setOpenFeedbackDialog(false)}>
-                        <DialogTitle variant='h5'>Provide Feedback</DialogTitle>
+                        <DialogTitle variant='h5'>{t('provideFeedback')}</DialogTitle>
                         <DialogContent>
                             <TextField
                                 //eslint-disable-next-line jsx-a11y/no-autofocus
                                 autoFocus
                                 margin='dense'
-                                label='Feedback'
+                                label={t('feedback')}
                                 fullWidth
                                 multiline
                                 rows={4}
@@ -1237,10 +1239,10 @@ export const NodeExecutionDetails = ({ data, label, status, metadata, isPublic, 
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={() => setOpenFeedbackDialog(false)} disabled={isLoading}>
-                                Cancel
+                                {t('common:cancel')}
                             </Button>
                             <Button onClick={handleSubmitFeedback} variant='contained' disabled={isLoading}>
-                                Submit
+                                {t('common:submit')}
                             </Button>
                         </DialogActions>
                     </Dialog>

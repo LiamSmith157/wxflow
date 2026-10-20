@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from '@/store/actions'
 import moment from 'moment'
@@ -74,6 +75,7 @@ const StyledTableRow = styled(TableRow)(() => ({
 // ==============================|| Credentials ||============================== //
 
 const Variables = () => {
+    const { t } = useTranslation('variables')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const dispatch = useDispatch()
@@ -123,8 +125,8 @@ const Variables = () => {
     const addNew = () => {
         const dialogProp = {
             type: 'ADD',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Add',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:add'),
             customBtnId: 'btn_confirmAddingVariable',
             data: {}
         }
@@ -135,8 +137,8 @@ const Variables = () => {
     const edit = (variable) => {
         const dialogProp = {
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Save',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:save'),
             data: variable
         }
         setVariableDialogProps(dialogProp)
@@ -145,10 +147,10 @@ const Variables = () => {
 
     const deleteVariable = async (variable) => {
         const confirmPayload = {
-            title: `Delete`,
-            description: `Delete variable ${variable.name}?`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('delete'),
+            description: t('deleteVariableName', { name: variable.name }),
+            confirmButtonName: t('common:delete'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -157,7 +159,7 @@ const Variables = () => {
                 const deleteResp = await variablesApi.deleteVariable(variable.id)
                 if (deleteResp.data) {
                     enqueueSnackbar({
-                        message: 'Variable deleted',
+                        message: t('variableDeleted'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -172,9 +174,9 @@ const Variables = () => {
                 }
             } catch (error) {
                 enqueueSnackbar({
-                    message: `Failed to delete Variable: ${
-                        typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                    }`,
+                    message: t('failedToDeleteVariableV1', {
+                        v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                    }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -223,11 +225,11 @@ const Variables = () => {
                             onSearchChange={onSearchChange}
                             search={true}
                             searchPlaceholder='Search Variables'
-                            title='Variables'
-                            description='Create and manage global variables'
+                            title={t('variables')}
+                            description={t('createAndManageGlobalVariables')}
                         >
                             <Button variant='outlined' sx={{ borderRadius: 2, height: '100%' }} onClick={() => setShowHowToDialog(true)}>
-                                How To Use
+                                {t('howToUse')}
                             </Button>
                             <StyledPermissionButton
                                 permissionId={'variables:create'}
@@ -237,7 +239,7 @@ const Variables = () => {
                                 startIcon={<IconPlus />}
                                 id='btn_createVariable'
                             >
-                                Add Variable
+                                {t('addVariable')}
                             </StyledPermissionButton>
                         </ViewHeader>
                         {!isLoading && variables.length === 0 ? (
@@ -249,7 +251,7 @@ const Variables = () => {
                                         alt='VariablesEmptySVG'
                                     />
                                 </Box>
-                                <div>No Variables Yet</div>
+                                <div>{t('noVariablesYet')}</div>
                             </Stack>
                         ) : (
                             <>
@@ -267,11 +269,11 @@ const Variables = () => {
                                             }}
                                         >
                                             <TableRow>
-                                                <StyledTableCell>Name</StyledTableCell>
-                                                <StyledTableCell>Value</StyledTableCell>
-                                                <StyledTableCell>Type</StyledTableCell>
-                                                <StyledTableCell>Last Updated</StyledTableCell>
-                                                <StyledTableCell>Created</StyledTableCell>
+                                                <StyledTableCell>{t('common:name')}</StyledTableCell>
+                                                <StyledTableCell>{t('common:value')}</StyledTableCell>
+                                                <StyledTableCell>{t('common:type')}</StyledTableCell>
+                                                <StyledTableCell>{t('lastUpdated')}</StyledTableCell>
+                                                <StyledTableCell>{t('common:created')}</StyledTableCell>
                                                 <Available permissionId={'variables:update'}>
                                                     <StyledTableCell> </StyledTableCell>
                                                 </Available>
@@ -389,7 +391,11 @@ const Variables = () => {
                                                             </StyledTableCell>
                                                             <Available permission={'variables:create,variables:update'}>
                                                                 <StyledTableCell>
-                                                                    <IconButton title='Edit' color='primary' onClick={() => edit(variable)}>
+                                                                    <IconButton
+                                                                        title={t('common:edit')}
+                                                                        color='primary'
+                                                                        onClick={() => edit(variable)}
+                                                                    >
                                                                         <IconEdit />
                                                                     </IconButton>
                                                                 </StyledTableCell>
@@ -397,7 +403,7 @@ const Variables = () => {
                                                             <Available permission={'variables:delete'}>
                                                                 <StyledTableCell>
                                                                     <IconButton
-                                                                        title='Delete'
+                                                                        title={t('common:delete')}
                                                                         color='error'
                                                                         onClick={() => deleteVariable(variable)}
                                                                     >

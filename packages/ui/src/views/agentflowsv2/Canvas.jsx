@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback, useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import ReactFlow, { addEdge, Controls, MiniMap, Background, useNodesState, useEdgesState } from 'reactflow'
 import 'reactflow/dist/style.css'
 import './index.css'
@@ -67,6 +68,7 @@ const edgeTypes = { agentFlow: AgentFlowEdge }
 // ==============================|| CANVAS ||============================== //
 
 const AgentflowCanvas = () => {
+    const { t } = useTranslation('agentflows')
     const theme = useTheme()
     const navigate = useNavigate()
     const customization = useSelector((state) => state.customization)
@@ -186,10 +188,10 @@ const AgentflowCanvas = () => {
 
     const handleDeleteFlow = async () => {
         const confirmPayload = {
-            title: `Delete`,
-            description: `Delete ${canvasTitle} ${chatflow.name}?`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('delete'),
+            description: t('deleteCanvastitleName', { canvasTitle, name: chatflow.name }),
+            confirmButtonName: t('common:delete'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -319,7 +321,7 @@ const AgentflowCanvas = () => {
 
             if (nodeData.name === 'startAgentflow' && nodes.find((node) => node.data.name === 'startAgentflow')) {
                 enqueueSnackbar({
-                    message: 'Only one start node is allowed',
+                    message: t('onlyOneStartNodeIs'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -373,7 +375,7 @@ const AgentflowCanvas = () => {
                     // We can't have nested iteration nodes
                     if (nodeData.name === 'iterationAgentflow') {
                         enqueueSnackbar({
-                            message: 'Nested iteration node is not supported yet',
+                            message: t('nestedIterationNodeIsNot'),
                             options: {
                                 key: new Date().getTime() + Math.random(),
                                 variant: 'error',
@@ -391,7 +393,7 @@ const AgentflowCanvas = () => {
                     // We can't have human input node inside iteration node
                     if (nodeData.name === 'humanInputAgentflow') {
                         enqueueSnackbar({
-                            message: 'Human input node is not supported inside Iteration node',
+                            message: t('humanInputNodeIsNot'),
                             options: {
                                 key: new Date().getTime() + Math.random(),
                                 variant: 'error',
@@ -487,7 +489,7 @@ const AgentflowCanvas = () => {
     const saveChatflowSuccess = () => {
         dispatch({ type: REMOVE_DIRTY })
         enqueueSnackbar({
-            message: `${canvasTitle} saved`,
+            message: t('canvastitleSaved', { canvasTitle }),
             options: {
                 key: new Date().getTime() + Math.random(),
                 variant: 'success',
@@ -665,7 +667,7 @@ const AgentflowCanvas = () => {
                     position: { x: 100, y: 100 },
                     data: {
                         ...initNode(clonedStartNodeData, 'startAgentflow_0', true),
-                        label: 'Start'
+                        label: t('common:start')
                     }
                 }
                 setNodes([startNode])
@@ -750,7 +752,7 @@ const AgentflowCanvas = () => {
                                         onClick={() => {
                                             setIsSnappingEnabled(!isSnappingEnabled)
                                         }}
-                                        title='toggle snapping'
+                                        title={t('toggleSnapping')}
                                         aria-label='toggle snapping'
                                     >
                                         {isSnappingEnabled ? <IconMagnetFilled /> : <IconMagnetOff />}
@@ -760,7 +762,7 @@ const AgentflowCanvas = () => {
                                         onClick={() => {
                                             setIsBackgroundEnabled(!isBackgroundEnabled)
                                         }}
-                                        title='toggle background'
+                                        title={t('toggleBackground')}
                                         aria-label='toggle background'
                                     >
                                         {isBackgroundEnabled ? <IconArtboard /> : <IconArtboardOff />}
@@ -796,7 +798,7 @@ const AgentflowCanvas = () => {
                                         }}
                                         size='small'
                                         aria-label='sync'
-                                        title='Sync Nodes'
+                                        title={t('syncNodes')}
                                         onClick={() => syncNodes()}
                                     >
                                         <IconRefreshAlert />

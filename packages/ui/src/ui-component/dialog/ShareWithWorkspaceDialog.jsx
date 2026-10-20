@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -30,6 +31,7 @@ import useNotifier from '@/utils/useNotifier'
 import { HIDE_CANVAS_DIALOG, SHOW_CANVAS_DIALOG } from '@/store/actions'
 
 const ShareWithWorkspaceDialog = ({ show, dialogProps, onCancel, setError }) => {
+    const { t } = useTranslation('components')
     const portalElement = document.getElementById('portal')
 
     const dispatch = useDispatch()
@@ -63,10 +65,10 @@ const ShareWithWorkspaceDialog = ({ show, dialogProps, onCancel, setError }) => 
 
     const columns = useMemo(
         () => [
-            { field: 'workspaceName', headerName: 'Workspace', editable: false, flex: 1 },
-            { field: 'shared', headerName: 'Share', type: 'boolean', editable: true, width: 180 }
+            { field: 'workspaceName', headerName: t('workspace'), editable: false, flex: 1 },
+            { field: 'shared', headerName: t('share'), type: 'boolean', editable: true, width: 180 }
         ],
-        []
+        [t]
     )
 
     useEffect(() => {
@@ -130,7 +132,7 @@ const ShareWithWorkspaceDialog = ({ show, dialogProps, onCancel, setError }) => 
             const sharedResp = await workspaceApi.setSharedWorkspacesForItem(dialogProps.data.id, obj)
             if (sharedResp.data) {
                 enqueueSnackbar({
-                    message: 'Items Shared Successfully',
+                    message: t('itemsSharedSuccessfully'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -146,9 +148,9 @@ const ShareWithWorkspaceDialog = ({ show, dialogProps, onCancel, setError }) => 
         } catch (error) {
             if (setError) setError(error)
             enqueueSnackbar({
-                message: `Failed to share Item: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToShareItemV1', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -182,7 +184,7 @@ const ShareWithWorkspaceDialog = ({ show, dialogProps, onCancel, setError }) => 
             <DialogContent>
                 <Box sx={{ p: 2 }}>
                     <Stack sx={{ position: 'relative' }} direction='row'>
-                        <Typography variant='overline'>Name</Typography>
+                        <Typography variant='overline'>{t('common:name')}</Typography>
                     </Stack>
                     <OutlinedInput id='name' type='string' disabled={true} fullWidth placeholder={name} value={name} name='name' />
                 </Box>

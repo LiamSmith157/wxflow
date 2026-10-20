@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -47,6 +48,7 @@ import { SET_COMPONENT_NODES } from '@/store/actions'
 const AGENTFLOW_CATEGORY = 'Agent Flows'
 
 const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
+    const { t } = useTranslation('agentflows')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const dispatch = useDispatch()
@@ -249,7 +251,7 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
     const handleOpenDialog = () => {
         setOpenDialog(true)
         setDialogProps({
-            title: 'What would you like to build?',
+            title: t('whatWouldYouLikeTo'),
             description:
                 'Enter your prompt to generate an agentflow. Performance may vary with different models. Only nodes and edges are generated, you will need to fill in the input fields for each node.'
         })
@@ -272,7 +274,7 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
                 size='small'
                 color='primary'
                 aria-label='add'
-                title='Add Node'
+                title={t('addNode')}
                 onClick={handleToggle}
             >
                 {open ? <IconMinus /> : <IconPlus />}
@@ -290,7 +292,7 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
                 size='small'
                 color='primary'
                 aria-label='generate'
-                title='Generate Agentflow'
+                title={t('generateAgentflow')}
             >
                 <IconSparkles />
             </StyledFab>
@@ -328,7 +330,7 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
                                 <MainCard border={false} elevation={16} content={false} boxShadow shadow={theme.shadows[16]}>
                                     <Box sx={{ p: 2 }}>
                                         <Stack>
-                                            <Typography variant='h4'>Add Nodes</Typography>
+                                            <Typography variant='h4'>{t('addNodes')}</Typography>
                                         </Stack>
                                         <OutlinedInput
                                             // eslint-disable-next-line
@@ -337,7 +339,7 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
                                             id='input-search-node'
                                             value={searchValue}
                                             onChange={(e) => filterSearch(e.target.value)}
-                                            placeholder='Search nodes'
+                                            placeholder={t('searchNodes')}
                                             startAdornment={
                                                 <InputAdornment position='start'>
                                                     <IconSearch stroke={1.5} size='1rem' color={theme.palette.grey[500]} />
@@ -353,7 +355,7 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
                                                             color: theme.palette.grey[900]
                                                         }
                                                     }}
-                                                    title='Clear Search'
+                                                    title={t('clearSearch')}
                                                 >
                                                     <IconX
                                                         stroke={1.5}

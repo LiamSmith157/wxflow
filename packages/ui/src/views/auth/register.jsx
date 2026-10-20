@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { z } from 'zod/v3'
 
@@ -63,40 +64,41 @@ const RegisterCloudUserSchema = z
     })
 
 const RegisterPage = () => {
+    const { t } = useTranslation('auth')
     const theme = useTheme()
     useNotifier()
     const { isEnterpriseLicensed, isCloud, isOpenSource } = useConfig()
 
     const usernameInput = {
-        label: 'Username',
+        label: t('username'),
         name: 'username',
         type: 'text',
         placeholder: 'John Doe'
     }
 
     const passwordInput = {
-        label: 'Password',
+        label: t('password'),
         name: 'password',
         type: 'password',
         placeholder: '********'
     }
 
     const confirmPasswordInput = {
-        label: 'Confirm Password',
+        label: t('confirmPassword'),
         name: 'confirmPassword',
         type: 'password',
         placeholder: '********'
     }
 
     const emailInput = {
-        label: 'EMail',
+        label: t('email2'),
         name: 'email',
         type: 'email',
         placeholder: 'user@company.com'
     }
 
     const inviteCodeInput = {
-        label: 'Invite Code',
+        label: t('inviteCode'),
         name: 'inviteCode',
         type: 'text'
     }
@@ -290,11 +292,11 @@ const RegisterPage = () => {
                         </Alert>
                     )}
                     <Stack sx={{ gap: 1 }}>
-                        <Typography variant='h1'>Sign Up</Typography>
+                        <Typography variant='h1'>{t('signUp')}</Typography>
                         <Typography variant='body2' sx={{ color: theme.palette.grey[600] }}>
                             Already have an account?{' '}
                             <Link style={{ color: theme.palette.primary.main }} to='/signin'>
-                                Sign In
+                                {t('signIn')}
                             </Link>
                             .
                         </Typography>
@@ -304,25 +306,27 @@ const RegisterPage = () => {
                             <Box>
                                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                                     <Typography>
-                                        Full Name<span style={{ color: 'red' }}>&nbsp;*</span>
+                                        {t('fullName')}
+                                        <span style={{ color: 'red' }}>&nbsp;*</span>
                                     </Typography>
                                     <div style={{ flexGrow: 1 }}></div>
                                 </div>
                                 <Input
                                     inputParam={usernameInput}
-                                    placeholder='Display Name'
+                                    placeholder={t('displayName')}
                                     onChange={(newValue) => setUsername(newValue)}
                                     value={username}
                                     showDialog={false}
                                 />
                                 <Typography variant='caption'>
-                                    <i>Is used for display purposes only.</i>
+                                    <i>{t('isUsedForDisplayPurposes')}</i>
                                 </Typography>
                             </Box>
                             <Box>
                                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                                     <Typography>
-                                        Email<span style={{ color: 'red' }}>&nbsp;*</span>
+                                        {t('email')}
+                                        <span style={{ color: 'red' }}>&nbsp;*</span>
                                     </Typography>
                                     <div style={{ flexGrow: 1 }}></div>
                                 </div>
@@ -333,50 +337,50 @@ const RegisterPage = () => {
                                     showDialog={false}
                                 />
                                 <Typography variant='caption'>
-                                    <i>Kindly use a valid email address. Will be used as login id.</i>
+                                    <i>{t('kindlyUseAValidEmail')}</i>
                                 </Typography>
                             </Box>
                             {isEnterpriseLicensed && (
                                 <Box>
                                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                                         <Typography>
-                                            Invite Code<span style={{ color: 'red' }}>&nbsp;*</span>
+                                            {t('inviteCode')}
+                                            <span style={{ color: 'red' }}>&nbsp;*</span>
                                         </Typography>
                                         <div style={{ flexGrow: 1 }}></div>
                                     </div>
                                     <OutlinedInput
                                         fullWidth
                                         type='string'
-                                        placeholder='Paste in the invite code.'
+                                        placeholder={t('pasteInTheInviteCode')}
                                         multiline={false}
                                         inputParam={inviteCodeInput}
                                         onChange={(e) => setToken(e.target.value)}
                                         value={token}
                                     />
                                     <Typography variant='caption'>
-                                        <i>Please copy the token you would have received in your email.</i>
+                                        <i>{t('pleaseCopyTheTokenYou')}</i>
                                     </Typography>
                                 </Box>
                             )}
                             <Box>
                                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                                     <Typography>
-                                        Password<span style={{ color: 'red' }}>&nbsp;*</span>
+                                        {t('password')}
+                                        <span style={{ color: 'red' }}>&nbsp;*</span>
                                     </Typography>
                                     <div style={{ flexGrow: 1 }}></div>
                                 </div>
                                 <Input inputParam={passwordInput} onChange={(newValue) => setPassword(newValue)} value={password} />
                                 <Typography variant='caption'>
-                                    <i>
-                                        Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase
-                                        letter, one digit, and one special character.
-                                    </i>
+                                    <i>{t('auth:passwordHint')}</i>
                                 </Typography>
                             </Box>
                             <Box>
                                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                                     <Typography>
-                                        Confirm Password<span style={{ color: 'red' }}>&nbsp;*</span>
+                                        {t('confirmPassword')}
+                                        <span style={{ color: 'red' }}>&nbsp;*</span>
                                     </Typography>
                                     <div style={{ flexGrow: 1 }}></div>
                                 </div>
@@ -386,11 +390,11 @@ const RegisterPage = () => {
                                     value={confirmPassword}
                                 />
                                 <Typography variant='caption'>
-                                    <i>Confirm your password. Must match the password typed above.</i>
+                                    <i>{t('confirmYourPasswordMustMatch')}</i>
                                 </Typography>
                             </Box>
                             <StyledButton variant='contained' style={{ borderRadius: 12, height: 40, marginRight: 5 }} type='submit'>
-                                Create Account
+                                {t('createAccount')}
                             </StyledButton>
                             {configuredSsoProviders.length > 0 && <Divider sx={{ width: '100%' }}>OR</Divider>}
                             {configuredSsoProviders &&
@@ -409,7 +413,7 @@ const RegisterPage = () => {
                                                     </Icon>
                                                 }
                                             >
-                                                Sign In With Microsoft
+                                                {t('signInWithMicrosoft')}
                                             </Button>
                                         )
                                 )}
@@ -428,7 +432,7 @@ const RegisterPage = () => {
                                                     </Icon>
                                                 }
                                             >
-                                                Sign In With Google
+                                                {t('signInWithGoogle')}
                                             </Button>
                                         )
                                 )}
@@ -447,7 +451,7 @@ const RegisterPage = () => {
                                                     </Icon>
                                                 }
                                             >
-                                                Sign In With Auth0 by Okta
+                                                {t('signInWithAuth0By')}
                                             </Button>
                                         )
                                 )}
@@ -466,7 +470,7 @@ const RegisterPage = () => {
                                                     </Icon>
                                                 }
                                             >
-                                                Sign In With Github
+                                                {t('signInWithGithub')}
                                             </Button>
                                         )
                                 )}

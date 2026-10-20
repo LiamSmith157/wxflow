@@ -1,4 +1,5 @@
 import { memo, useState, useRef, useEffect, useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -28,6 +29,7 @@ import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackba
 import { getLocalStorageChatflow, removeLocalStorageChatHistory } from '@/utils/genericHelper'
 
 const ChatPopUp = ({ chatflowid, onOpenChange }) => {
+    const { t } = useTranslation('executions')
     const theme = useTheme()
     const { confirm } = useConfirm()
     const dispatch = useDispatch()
@@ -86,10 +88,10 @@ const ChatPopUp = ({ chatflowid, onOpenChange }) => {
 
     const clearChat = async () => {
         const confirmPayload = {
-            title: `Clear Chat History`,
-            description: `Are you sure you want to clear all chat history?`,
-            confirmButtonName: 'Clear',
-            cancelButtonName: 'Cancel'
+            title: t('clearChatHistory'),
+            description: t('areYouSureYouWant'),
+            confirmButtonName: t('common:clear'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -101,7 +103,7 @@ const ChatPopUp = ({ chatflowid, onOpenChange }) => {
                 removeLocalStorageChatHistory(chatflowid)
                 resetChatDialog()
                 enqueueSnackbar({
-                    message: 'Successfully cleared all chat history',
+                    message: t('successfullyClearedAllChatHistory'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -148,7 +150,7 @@ const ChatPopUp = ({ chatflowid, onOpenChange }) => {
                 size='small'
                 color='secondary'
                 aria-label='chat'
-                title='Chat'
+                title={t('chat')}
                 onClick={handleToggle}
             >
                 {open ? <IconX /> : <IconMessage />}
@@ -161,7 +163,7 @@ const ChatPopUp = ({ chatflowid, onOpenChange }) => {
                     size='small'
                     color='error'
                     aria-label='clear'
-                    title='Clear Chat History'
+                    title={t('clearChatHistory')}
                 >
                     <IconEraser />
                 </StyledFab>
@@ -173,7 +175,7 @@ const ChatPopUp = ({ chatflowid, onOpenChange }) => {
                     size='small'
                     color='primary'
                     aria-label='expand'
-                    title='Expand Chat'
+                    title={t('expandChat')}
                 >
                     <IconArrowsMaximize />
                 </StyledFab>

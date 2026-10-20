@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, forwardRef, memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -116,6 +117,7 @@ const StyledTreeItemLabelText = styled(Typography)(({ theme }) => ({
 }))
 
 function CustomLabel({ icon: Icon, itemStatus, children, name, label, data, metadata, ...other }) {
+    const { t } = useTranslation('executions')
     const [openDialog, setOpenDialog] = useState(false)
 
     const handleOpenDialog = (event) => {
@@ -179,7 +181,7 @@ function CustomLabel({ icon: Icon, itemStatus, children, name, label, data, meta
                 <IconButton
                     onClick={handleOpenDialog}
                     size='small'
-                    title='View Details'
+                    title={t('viewDetails')}
                     sx={{
                         ml: 2,
                         zIndex: 10 // Increase z-index to ensure the button is clickable
@@ -194,11 +196,11 @@ function CustomLabel({ icon: Icon, itemStatus, children, name, label, data, meta
                     {data ? (
                         <NodeExecutionDetails data={data} label={label} metadata={metadata} />
                     ) : (
-                        <Typography color='text.secondary'>No data available for this item</Typography>
+                        <Typography color='text.secondary'>{t('noDataAvailableForThis')}</Typography>
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDialog}>Close</Button>
+                    <Button onClick={handleCloseDialog}>{t('common:close')}</Button>
                 </DialogActions>
             </Dialog>
         </TreeItem2Label>
@@ -325,6 +327,7 @@ CustomTreeItem.propTypes = {
 CustomTreeItem.displayName = 'CustomTreeItem'
 
 const AgentExecutedDataCard = ({ status, execution, agentflowId, sessionId }) => {
+    const { t } = useTranslation('executions')
     const [executionTree, setExecution] = useState([])
     const [expandedItems, setExpandedItems] = useState([])
     const [selectedItem, setSelectedItem] = useState(null)
@@ -718,7 +721,7 @@ const AgentExecutedDataCard = ({ status, execution, agentflowId, sessionId }) =>
                             fontWeight: 500
                         }}
                     >
-                        Process Flow
+                        {t('processFlow')}
                     </Typography>
                 </AccordionSummary>
                 <Divider />

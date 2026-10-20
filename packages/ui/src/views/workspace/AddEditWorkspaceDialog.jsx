@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -32,6 +33,7 @@ import {
 } from '@/store/actions'
 
 const AddEditWorkspaceDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
+    const { t } = useTranslation('admin')
     const portalElement = document.getElementById('portal')
 
     const dispatch = useDispatch()
@@ -79,7 +81,7 @@ const AddEditWorkspaceDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     const addNewWorkspace = async () => {
         if (workspaceName === 'Default Workspace' || workspaceName === 'Personal Workspace') {
             enqueueSnackbar({
-                message: 'Workspace name cannot be Default Workspace or Personal Workspace - this is a reserved name',
+                message: t('workspaceNameCannotBeDefault'),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -104,7 +106,7 @@ const AddEditWorkspaceDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             const createResp = await workspaceApi.createWorkspace(obj)
             if (createResp.data) {
                 enqueueSnackbar({
-                    message: 'New Workspace added',
+                    message: t('newWorkspaceAdded'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -119,9 +121,9 @@ const AddEditWorkspaceDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed to add new Workspace: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToAddNewWorkspace', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -150,7 +152,7 @@ const AddEditWorkspaceDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             if (saveResp.data) {
                 store.dispatch(workspaceNameUpdated(saveResp.data))
                 enqueueSnackbar({
-                    message: 'Workspace saved',
+                    message: t('workspaceSaved'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -165,9 +167,9 @@ const AddEditWorkspaceDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed to save Workspace: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToSaveWorkspaceV1', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -202,7 +204,8 @@ const AddEditWorkspaceDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 <Box sx={{ p: 2 }}>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Typography>
-                            Name<span style={{ color: 'red' }}>&nbsp;*</span>
+                            {t('common:name')}
+                            <span style={{ color: 'red' }}>&nbsp;*</span>
                         </Typography>
                         <div style={{ flexGrow: 1 }}></div>
                     </div>
@@ -218,7 +221,7 @@ const AddEditWorkspaceDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 </Box>
                 <Box sx={{ p: 2 }}>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
-                        <Typography>Description</Typography>
+                        <Typography>{t('common:description')}</Typography>
                         <div style={{ flexGrow: 1 }}></div>
                     </div>
                     <OutlinedInput

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { closeSnackbar as closeSnackbarAction, enqueueSnackbar as enqueueSnackbarAction } from '@/store/actions'
 
@@ -37,6 +38,7 @@ import { gridSpacing } from '@/store/constant'
 const PLACEHOLDER_SECRET = '********'
 
 const SSOConfigPage = () => {
+    const { t } = useTranslation('auth')
     useNotifier()
     const { error, setError } = useError()
     const theme = useTheme()
@@ -202,7 +204,7 @@ const SSOConfigPage = () => {
             setLoading(false)
             if (updateResponse.data) {
                 enqueueSnackbar({
-                    message: 'SSO Configuration Updated!',
+                    message: t('ssoConfigurationUpdated'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -218,7 +220,7 @@ const SSOConfigPage = () => {
             setLoading(false)
             setAuthErrors([typeof error.response.data === 'object' ? error.response.data.message : error.response.data])
             enqueueSnackbar({
-                message: `Failed to update SSO Configuration.`,
+                message: t('failedToUpdateSsoConfiguration'),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -264,7 +266,7 @@ const SSOConfigPage = () => {
             setLoading(false)
             if (updateResponse.data?.message) {
                 enqueueSnackbar({
-                    message: `${getSelectedProviderName()} SSO Configuration is Valid!`,
+                    message: t('v1SsoConfigurationIsValid', { v1: getSelectedProviderName() }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -295,7 +297,7 @@ const SSOConfigPage = () => {
             setLoading(false)
             setAuthErrors([typeof error.response.data === 'object' ? error.response.data.message : error.response.data])
             enqueueSnackbar({
-                message: `Failed to verify ${getSelectedProviderName()} SSO Configuration.`,
+                message: t('failedToVerifyV1Sso', { v1: getSelectedProviderName() }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -414,7 +416,7 @@ const SSOConfigPage = () => {
                     <ErrorBoundary error={error} />
                 ) : (
                     <Stack flexDirection='column' sx={{ gap: 3 }}>
-                        <ViewHeader search={false} title='Configure SSO' />
+                        <ViewHeader search={false} title={t('configureSso')} />
                         {authErrors && authErrors.length > 0 && (
                             <div
                                 style={{
@@ -629,7 +631,7 @@ const SSOConfigPage = () => {
                                 }}
                             >
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    <Typography style={{ verticalAlign: 'middle', width: '50%' }}> Enable SSO Login</Typography>
+                                    <Typography style={{ verticalAlign: 'middle', width: '50%' }}>{t('enableSsoLogin')}</Typography>
                                     <SwitchInput
                                         style={{ verticalAlign: 'middle', width: '50%' }}
                                         onChange={handleAzureChange}
@@ -651,7 +653,7 @@ const SSOConfigPage = () => {
                                             {azureCallbackURL}
                                         </Typography>
                                         <IconButton
-                                            title='Copy Callback URL'
+                                            title={t('copyCallbackUrl')}
                                             color='success'
                                             onClick={(event) => {
                                                 navigator.clipboard.writeText(azureCallbackURL)
@@ -667,7 +669,7 @@ const SSOConfigPage = () => {
                                 </Box>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <div style={{ display: 'flex', flexDirection: 'row' }}>
-                                        <Typography>Tenant ID</Typography>
+                                        <Typography>{t('tenantId')}</Typography>
                                         <div style={{ flexGrow: 1 }}></div>
                                     </div>
                                     <OutlinedInput
@@ -675,7 +677,7 @@ const SSOConfigPage = () => {
                                         type='string'
                                         fullWidth
                                         size='small'
-                                        placeholder='Tenant ID'
+                                        placeholder={t('tenantId')}
                                         name='azureTenantID'
                                         onChange={(e) => setAzureTenantID(e.target.value)}
                                         value={azureTenantID}
@@ -684,7 +686,8 @@ const SSOConfigPage = () => {
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                                         <Typography>
-                                            Client ID<span style={{ color: 'red' }}>&nbsp;*</span>
+                                            {t('clientId')}
+                                            <span style={{ color: 'red' }}>&nbsp;*</span>
                                         </Typography>
                                         <div style={{ flexGrow: 1 }}></div>
                                     </div>
@@ -693,7 +696,7 @@ const SSOConfigPage = () => {
                                         type='string'
                                         fullWidth
                                         size='small'
-                                        placeholder='Client ID'
+                                        placeholder={t('clientId')}
                                         name='azureClientID'
                                         onChange={(e) => setAzureClientID(e.target.value)}
                                         value={azureClientID}
@@ -702,7 +705,8 @@ const SSOConfigPage = () => {
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                                         <Typography>
-                                            Client Secret<span style={{ color: 'red' }}>&nbsp;*</span>
+                                            {t('clientSecret')}
+                                            <span style={{ color: 'red' }}>&nbsp;*</span>
                                         </Typography>
                                         <div style={{ flexGrow: 1 }}></div>
                                     </div>
@@ -711,7 +715,7 @@ const SSOConfigPage = () => {
                                         type='password'
                                         fullWidth
                                         size='small'
-                                        placeholder='Client Secret'
+                                        placeholder={t('clientSecret')}
                                         name='azureClientSecret'
                                         onChange={(e) => setAzureClientSecret(e.target.value)}
                                         value={azureClientSecret}
@@ -728,7 +732,7 @@ const SSOConfigPage = () => {
                                 }}
                             >
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    <Typography style={{ verticalAlign: 'middle', width: '50%' }}> Enable SSO Login</Typography>
+                                    <Typography style={{ verticalAlign: 'middle', width: '50%' }}>{t('enableSsoLogin')}</Typography>
                                     <SwitchInput
                                         style={{ verticalAlign: 'middle', width: '50%' }}
                                         onChange={handleGoogleChange}
@@ -750,7 +754,7 @@ const SSOConfigPage = () => {
                                             {googleCallbackURL}
                                         </Typography>
                                         <IconButton
-                                            title='Copy Callback URL'
+                                            title={t('copyCallbackUrl')}
                                             color='success'
                                             onClick={(event) => {
                                                 navigator.clipboard.writeText(googleCallbackURL)
@@ -767,7 +771,8 @@ const SSOConfigPage = () => {
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                                         <Typography>
-                                            Client ID<span style={{ color: 'red' }}>&nbsp;*</span>
+                                            {t('clientId')}
+                                            <span style={{ color: 'red' }}>&nbsp;*</span>
                                         </Typography>
                                         <div style={{ flexGrow: 1 }}></div>
                                     </div>
@@ -776,7 +781,7 @@ const SSOConfigPage = () => {
                                         type='string'
                                         fullWidth
                                         size='small'
-                                        placeholder='Client ID'
+                                        placeholder={t('clientId')}
                                         name='googleClientID'
                                         onChange={(e) => setGoogleClientID(e.target.value)}
                                         value={googleClientID}
@@ -785,7 +790,8 @@ const SSOConfigPage = () => {
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                                         <Typography>
-                                            Client Secret<span style={{ color: 'red' }}>&nbsp;*</span>
+                                            {t('clientSecret')}
+                                            <span style={{ color: 'red' }}>&nbsp;*</span>
                                         </Typography>
                                         <div style={{ flexGrow: 1 }}></div>
                                     </div>
@@ -794,7 +800,7 @@ const SSOConfigPage = () => {
                                         type='password'
                                         fullWidth
                                         size='small'
-                                        placeholder='Client Secret'
+                                        placeholder={t('clientSecret')}
                                         name='googleClientSecret'
                                         onChange={(e) => setGoogleClientSecret(e.target.value)}
                                         value={googleClientSecret}
@@ -811,7 +817,7 @@ const SSOConfigPage = () => {
                                 }}
                             >
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    <Typography style={{ verticalAlign: 'middle', width: '50%' }}> Enable SSO Login</Typography>
+                                    <Typography style={{ verticalAlign: 'middle', width: '50%' }}>{t('enableSsoLogin')}</Typography>
                                     <SwitchInput
                                         style={{ verticalAlign: 'middle', width: '50%' }}
                                         onChange={handleAuth0Change}
@@ -833,7 +839,7 @@ const SSOConfigPage = () => {
                                             {auth0CallbackURL}
                                         </Typography>
                                         <IconButton
-                                            title='Copy Callback URL'
+                                            title={t('copyCallbackUrl')}
                                             color='success'
                                             onClick={(event) => {
                                                 navigator.clipboard.writeText(auth0CallbackURL)
@@ -849,7 +855,7 @@ const SSOConfigPage = () => {
                                 </Box>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <div style={{ display: 'flex', flexDirection: 'row' }}>
-                                        <Typography>Auth0 Domain</Typography>
+                                        <Typography>{t('auth0Domain')}</Typography>
                                         <div style={{ flexGrow: 1 }}></div>
                                     </div>
                                     <OutlinedInput
@@ -857,7 +863,7 @@ const SSOConfigPage = () => {
                                         type='string'
                                         fullWidth
                                         size='small'
-                                        placeholder='Auth0 Domain'
+                                        placeholder={t('auth0Domain')}
                                         name='auth0Domain'
                                         onChange={(e) => setAuth0Domain(e.target.value)}
                                         value={auth0Domain}
@@ -866,7 +872,8 @@ const SSOConfigPage = () => {
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                                         <Typography>
-                                            Client ID<span style={{ color: 'red' }}>&nbsp;*</span>
+                                            {t('clientId')}
+                                            <span style={{ color: 'red' }}>&nbsp;*</span>
                                         </Typography>
                                         <div style={{ flexGrow: 1 }}></div>
                                     </div>
@@ -875,7 +882,7 @@ const SSOConfigPage = () => {
                                         type='string'
                                         fullWidth
                                         size='small'
-                                        placeholder='Client ID'
+                                        placeholder={t('clientId')}
                                         name='auth0ClientID'
                                         onChange={(e) => setAuth0ClientID(e.target.value)}
                                         value={auth0ClientID}
@@ -884,7 +891,8 @@ const SSOConfigPage = () => {
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                                         <Typography>
-                                            Client Secret<span style={{ color: 'red' }}>&nbsp;*</span>
+                                            {t('clientSecret')}
+                                            <span style={{ color: 'red' }}>&nbsp;*</span>
                                         </Typography>
                                         <div style={{ flexGrow: 1 }}></div>
                                     </div>
@@ -893,7 +901,7 @@ const SSOConfigPage = () => {
                                         type='password'
                                         fullWidth
                                         size='small'
-                                        placeholder='Client Secret'
+                                        placeholder={t('clientSecret')}
                                         name='auth0ClientSecret'
                                         onChange={(e) => setAuth0ClientSecret(e.target.value)}
                                         value={auth0ClientSecret}
@@ -910,7 +918,7 @@ const SSOConfigPage = () => {
                                 }}
                             >
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    <Typography style={{ verticalAlign: 'middle', width: '50%' }}> Enable SSO Login</Typography>
+                                    <Typography style={{ verticalAlign: 'middle', width: '50%' }}>{t('enableSsoLogin')}</Typography>
                                     <SwitchInput
                                         style={{ verticalAlign: 'middle', width: '50%' }}
                                         onChange={handleGithubChange}
@@ -932,7 +940,7 @@ const SSOConfigPage = () => {
                                             {githubCallbackURL}
                                         </Typography>
                                         <IconButton
-                                            title='Copy Callback URL'
+                                            title={t('copyCallbackUrl')}
                                             color='success'
                                             onClick={(event) => {
                                                 navigator.clipboard.writeText(githubCallbackURL)
@@ -949,7 +957,8 @@ const SSOConfigPage = () => {
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                                         <Typography>
-                                            Client ID<span style={{ color: 'red' }}>&nbsp;*</span>
+                                            {t('clientId')}
+                                            <span style={{ color: 'red' }}>&nbsp;*</span>
                                         </Typography>
                                         <div style={{ flexGrow: 1 }}></div>
                                     </div>
@@ -958,7 +967,7 @@ const SSOConfigPage = () => {
                                         type='string'
                                         fullWidth
                                         size='small'
-                                        placeholder='Client ID'
+                                        placeholder={t('clientId')}
                                         name='githubClientID'
                                         onChange={(e) => setGithubClientID(e.target.value)}
                                         value={githubClientID}
@@ -967,7 +976,8 @@ const SSOConfigPage = () => {
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                                         <Typography>
-                                            Client Secret<span style={{ color: 'red' }}>&nbsp;*</span>
+                                            {t('clientSecret')}
+                                            <span style={{ color: 'red' }}>&nbsp;*</span>
                                         </Typography>
                                         <div style={{ flexGrow: 1 }}></div>
                                     </div>
@@ -976,7 +986,7 @@ const SSOConfigPage = () => {
                                         type='password'
                                         fullWidth
                                         size='small'
-                                        placeholder='Client Secret'
+                                        placeholder={t('clientSecret')}
                                         name='githubClientSecret'
                                         onChange={(e) => setGithubClientSecret(e.target.value)}
                                         value={githubClientSecret}
@@ -1002,7 +1012,7 @@ const SSOConfigPage = () => {
                                 variant='contained'
                                 onClick={() => validateAndSubmit()}
                             >
-                                Save
+                                {t('common:save')}
                             </StyledPermissionButton>
                         </Box>
                     </Stack>
@@ -1023,7 +1033,7 @@ const SSOConfigPage = () => {
                 }}
             >
                 <Typography variant='h6' sx={{ pl: 1, pr: 1, color: 'white', background: theme.palette.success.dark }}>
-                    Copied!
+                    {t('copied')}
                 </Typography>
             </Popover>
         </>

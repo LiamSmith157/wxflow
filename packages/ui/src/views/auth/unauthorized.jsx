@@ -1,4 +1,5 @@
 import MainCard from '@/ui-component/cards/MainCard'
+import { useTranslation } from 'react-i18next'
 import { Box, Stack, Typography } from '@mui/material'
 import unauthorizedSVG from '@/assets/images/unauthorized.svg'
 import { StyledButton } from '@/ui-component/button/StyledButton'
@@ -8,6 +9,7 @@ import { useSelector } from 'react-redux'
 // ==============================|| UnauthorizedPage ||============================== //
 
 const UnauthorizedPage = () => {
+    const { t } = useTranslation('auth')
     const currentUser = useSelector((state) => state.auth.user)
 
     return (
@@ -39,15 +41,15 @@ const UnauthorizedPage = () => {
                             403 Forbidden
                         </Typography>
                         <Typography variant='body1' component='div' sx={{ mb: 2 }}>
-                            You do not have permission to access this page.
+                            {t('youDoNotHavePermission')}
                         </Typography>
                         {currentUser ? (
                             <Link to='/'>
-                                <StyledButton sx={{ px: 2, py: 1 }}>Back to Home</StyledButton>
+                                <StyledButton sx={{ px: 2, py: 1 }}>{t('backToHome')}</StyledButton>
                             </Link>
                         ) : (
                             <Link to='/login'>
-                                <StyledButton sx={{ px: 2, py: 1 }}>Back to Login</StyledButton>
+                                <StyledButton sx={{ px: 2, py: 1 }}>{t('backToLogin')}</StyledButton>
                             </Link>
                         )}
                     </Stack>

@@ -1,4 +1,5 @@
 import { Box, FormControl, MenuItem, Pagination, Select, Typography } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 import { useTheme } from '@mui/material/styles'
 import { useSelector } from 'react-redux'
@@ -7,6 +8,7 @@ import PropTypes from 'prop-types'
 export const DEFAULT_ITEMS_PER_PAGE = 12
 
 const TablePagination = ({ currentPage, limit, total, onChange }) => {
+    const { t } = useTranslation('components')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const borderColor = theme.palette.grey[900] + 25
@@ -42,7 +44,7 @@ const TablePagination = ({ currentPage, limit, total, onChange }) => {
     return (
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Typography variant='body2'>Items per page:</Typography>
+                <Typography variant='body2'>{t('itemsPerPage')}</Typography>
                 <FormControl
                     variant='outlined'
                     size='small'

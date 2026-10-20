@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { styled } from '@mui/material/styles'
 import { tableCellClasses } from '@mui/material/TableCell'
@@ -81,12 +82,13 @@ StatusBadge.propTypes = {
 }
 
 export const MCPServersTable = ({ data, isLoading, onSelect }) => {
+    const { t } = useTranslation('components')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
 
     return (
         <TableContainer sx={{ border: 1, borderColor: theme.palette.grey[900] + 25, borderRadius: 2 }} component={Paper}>
-            <Table sx={{ minWidth: 650 }} size='small' aria-label='MCP servers table'>
+            <Table sx={{ minWidth: 650 }} size='small' aria-label={t('mcpServersTable')}>
                 <TableHead
                     sx={{
                         backgroundColor: customization.isDarkMode ? theme.palette.common.black : theme.palette.grey[100],
@@ -94,10 +96,10 @@ export const MCPServersTable = ({ data, isLoading, onSelect }) => {
                     }}
                 >
                     <TableRow>
-                        <StyledTableCell>Name</StyledTableCell>
-                        <StyledTableCell>Server URL</StyledTableCell>
-                        <StyledTableCell>Status</StyledTableCell>
-                        <StyledTableCell>Tools</StyledTableCell>
+                        <StyledTableCell>{t('common:name')}</StyledTableCell>
+                        <StyledTableCell>{t('serverUrl')}</StyledTableCell>
+                        <StyledTableCell>{t('common:status')}</StyledTableCell>
+                        <StyledTableCell>{t('tools')}</StyledTableCell>
                         <StyledTableCell>&nbsp;</StyledTableCell>
                     </TableRow>
                 </TableHead>

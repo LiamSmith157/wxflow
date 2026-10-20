@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction, SET_CHATFLOW } from '@/store/actions'
 import PropTypes from 'prop-types'
@@ -20,6 +21,7 @@ import chatflowsApi from '@/api/chatflows'
 import useNotifier from '@/utils/useNotifier'
 
 const RateLimit = ({ dialogProps, hideTitle = false }) => {
+    const { t } = useTranslation('components')
     const dispatch = useDispatch()
     const chatflow = useSelector((state) => state.canvas.chatflow)
     const chatflowid = chatflow.id
@@ -80,7 +82,7 @@ const RateLimit = ({ dialogProps, hideTitle = false }) => {
             })
             if (saveResp.data) {
                 enqueueSnackbar({
-                    message: 'Rate Limit Configuration Saved',
+                    message: t('rateLimitConfigurationSaved'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -95,9 +97,9 @@ const RateLimit = ({ dialogProps, hideTitle = false }) => {
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed to save Rate Limit Configuration: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToSaveRateLimit', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -150,16 +152,10 @@ const RateLimit = ({ dialogProps, hideTitle = false }) => {
         <Stack direction='column' spacing={2} sx={{ width: '100%' }}>
             {!hideTitle && (
                 <Typography variant='h3'>
-                    Rate Limit{' '}
-                    <TooltipWithParser
-                        style={{ marginLeft: 10 }}
-                        title={
-                            'Visit <a target="_blank" href="https://docs.flowiseai.com/configuration/rate-limit">Rate Limit Setup Guide</a> to set up Rate Limit correctly in your hosting environment.'
-                        }
-                    />
+                    {t('rateLimit')} <TooltipWithParser style={{ marginLeft: 10 }} title={t('rateLimitHint')} />
                 </Typography>
             )}
-            <SwitchInput label='Enable Rate Limit' onChange={handleChange} value={rateLimitStatus} />
+            <SwitchInput label={t('enableRateLimit')} onChange={handleChange} value={rateLimitStatus} />
             {rateLimitStatus && (
                 <Stack direction='column' spacing={2} sx={{ width: '100%' }}>
                     {textField(limitMax, 'limitMax', 'Message Limit per Duration', 'number', '5')}
@@ -169,7 +165,7 @@ const RateLimit = ({ dialogProps, hideTitle = false }) => {
             )}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%', mt: 2 }}>
                 <StyledButton disabled={checkDisabled()} variant='contained' onClick={() => onSave()} sx={{ minWidth: 100 }}>
-                    Save
+                    {t('common:save')}
                 </StyledButton>
             </Box>
         </Stack>

@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -119,6 +120,7 @@ const LockedScheduleSwitch = styled(ScheduleSwitch, { shouldForwardProp: (prop) 
 // ==============================|| CANVAS HEADER ||============================== //
 
 const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFlow }) => {
+    const { t } = useTranslation('agentflows')
     const theme = useTheme()
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -174,19 +176,19 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
             handleDeleteFlow()
         } else if (setting === 'viewMessages') {
             setViewMessagesDialogProps({
-                title: 'View Messages',
+                title: t('viewMessages'),
                 chatflow: chatflow
             })
             setViewMessagesDialogOpen(true)
         } else if (setting === 'viewLeads') {
             setViewLeadsDialogProps({
-                title: 'View Leads',
+                title: t('viewLeads'),
                 chatflow: chatflow
             })
             setViewLeadsDialogOpen(true)
         } else if (setting === 'chatflowConfiguration') {
             setChatflowConfigurationDialogProps({
-                title: `${title} Configuration`,
+                title: t('titleConfiguration', { title }),
                 chatflow: chatflow
             })
             setChatflowConfigurationDialogOpen(true)
@@ -266,7 +268,7 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
         }
 
         setAPIDialogProps({
-            title: 'Embed in website or use as API',
+            title: t('embedInWebsiteOrUse'),
             chatflowid: chatflow.id,
             chatflowApiKeyId: chatflow.apikeyid,
             isFormDataRequired,
@@ -303,12 +305,12 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
             // if configuration dialog is open, update its data
             if (chatflowConfigurationDialogOpen) {
                 setChatflowConfigurationDialogProps({
-                    title: `${title} Configuration`,
+                    title: t('titleConfiguration', { title }),
                     chatflow
                 })
             }
         }
-    }, [chatflow, title, chatflowConfigurationDialogOpen])
+    }, [chatflow, title, chatflowConfigurationDialogOpen, t])
 
     useEffect(() => {
         if (chatflow?.id && isScheduleFlow) {
@@ -332,7 +334,7 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
         if (toggleScheduleEnabledApi.data) {
             setScheduleEnabled(toggleScheduleEnabledApi.data.enabled ?? false)
             enqueueSnackbar({
-                message: `Schedule ${toggleScheduleEnabledApi.data.enabled ? 'enabled' : 'disabled'} successfully`,
+                message: t('scheduleV1Successfully', { v1: toggleScheduleEnabledApi.data.enabled ? 'enabled' : 'disabled' }),
                 options: { variant: 'success' }
             })
         }
@@ -358,7 +360,7 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
             <Stack flexDirection='row' justifyContent='space-between' sx={{ width: '100%' }}>
                 <Stack flexDirection='row' sx={{ width: '100%', maxWidth: '50%' }}>
                     <Box>
-                        <ButtonBase title='Back' sx={{ borderRadius: '50%' }}>
+                        <ButtonBase title={t('common:back')} sx={{ borderRadius: '50%' }}>
                             <Avatar
                                 variant='rounded'
                                 sx={{
@@ -402,7 +404,7 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
                                 </Typography>
                                 {chatflow?.id && (
                                     <Available permission={savePermission}>
-                                        <ButtonBase title='Edit Name' sx={{ borderRadius: '50%' }}>
+                                        <ButtonBase title={t('editName')} sx={{ borderRadius: '50%' }}>
                                             <Avatar
                                                 variant='rounded'
                                                 sx={{
@@ -446,7 +448,7 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
                                         }
                                     }}
                                 />
-                                <ButtonBase title='Save Name' sx={{ borderRadius: '50%' }}>
+                                <ButtonBase title={t('saveName')} sx={{ borderRadius: '50%' }}>
                                     <Avatar
                                         variant='rounded'
                                         sx={{
@@ -467,7 +469,7 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
                                         <IconCheck stroke={1.5} size='1.3rem' />
                                     </Avatar>
                                 </ButtonBase>
-                                <ButtonBase title='Cancel' sx={{ borderRadius: '50%' }}>
+                                <ButtonBase title={t('common:cancel')} sx={{ borderRadius: '50%' }}>
                                     <Avatar
                                         variant='rounded'
                                         sx={{
@@ -528,7 +530,7 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
                         </Tooltip>
                     )}
                     {chatflow?.id && (
-                        <ButtonBase title='API Endpoint' sx={{ borderRadius: '50%', mr: 2 }}>
+                        <ButtonBase title={t('apiEndpoint')} sx={{ borderRadius: '50%', mr: 2 }}>
                             <Avatar
                                 variant='rounded'
                                 sx={{
@@ -550,7 +552,7 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
                         </ButtonBase>
                     )}
                     <Available permission={savePermission}>
-                        <ButtonBase title={`Save ${title}`} sx={{ borderRadius: '50%', mr: 2 }}>
+                        <ButtonBase title={t('saveTitle', { title })} sx={{ borderRadius: '50%', mr: 2 }}>
                             <Avatar
                                 variant='rounded'
                                 sx={{
@@ -571,7 +573,7 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
                             </Avatar>
                         </ButtonBase>
                     </Available>
-                    <ButtonBase ref={settingsRef} title='Settings' sx={{ borderRadius: '50%' }}>
+                    <ButtonBase ref={settingsRef} title={t('common:settings')} sx={{ borderRadius: '50%' }}>
                         <Avatar
                             variant='rounded'
                             sx={{
@@ -603,9 +605,9 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
             <SaveChatflowDialog
                 show={flowDialogOpen}
                 dialogProps={{
-                    title: `Save New ${title}`,
-                    confirmButtonName: 'Save',
-                    cancelButtonName: 'Cancel'
+                    title: t('saveNewTitle', { title }),
+                    confirmButtonName: t('common:save'),
+                    cancelButtonName: t('common:cancel')
                 }}
                 onCancel={() => setFlowDialogOpen(false)}
                 onConfirm={onConfirmSaveName}

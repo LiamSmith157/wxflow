@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
@@ -73,6 +74,7 @@ import { useError } from '@/store/context/ErrorContext'
 // ==============================|| EvaluationResults ||============================== //
 
 const EvalEvaluationRows = () => {
+    const { t } = useTranslation('evaluations')
     const navigate = useNavigate()
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
@@ -182,10 +184,10 @@ const EvalEvaluationRows = () => {
 
     const runAgain = async () => {
         const confirmPayload = {
-            title: `Run Again`,
-            description: `Initiate Rerun for Evaluation ${evaluation.name}?`,
-            confirmButtonName: 'Yes',
-            cancelButtonName: 'No'
+            title: t('runAgain'),
+            description: t('initiateRerunForEvaluationName', { name: evaluation.name }),
+            confirmButtonName: t('common:yes'),
+            cancelButtonName: t('common:no')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -372,7 +374,7 @@ const EvalEvaluationRows = () => {
                                     color='primary'
                                     onClick={openVersionsDrawer}
                                 >
-                                    Version history
+                                    {t('versionHistory')}
                                 </Button>
                             )}
                             <PermissionButton
@@ -384,7 +386,7 @@ const EvalEvaluationRows = () => {
                                 disabled={outdated?.errors?.length > 0}
                                 onClick={runAgain}
                             >
-                                Re-run Evaluation
+                                {t('reRunEvaluation')}
                             </PermissionButton>
                         </ViewHeader>
 
@@ -409,17 +411,13 @@ const EvalEvaluationRows = () => {
                                 </Box>
                                 <Stack flexDirection='column'>
                                     <span style={{ color: 'rgb(116,66,16)' }}>
-                                        {outdated?.errors?.length > 0 && (
-                                            <b>This evaluation cannot be re-run, due to the following errors</b>
-                                        )}
-                                        {outdated?.errors?.length === 0 && (
-                                            <b>The following items are outdated, re-run the evaluation for the latest results.</b>
-                                        )}
+                                        {outdated?.errors?.length > 0 && <b>{t('thisEvaluationCannotBeRe')}</b>}
+                                        {outdated?.errors?.length === 0 && <b>{t('theFollowingItemsAreOutdated')}</b>}
                                     </span>
                                     {outdated.dataset && outdated?.errors?.length === 0 && (
                                         <>
                                             <br />
-                                            <b style={{ color: 'rgb(116,66,16)' }}>Dataset:</b>
+                                            <b style={{ color: 'rgb(116,66,16)' }}>{t('dataset')}</b>
                                             <Chip
                                                 clickable
                                                 sx={{
@@ -440,7 +438,7 @@ const EvalEvaluationRows = () => {
                                     {outdated.chatflows && outdated?.errors?.length === 0 && outdated.chatflows.length > 0 && (
                                         <>
                                             <br />
-                                            <b style={{ color: 'rgb(116,66,16)' }}>Flows:</b>
+                                            <b style={{ color: 'rgb(116,66,16)' }}>{t('flows')}</b>
                                             <Stack sx={{ mt: 1, alignItems: 'center', flexWrap: 'wrap' }} flexDirection='row' gap={1}>
                                                 {outdated.chatflows.map((chatflow, index) => (
                                                     <Chip
@@ -480,7 +478,7 @@ const EvalEvaluationRows = () => {
                             <Button
                                 variant='outlined'
                                 value={showCharts}
-                                title='Show Charts'
+                                title={t('showCharts')}
                                 onClick={handleShowChartsChange}
                                 startIcon={showCharts ? <IconEyeOff /> : <IconEye />}
                             >
@@ -491,7 +489,7 @@ const EvalEvaluationRows = () => {
                                     variant='outlined'
                                     value={showCustomEvals}
                                     disabled={!customEvalsDefined}
-                                    title='Show Custom Evaluator'
+                                    title={t('showCustomEvaluator')}
                                     onClick={handleCustomEvalsChange}
                                     startIcon={showCustomEvals ? <IconEyeOff /> : <IconEye />}
                                 >
@@ -501,7 +499,7 @@ const EvalEvaluationRows = () => {
                             <Button
                                 variant='outlined'
                                 value={showCostMetrics}
-                                title='Show Cost Metrics'
+                                title={t('showCostMetrics')}
                                 onClick={handleDisplayCostChange}
                                 startIcon={showCostMetrics ? <IconEyeOff /> : <IconEye />}
                             >
@@ -510,7 +508,7 @@ const EvalEvaluationRows = () => {
                             <Button
                                 variant='outlined'
                                 value={showTokenMetrics}
-                                title='Show Metrics'
+                                title={t('showMetrics')}
                                 onClick={handleShowTokenChange}
                                 startIcon={showTokenMetrics ? <IconEyeOff /> : <IconEye />}
                             >
@@ -519,7 +517,7 @@ const EvalEvaluationRows = () => {
                             <Button
                                 variant='outlined'
                                 value={showCustomEvals}
-                                title='Show Latency Metrics'
+                                title={t('showLatencyMetrics')}
                                 onClick={handleLatencyMetricsChange}
                                 startIcon={showLatencyMetrics ? <IconEyeOff /> : <IconEye />}
                             >
@@ -532,7 +530,7 @@ const EvalEvaluationRows = () => {
                                     <Grid item={true} xs={12} sm={12} md={4} lg={4}>
                                         <MetricsItemCard
                                             data={{
-                                                header: 'PASS RATE',
+                                                header: t('passRate'),
                                                 value: (evaluation.average_metrics?.passPcnt ?? '0') + '%',
                                                 icon: <IconPercentage />
                                             }}
@@ -544,7 +542,7 @@ const EvalEvaluationRows = () => {
                                     <Grid item={true} xs={12} sm={12} md={4} lg={4}>
                                         <MetricsItemCard
                                             data={{
-                                                header: 'TOKENS USED',
+                                                header: t('tokensUsed'),
                                                 value: avgTokensUsed,
                                                 icon: <TokensIcon />
                                             }}
@@ -562,7 +560,7 @@ const EvalEvaluationRows = () => {
                                     <Grid item={true} xs={12} sm={12} md={4} lg={4}>
                                         <MetricsItemCard
                                             data={{
-                                                header: 'LATENCY (ms)',
+                                                header: t('latencyMs'),
                                                 value: (evaluation.average_metrics?.averageLatency ?? '0') + ' ms',
                                                 icon: <AlarmIcon />
                                             }}
@@ -594,7 +592,7 @@ const EvalEvaluationRows = () => {
                                     }}
                                 >
                                     <IconVectorBezier2 style={{ marginRight: 5 }} size={17} />
-                                    Flows Used:
+                                    {t('flowsUsed')}
                                 </div>
                                 {(evaluation.chatflowName || []).map((chatflowUsed, index) => (
                                     <Chip
@@ -619,7 +617,7 @@ const EvalEvaluationRows = () => {
                                 startIcon={<IconMaximize />}
                                 onClick={() => openTableDialog()}
                             >
-                                Expand
+                                {t('expand')}
                             </Button>
                         </Stack>
                         <TableContainer sx={{ border: 1, borderColor: theme.palette.grey[900] + 25, borderRadius: 2 }} component={Paper}>
@@ -631,8 +629,8 @@ const EvalEvaluationRows = () => {
                                 >
                                     <TableRow>
                                         <TableCell rowSpan='2'>&nbsp;</TableCell>
-                                        <TableCell rowSpan='2'>Input</TableCell>
-                                        <TableCell rowSpan='2'>Expected Output</TableCell>
+                                        <TableCell rowSpan='2'>{t('input')}</TableCell>
+                                        <TableCell rowSpan='2'>{t('expectedOutput')}</TableCell>
                                         {evaluation.chatflowId?.map((chatflowId, index) => (
                                             <React.Fragment key={index}>
                                                 <TableCell
@@ -668,10 +666,10 @@ const EvalEvaluationRows = () => {
                                                 <TableCell
                                                     style={{ borderLeftStyle: 'dashed', borderLeftColor: 'lightgrey', borderLeftWidth: 1 }}
                                                 >
-                                                    Actual Output
+                                                    {t('actualOutput')}
                                                 </TableCell>
-                                                {customEvalsDefined && showCustomEvals && <TableCell>Evaluator</TableCell>}
-                                                {evaluation?.evaluationType === 'llm' && <TableCell>LLM Evaluation</TableCell>}
+                                                {customEvalsDefined && showCustomEvals && <TableCell>{t('evaluator')}</TableCell>}
+                                                {evaluation?.evaluationType === 'llm' && <TableCell>{t('llmEvaluation')}</TableCell>}
                                             </React.Fragment>
                                         ))}
                                     </TableRow>

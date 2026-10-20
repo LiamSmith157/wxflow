@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -51,6 +52,7 @@ const StyledPopper = styled(Popper)({
 })
 
 const EditWorkspaceUserRoleDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
+    const { t } = useTranslation('admin')
     const portalElement = document.getElementById('portal')
     const currentUser = useSelector((state) => state.auth.user)
 
@@ -118,7 +120,7 @@ const EditWorkspaceUserRoleDialog = ({ show, dialogProps, onCancel, onConfirm })
             const saveResp = await workspaceApi.updateWorkspaceUserRole(saveObj)
             if (saveResp.data) {
                 enqueueSnackbar({
-                    message: 'WorkspaceUser Details Updated',
+                    message: t('workspaceuserDetailsUpdated'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -133,9 +135,9 @@ const EditWorkspaceUserRoleDialog = ({ show, dialogProps, onCancel, onConfirm })
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed to update WorkspaceUser: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToUpdateWorkspaceuserV1', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -173,7 +175,8 @@ const EditWorkspaceUserRoleDialog = ({ show, dialogProps, onCancel, onConfirm })
                 <Box sx={{ p: 1 }}>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Typography>
-                            New Role to Assign<span style={{ color: 'red' }}>&nbsp;*</span>
+                            {t('newRoleToAssign')}
+                            <span style={{ color: 'red' }}>&nbsp;*</span>
                         </Typography>
                         <div style={{ flexGrow: 1 }}></div>
                     </div>
@@ -183,7 +186,7 @@ const EditWorkspaceUserRoleDialog = ({ show, dialogProps, onCancel, onConfirm })
                         onChange={handleRoleChange}
                         getOptionLabel={(option) => option.label || ''}
                         options={availableRoles}
-                        renderInput={(params) => <TextField {...params} variant='outlined' placeholder='Select Role' />}
+                        renderInput={(params) => <TextField {...params} variant='outlined' placeholder={t('selectRole')} />}
                         value={selectedRole}
                         PopperComponent={StyledPopper}
                     />

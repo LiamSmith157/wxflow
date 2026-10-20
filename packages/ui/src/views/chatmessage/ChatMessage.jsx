@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, Fragment, useContext, memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import { cloneDeep } from 'lodash'
@@ -118,6 +119,7 @@ const getRecordingExtensionForMime = (mime) => {
 }
 
 const CardWithDeleteOverlay = ({ item, disabled, customization, onDelete }) => {
+    const { t } = useTranslation('executions')
     const [isHovered, setIsHovered] = useState(false)
     const defaultBackgroundColor = customization.isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'transparent'
 
@@ -159,7 +161,7 @@ const CardWithDeleteOverlay = ({ item, disabled, customization, onDelete }) => {
                     disabled={disabled}
                     onClick={() => onDelete(item)}
                     startIcon={<IconTrash color='white' size={22} />}
-                    title='Remove attachment'
+                    title={t('removeAttachment')}
                     sx={{
                         position: 'absolute',
                         top: 0,
@@ -185,6 +187,7 @@ CardWithDeleteOverlay.propTypes = {
 }
 
 const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
+    const { t } = useTranslation('executions')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
 
@@ -201,7 +204,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
     const [loading, setLoading] = useState(false)
     const [messages, setMessages] = useState([
         {
-            message: 'Hi there! How can I help?',
+            message: t('hiThereHowCanI'),
             type: 'apiMessage'
         }
     ])
@@ -814,7 +817,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
             inputRef.current?.focus()
         }, 100)
         enqueueSnackbar({
-            message: 'Message stopped',
+            message: t('messageStopped'),
             options: {
                 key: new Date().getTime() + Math.random(),
                 variant: 'success',
@@ -1520,7 +1523,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
             setLoading(false)
             setMessages([
                 {
-                    message: 'Hi there! How can I help?',
+                    message: t('hiThereHowCanI'),
                     type: 'apiMessage'
                 }
             ])
@@ -1812,7 +1815,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
             } else {
                 console.error('Error with TTS:', error)
                 enqueueSnackbar({
-                    message: `TTS failed: ${error.message}`,
+                    message: t('ttsFailedMessage', { message: error.message }),
                     options: { variant: 'error' }
                 })
             }
@@ -2402,7 +2405,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
             )}
             {isDragActive && getAllowChatFlowUploads.data?.isImageUploadAllowed && (
                 <Box className='drop-overlay'>
-                    <Typography variant='h2'>Drop here to upload</Typography>
+                    <Typography variant='h2'>{t('dropHereToUpload')}</Typography>
                     {getAllowChatFlowUploads.data.imgUploadSizeAndTypes.map((allowed) => {
                         return (
                             <>
@@ -2444,7 +2447,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
                                     {message.type === 'apiMessage' || message.type === 'leadCaptureMessage' ? (
                                         <img src={robotPNG} alt='AI' width='30' height='30' className='boticon' />
                                     ) : (
-                                        <img src={userPNG} alt='Me' width='30' height='30' className='usericon' />
+                                        <img src={userPNG} alt={t('me')} width='30' height='30' className='usericon' />
                                     )}
                                     <div
                                         style={{
@@ -2622,7 +2625,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
                                                                 id='leadName'
                                                                 type='text'
                                                                 fullWidth
-                                                                placeholder='Name'
+                                                                placeholder={t('common:name')}
                                                                 name='leadName'
                                                                 value={leadName}
                                                                 // eslint-disable-next-line
@@ -2635,7 +2638,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
                                                                 id='leadEmail'
                                                                 type='email'
                                                                 fullWidth
-                                                                placeholder='Email Address'
+                                                                placeholder={t('emailAddress')}
                                                                 name='leadEmail'
                                                                 value={leadEmail}
                                                                 onChange={(e) => setLeadEmail(e.target.value)}
@@ -2646,7 +2649,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
                                                                 id='leadPhone'
                                                                 type='number'
                                                                 fullWidth
-                                                                placeholder='Phone Number'
+                                                                placeholder={t('phoneNumber')}
                                                                 name='leadPhone'
                                                                 value={leadPhone}
                                                                 onChange={(e) => setLeadPhone(e.target.value)}
@@ -2891,7 +2894,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
                         <Stack sx={{ flexDirection: 'row', alignItems: 'center', px: 1.5, gap: 0.5 }}>
                             <IconSparkles size={12} />
                             <Typography sx={{ fontSize: '0.75rem' }} variant='body2'>
-                                Try these prompts
+                                {t('tryThesePrompts')}
                             </Typography>
                         </Stack>
                         <FollowUpPromptsCard
@@ -2919,9 +2922,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
                         {recordingNotSupported ? (
                             <div className='overlay'>
                                 <div className='browser-not-supporting-audio-recording-box'>
-                                    <Typography variant='body1'>
-                                        To record audio, use modern browsers like Chrome or Firefox that support audio recording.
-                                    </Typography>
+                                    <Typography variant='body1'>{t('toRecordAudioUseModern')}</Typography>
                                     <Button
                                         variant='contained'
                                         color='error'
@@ -2929,7 +2930,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
                                         type='button'
                                         onClick={() => onRecordingCancelled()}
                                     >
-                                        Okay
+                                        {t('okay')}
                                     </Button>
                                 </div>
                             </div>
@@ -2953,7 +2954,7 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
                                         <IconCircleDot />
                                     </span>
                                     <Typography id='elapsed-time'>00:00</Typography>
-                                    {isLoadingRecording && <Typography ml={1.5}>Sending...</Typography>}
+                                    {isLoadingRecording && <Typography ml={1.5}>{t('sending')}</Typography>}
                                 </div>
                                 <div className='recording-control-buttons-container'>
                                     <IconButton onClick={onRecordingCancelled} size='small'>
@@ -3131,13 +3132,13 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
                     setFeedback('')
                 }}
             >
-                <DialogTitle variant='h5'>Provide Feedback</DialogTitle>
+                <DialogTitle variant='h5'>{t('provideFeedback')}</DialogTitle>
                 <DialogContent>
                     <TextField
                         // eslint-disable-next-line
                         autoFocus
                         margin='dense'
-                        label='Feedback'
+                        label={t('feedback')}
                         fullWidth
                         multiline
                         rows={4}
@@ -3146,9 +3147,9 @@ const ChatMessage = ({ open, chatflowid, isDialog, previews, setPreviews }) => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleSubmitFeedback}>Cancel</Button>
+                    <Button onClick={handleSubmitFeedback}>{t('common:cancel')}</Button>
                     <Button onClick={handleSubmitFeedback} variant='contained'>
-                        Submit
+                        {t('common:submit')}
                     </Button>
                 </DialogActions>
             </Dialog>

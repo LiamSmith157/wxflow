@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import PropTypes from 'prop-types'
@@ -18,6 +19,7 @@ import configApi from '@/api/config'
 import useApi from '@/hooks/useApi'
 
 const NodeInfoDialog = ({ show, dialogProps, onCancel }) => {
+    const { t } = useTranslation('components')
     const portalElement = document.getElementById('portal')
     const dispatch = useDispatch()
     const theme = useTheme()
@@ -201,13 +203,13 @@ const NodeInfoDialog = ({ show, dialogProps, onCancel }) => {
                             <Button
                                 variant='outlined'
                                 color='primary'
-                                title='Open Documentation'
+                                title={t('openDocumentation')}
                                 onClick={() => {
                                     window.open(dialogProps.data.documentation, '_blank', 'noopener,noreferrer')
                                 }}
                                 startIcon={<IconBook2 />}
                             >
-                                Documentation
+                                {t('documentation')}
                             </Button>
                         )}
                     </div>

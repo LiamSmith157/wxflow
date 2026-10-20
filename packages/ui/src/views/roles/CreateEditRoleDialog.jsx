@@ -1,4 +1,6 @@
 import { closeSnackbar as closeSnackbarAction, enqueueSnackbar as enqueueSnackbarAction } from '@/store/actions'
+import { td } from '@/i18n/dynamic'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -31,6 +33,7 @@ import { HIDE_CANVAS_DIALOG, SHOW_CANVAS_DIALOG } from '@/store/actions'
 import './CreateEditRoleDialog.css'
 
 const CreateEditRoleDialog = ({ show, dialogProps, onCancel, onConfirm, setError }) => {
+    const { t } = useTranslation('admin')
     const portalElement = document.getElementById('portal')
 
     const dispatch = useDispatch()
@@ -182,7 +185,7 @@ const CreateEditRoleDialog = ({ show, dialogProps, onCancel, onConfirm, setError
             // if roleName has a space, raise an error
             if (roleName.indexOf(' ') > -1) {
                 enqueueSnackbar({
-                    message: `Role Name cannot contain spaces.`,
+                    message: t('roleNameCannotContainSpaces'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -237,7 +240,7 @@ const CreateEditRoleDialog = ({ show, dialogProps, onCancel, onConfirm, setError
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed : ${typeof error.response.data === 'object' ? error.response.data.message : error.response.data}`,
+                message: t('failedV1', { v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -299,7 +302,8 @@ const CreateEditRoleDialog = ({ show, dialogProps, onCancel, onConfirm, setError
                 <div className='role-editor'>
                     <Box>
                         <Typography sx={{ mb: 1 }} variant='h5'>
-                            <span style={{ color: 'red' }}>*&nbsp;&nbsp;</span>Role Name
+                            <span style={{ color: 'red' }}>*&nbsp;&nbsp;</span>
+                            {t('roleNameLabel')}
                         </Typography>
                         <OutlinedInput
                             id='roleName'
@@ -307,7 +311,7 @@ const CreateEditRoleDialog = ({ show, dialogProps, onCancel, onConfirm, setError
                             size='small'
                             fullWidth
                             disabled={dialogProps.type === 'EDIT' || dialogProps.type === 'VIEW'}
-                            placeholder='Enter role name'
+                            placeholder={t('enterRoleName')}
                             value={roleName}
                             name='roleName'
                             onChange={handleRoleNameChange}
@@ -315,7 +319,7 @@ const CreateEditRoleDialog = ({ show, dialogProps, onCancel, onConfirm, setError
                     </Box>
                     <Box>
                         <Typography sx={{ mb: 1 }} variant='h5'>
-                            Role Description
+                            {t('roleDescription')}
                         </Typography>
                         <OutlinedInput
                             id='roleDesc'
@@ -323,31 +327,33 @@ const CreateEditRoleDialog = ({ show, dialogProps, onCancel, onConfirm, setError
                             size='small'
                             fullWidth
                             disabled={dialogProps.type === 'VIEW'}
-                            placeholder='Description of the role'
+                            placeholder={t('descriptionOfTheRole')}
                             value={roleDescription}
                             name='roleDesc'
                             onChange={handleRoleDescChange}
                         />
                     </Box>
                     <div className='permissions-container'>
-                        <p>Permissions</p>
+                        <p>{t('permissions')}</p>
                         <div className='permissions-list-wrapper'>
                             {permissions &&
                                 Object.keys(permissions).map((category) => (
                                     <div key={category} className='permission-category'>
                                         <div className='category-header'>
                                             <h3>
-                                                {category
-                                                    .replace(/([A-Z])/g, ' $1')
-                                                    .trim()
-                                                    .toUpperCase()}
+                                                {td(
+                                                    category
+                                                        .replace(/([A-Z])/g, ' $1')
+                                                        .trim()
+                                                        .toUpperCase()
+                                                )}
                                             </h3>
                                             <button
                                                 type='button'
                                                 hidden={dialogProps.type === 'VIEW'}
                                                 onClick={() => handleSelectAll(category)}
                                             >
-                                                Select All
+                                                {t('selectAll')}
                                             </button>
                                         </div>
                                         <div className='permissions-list'>
@@ -366,13 +372,10 @@ const CreateEditRoleDialog = ({ show, dialogProps, onCancel, onConfirm, setError
                                                             }
                                                             onChange={() => handlePermissionChange(category, permission.key)}
                                                         />
-                                                        {permission.value}
+                                                        {td(permission.value)}
                                                         {(permission.key === 'workspace:export' ||
                                                             permission.key === 'workspace:import') && (
-                                                            <Tooltip
-                                                                title='Administrative privilege: Performs workspace-level actions with implicit access to all contained resources. Intended for backup/restore and migration operations. Restrict to authorized administrators only.'
-                                                                placement='right'
-                                                            >
+                                                            <Tooltip title={t('administrativePrivilegePerformsWorks')} placement='right'>
                                                                 <IconAlertTriangle size={16} color='orange' style={{ flexShrink: 0 }} />
                                                             </Tooltip>
                                                         )}

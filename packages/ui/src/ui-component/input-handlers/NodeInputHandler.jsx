@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { Handle, Position, useUpdateNodeInternals } from 'reactflow'
 import { useEffect, useRef, useState, useContext } from 'react'
 import { useParams } from 'react-router-dom'
@@ -138,6 +139,7 @@ const NodeInputHandler = ({
     onHideNodeInfoDialog,
     onCustomDataChange
 }) => {
+    const { t } = useTranslation('components')
     const { id: chatflowIdFromParams } = useParams()
     const canvasChatflow = useSelector((state) => state.canvas.chatflow)
     const chatflowId = chatflowIdFromParams || canvasChatflow?.id
@@ -184,7 +186,7 @@ const NodeInputHandler = ({
             setWebhookSecretPlaintext(resp.data.webhookSecret)
             dispatch({ type: SET_CHATFLOW, chatflow: { ...canvasChatflow, webhookSecretConfigured: true } })
             enqueueSnackbar({
-                message: 'Webhook secret generated.',
+                message: t('webhookSecretGenerated'),
                 options: { key: new Date().getTime() + Math.random(), variant: 'success' }
             })
         } catch (error) {
@@ -202,7 +204,7 @@ const NodeInputHandler = ({
             setWebhookSecretPlaintext(null)
             dispatch({ type: SET_CHATFLOW, chatflow: { ...canvasChatflow, webhookSecretConfigured: false } })
             enqueueSnackbar({
-                message: 'Webhook secret removed.',
+                message: t('webhookSecretRemoved'),
                 options: { key: new Date().getTime() + Math.random(), variant: 'success' }
             })
         } catch (error) {
@@ -252,8 +254,8 @@ const NodeInputHandler = ({
             nodes: reactFlowInstance?.getNodes() || [],
             edges: reactFlowInstance?.getEdges() || [],
             nodeId: data.id,
-            confirmButtonName: 'Save',
-            cancelButtonName: 'Cancel'
+            confirmButtonName: t('common:save'),
+            cancelButtonName: t('common:cancel')
         }
         if (inputParam.acceptVariable) {
             setExpandRichDialogProps(dialogProps)
@@ -269,8 +271,8 @@ const NodeInputHandler = ({
             data,
             inputParam,
             disabled,
-            confirmButtonName: 'Save',
-            cancelButtonName: 'Cancel'
+            confirmButtonName: t('common:save'),
+            cancelButtonName: t('common:cancel')
         }
         setConditionDialogProps(dialogProps)
         setShowConditionDialog(true)
@@ -296,8 +298,8 @@ const NodeInputHandler = ({
             relativeLinksMethod,
             limit,
             selectedLinks,
-            confirmButtonName: 'Save',
-            cancelButtonName: 'Cancel'
+            confirmButtonName: t('common:save'),
+            cancelButtonName: t('common:cancel')
         }
         setManageScrapedLinksDialogProps(dialogProps)
         setShowManageScrapedLinksDialog(true)
@@ -377,7 +379,7 @@ const NodeInputHandler = ({
                     for (const node of nodes) {
                         preLoadOptions.push({
                             value: `$${node.id}`,
-                            label: `Output from ${node.data.id}`
+                            label: t('outputFromId', { id: node.data.id })
                         })
                     }
                 }
@@ -402,7 +404,7 @@ const NodeInputHandler = ({
                                     for (const key of keys) {
                                         preLoadOptions.push({
                                             value: `$flow.state.${key}`,
-                                            label: `Value from ${key}`
+                                            label: t('valueFromKey', { key })
                                         })
                                     }
                                 } catch (error) {
@@ -478,7 +480,7 @@ const NodeInputHandler = ({
                 preLoadOptions.push({
                     name: `{{ ${node.data.id} }}`,
                     label: `{{ ${node.data.id} }}`,
-                    description: `Output from ${node.data.id}`
+                    description: t('outputFromId', { id: node.data.id })
                 })
             }
         }
@@ -546,10 +548,10 @@ const NodeInputHandler = ({
     const editAsyncOption = (inputParamName, inputValue) => {
         if (inputParamName === 'selectedTool') {
             setAsyncOptionEditDialogProps({
-                title: 'Edit Tool',
+                title: t('editTool'),
                 type: 'EDIT',
-                cancelButtonName: 'Cancel',
-                confirmButtonName: 'Save',
+                cancelButtonName: t('common:cancel'),
+                confirmButtonName: t('common:save'),
                 toolId: inputValue
             })
         }
@@ -559,10 +561,10 @@ const NodeInputHandler = ({
     const addAsyncOption = (inputParamName) => {
         if (inputParamName === 'selectedTool') {
             setAsyncOptionEditDialogProps({
-                title: 'Add New Tool',
+                title: t('addNewTool'),
                 type: 'ADD',
-                cancelButtonName: 'Cancel',
-                confirmButtonName: 'Add'
+                cancelButtonName: t('common:cancel'),
+                confirmButtonName: t('common:add')
             })
         }
         setAsyncOptionEditDialog(inputParamName)
@@ -630,7 +632,7 @@ const NodeInputHandler = ({
 
     const displayWarning = () => {
         enqueueSnackbar({
-            message: 'Please fill in all mandatory fields.',
+            message: t('pleaseFillInAllMandatory'),
             options: {
                 key: new Date().getTime() + Math.random(),
                 variant: 'warning',
@@ -646,7 +648,7 @@ const NodeInputHandler = ({
     const generateDocStoreToolDesc = async (storeId) => {
         if (!storeId) {
             enqueueSnackbar({
-                message: 'Please select a knowledge base',
+                message: t('pleaseSelectAKnowledgeBase'),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -686,7 +688,7 @@ const NodeInputHandler = ({
                     // Update the input value directly
                     data.inputs[inputParam.name] = content
                     enqueueSnackbar({
-                        message: 'Document Store Tool Description generated successfully',
+                        message: t('documentStoreToolDescriptionGenerate'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -734,7 +736,7 @@ const NodeInputHandler = ({
                     // Update the input value directly
                     data.inputs[inputParam.name] = content
                     enqueueSnackbar({
-                        message: 'Document Store Tool Description generated successfully',
+                        message: t('documentStoreToolDescriptionGenerate'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -782,8 +784,8 @@ const NodeInputHandler = ({
         if (existingModel) {
             // Open prompt generator dialog directly with existing model
             setPromptGeneratorDialogProps({
-                title: 'Generate Instructions',
-                description: 'You can generate a prompt template by sharing basic details about your task.',
+                title: t('generateInstructions2'),
+                description: t('youCanGenerateAPrompt'),
                 data: {
                     selectedChatModel: {
                         name: existingModel,
@@ -803,8 +805,8 @@ const NodeInputHandler = ({
         setModelSelectionCallback(() => async (selectedModel) => {
             // After model selection, open prompt generator dialog
             setPromptGeneratorDialogProps({
-                title: 'Generate Instructions',
-                description: 'You can generate a prompt template by sharing basic details about your task.',
+                title: t('generateInstructions2'),
+                description: t('youCanGenerateAPrompt'),
                 data: { selectedChatModel: selectedModel }
             })
             setPromptGeneratorDialogOpen(true)
@@ -913,7 +915,7 @@ const NodeInputHandler = ({
                                     variant='outlined'
                                     onClick={() => setIsNvidiaNIMDialogOpen(true)}
                                 >
-                                    Setup NIM Locally
+                                    {t('setupNimLocally')}
                                 </Button>
                             </>
                         )}
@@ -952,13 +954,13 @@ const NodeInputHandler = ({
                                 </Button>
                             )}
                             {inputParam.acceptVariable && inputParam.type === 'string' && (
-                                <Tooltip title='Type {{ to select variables'>
+                                <Tooltip title={t('typeToSelectVariables')}>
                                     <IconVariable size={20} style={{ color: 'teal' }} />
                                 </Tooltip>
                             )}
                             {inputParam.generateDocStoreDescription && (
                                 <IconButton
-                                    title='Generate knowledge base description'
+                                    title={t('generateKnowledgeBaseDescription')}
                                     sx={{
                                         height: 25,
                                         width: 25
@@ -972,7 +974,7 @@ const NodeInputHandler = ({
                             )}
                             {inputParam.generateInstruction && (
                                 <IconButton
-                                    title='Generate instructions'
+                                    title={t('generateInstructions')}
                                     sx={{
                                         height: 25,
                                         width: 25,
@@ -993,7 +995,7 @@ const NodeInputHandler = ({
                                         width: 25,
                                         ml: 0.5
                                     }}
-                                    title='Expand'
+                                    title={t('expand')}
                                     color='primary'
                                     onClick={() =>
                                         onExpandDialogClicked(data.inputs[inputParam.name] ?? inputParam.default ?? '', inputParam)
@@ -1099,7 +1101,7 @@ const NodeInputHandler = ({
                                                 setReloadTimestamp(Date.now().toString())
                                             }}
                                         >
-                                            See Example
+                                            {t('seeExample')}
                                         </Button>
                                     )}
                                 </div>
@@ -1138,14 +1140,14 @@ const NodeInputHandler = ({
                                     readOnly: true,
                                     endAdornment: chatflowId ? (
                                         <InputAdornment position='end'>
-                                            <Tooltip title='Copy URL'>
+                                            <Tooltip title={t('copyUrl')}>
                                                 <IconButton
                                                     size='small'
                                                     onClick={() => {
                                                         navigator.clipboard.writeText(webhookUrlBase).then(
                                                             () =>
                                                                 enqueueSnackbar({
-                                                                    message: 'URL copied!',
+                                                                    message: t('urlCopied'),
                                                                     options: {
                                                                         key: new Date().getTime() + Math.random(),
                                                                         variant: 'success'
@@ -1153,7 +1155,7 @@ const NodeInputHandler = ({
                                                                 }),
                                                             () =>
                                                                 enqueueSnackbar({
-                                                                    message: 'Failed to copy URL.',
+                                                                    message: t('failedToCopyUrl'),
                                                                     options: { key: new Date().getTime() + Math.random(), variant: 'error' }
                                                                 })
                                                         )
@@ -1190,15 +1192,15 @@ const NodeInputHandler = ({
                                                 }
                                             }}
                                         >
-                                            Generate a secret below — without one, every incoming webhook request will be rejected.
+                                            {t('generateASecretBelowWithout')}
                                         </Alert>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                             <Typography variant='body2' sx={{ color: 'text.secondary', flexGrow: 1 }}>
-                                                No secret configured
+                                                {t('noSecretConfigured')}
                                             </Typography>
                                             {chatflowId && (
                                                 <Button size='small' variant='outlined' onClick={handleSetWebhookSecret}>
-                                                    Generate Secret
+                                                    {t('generateSecret')}
                                                 </Button>
                                             )}
                                         </Box>
@@ -1216,14 +1218,14 @@ const NodeInputHandler = ({
                                             endAdornment: (
                                                 <InputAdornment position='end' sx={{ gap: 0.5 }}>
                                                     {webhookSecretPlaintext && (
-                                                        <Tooltip title='Copy secret'>
+                                                        <Tooltip title={t('copySecret')}>
                                                             <IconButton
                                                                 size='small'
                                                                 onClick={() => {
                                                                     navigator.clipboard.writeText(webhookSecretPlaintext).then(
                                                                         () =>
                                                                             enqueueSnackbar({
-                                                                                message: 'Secret copied!',
+                                                                                message: t('secretCopied'),
                                                                                 options: {
                                                                                     key: new Date().getTime() + Math.random(),
                                                                                     variant: 'success'
@@ -1231,7 +1233,7 @@ const NodeInputHandler = ({
                                                                             }),
                                                                         () =>
                                                                             enqueueSnackbar({
-                                                                                message: 'Failed to copy secret.',
+                                                                                message: t('failedToCopySecret'),
                                                                                 options: {
                                                                                     key: new Date().getTime() + Math.random(),
                                                                                     variant: 'error'
@@ -1244,12 +1246,12 @@ const NodeInputHandler = ({
                                                             </IconButton>
                                                         </Tooltip>
                                                     )}
-                                                    <Tooltip title='Regenerate secret'>
+                                                    <Tooltip title={t('regenerateSecret')}>
                                                         <IconButton size='small' onClick={handleSetWebhookSecret}>
                                                             <IconRefresh size={16} />
                                                         </IconButton>
                                                     </Tooltip>
-                                                    <Tooltip title='Remove secret'>
+                                                    <Tooltip title={t('removeSecret')}>
                                                         <IconButton size='small' onClick={handleClearWebhookSecret}>
                                                             <IconX size={16} />
                                                         </IconButton>
@@ -1377,7 +1379,7 @@ const NodeInputHandler = ({
                                     />
                                     {EDITABLE_OPTIONS.includes(inputParam.name) && data.inputs[inputParam.name] && (
                                         <IconButton
-                                            title='Edit'
+                                            title={t('common:edit')}
                                             color='primary'
                                             size='small'
                                             onClick={() => editAsyncOption(inputParam.name, data.inputs[inputParam.name])}
@@ -1387,7 +1389,7 @@ const NodeInputHandler = ({
                                     )}
                                     {inputParam.refresh && (
                                         <IconButton
-                                            title='Refresh'
+                                            title={t('common:refresh')}
                                             color='primary'
                                             size='small'
                                             onClick={() => setReloadTimestamp(Date.now().toString())}
@@ -1470,7 +1472,7 @@ const NodeInputHandler = ({
                                             )
                                         }
                                     >
-                                        Manage Links
+                                        {t('manageLinks')}
                                     </Button>
                                     <ManageScrapedLinksDialog
                                         show={showManageScrapedLinksDialog}
@@ -1546,7 +1548,7 @@ const NodeInputHandler = ({
                 maxWidth='sm'
                 fullWidth
             >
-                <DialogTitle id='model-selection-dialog-title'>Select Model</DialogTitle>
+                <DialogTitle id='model-selection-dialog-title'>{t('selectModel')}</DialogTitle>
                 <DialogContent>
                     <Box sx={{ mt: 2 }}>
                         <Box sx={{ px: 2 }}>
@@ -1587,7 +1589,7 @@ const NodeInputHandler = ({
                             setSelectedTempChatModel({})
                         }}
                     >
-                        Cancel
+                        {t('common:cancel')}
                     </Button>
                     <Button
                         disabled={!selectedTempChatModel || Object.keys(selectedTempChatModel).length === 0}
@@ -1600,7 +1602,7 @@ const NodeInputHandler = ({
                         }}
                         variant='contained'
                     >
-                        Confirm
+                        {t('common:confirm')}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -1619,7 +1621,7 @@ const NodeInputHandler = ({
                         setPromptGeneratorDialogOpen(false)
                     } catch (error) {
                         enqueueSnackbar({
-                            message: 'Error setting generated instruction',
+                            message: t('errorSettingGeneratedInstruction'),
                             options: {
                                 key: new Date().getTime() + Math.random(),
                                 variant: 'error',

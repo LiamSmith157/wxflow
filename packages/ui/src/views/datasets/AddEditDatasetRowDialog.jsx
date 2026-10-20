@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
@@ -26,6 +27,7 @@ import useNotifier from '@/utils/useNotifier'
 import { HIDE_CANVAS_DIALOG, SHOW_CANVAS_DIALOG } from '@/store/actions'
 
 const AddEditDatasetRowDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
+    const { t } = useTranslation('evaluations')
     const portalElement = document.getElementById('portal')
 
     const dispatch = useDispatch()
@@ -83,7 +85,7 @@ const AddEditDatasetRowDialog = ({ show, dialogProps, onCancel, onConfirm }) => 
             const createResp = await datasetApi.createDatasetRow(obj)
             if (createResp.data) {
                 enqueueSnackbar({
-                    message: 'New Row added for the given Dataset',
+                    message: t('newRowAddedForThe'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -98,9 +100,9 @@ const AddEditDatasetRowDialog = ({ show, dialogProps, onCancel, onConfirm }) => 
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed to add new row in the Dataset: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToAddNewRow', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -126,7 +128,7 @@ const AddEditDatasetRowDialog = ({ show, dialogProps, onCancel, onConfirm }) => 
             const saveResp = await datasetApi.updateDatasetRow(row.id, saveObj)
             if (saveResp.data) {
                 enqueueSnackbar({
-                    message: 'Dataset Row saved',
+                    message: t('datasetRowSaved'),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
@@ -141,9 +143,9 @@ const AddEditDatasetRowDialog = ({ show, dialogProps, onCancel, onConfirm }) => 
             }
         } catch (error) {
             enqueueSnackbar({
-                message: `Failed to save Dataset Row: ${
-                    typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                }`,
+                message: t('failedToSaveDatasetRow', {
+                    v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                }),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -178,7 +180,8 @@ const AddEditDatasetRowDialog = ({ show, dialogProps, onCancel, onConfirm }) => 
                 <Box sx={{ p: 2 }}>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Typography>
-                            Input<span style={{ color: 'red' }}>&nbsp;*</span>
+                            {t('input')}
+                            <span style={{ color: 'red' }}>&nbsp;*</span>
                         </Typography>
 
                         <div style={{ flexGrow: 1 }}></div>
@@ -198,7 +201,8 @@ const AddEditDatasetRowDialog = ({ show, dialogProps, onCancel, onConfirm }) => 
                 <Box sx={{ p: 2 }}>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Typography>
-                            Anticipated Output<span style={{ color: 'red' }}>&nbsp;*</span>
+                            {t('anticipatedOutput')}
+                            <span style={{ color: 'red' }}>&nbsp;*</span>
                         </Typography>
 
                         <div style={{ flexGrow: 1 }}></div>

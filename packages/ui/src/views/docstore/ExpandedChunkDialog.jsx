@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,6 +15,7 @@ import { CodeEditor } from '@/ui-component/editor/CodeEditor'
 import { PermissionButton, PermissionIconButton } from '@/ui-component/button/RBACButtons'
 
 const ExpandedChunkDialog = ({ show, dialogProps, onCancel, onChunkEdit, onDeleteChunk, isReadOnly }) => {
+    const { t } = useTranslation('docstore')
     const portalElement = document.getElementById('portal')
 
     const customization = useSelector((state) => state.customization)
@@ -93,15 +95,15 @@ const ExpandedChunkDialog = ({ show, dialogProps, onCancel, onChunkEdit, onDelet
                                 onClick={() => setIsEdit(true)}
                                 size='small'
                                 color='primary'
-                                title='Edit Chunk'
+                                title={t('editChunk')}
                                 sx={{ ml: 2 }}
                             >
                                 <IconEdit />
                             </PermissionIconButton>
                         )}
                         {isEdit && !isReadOnly && (
-                            <Button onClick={() => onEditCancel()} color='primary' title='Cancel' sx={{ ml: 2 }}>
-                                Cancel
+                            <Button onClick={() => onEditCancel()} color='primary' title={t('common:cancel')} sx={{ ml: 2 }}>
+                                {t('common:cancel')}
                             </Button>
                         )}
                         {isEdit && !isReadOnly && (
@@ -109,11 +111,11 @@ const ExpandedChunkDialog = ({ show, dialogProps, onCancel, onChunkEdit, onDelet
                                 permissionId={'documentStores:preview-process'}
                                 onClick={() => onEditSaved(true)}
                                 color='primary'
-                                title='Save'
+                                title={t('common:save')}
                                 variant='contained'
                                 sx={{ ml: 2, mr: 1 }}
                             >
-                                Save
+                                {t('common:save')}
                             </PermissionButton>
                         )}
                         {!isEdit && !isReadOnly && (
@@ -122,13 +124,13 @@ const ExpandedChunkDialog = ({ show, dialogProps, onCancel, onChunkEdit, onDelet
                                 onClick={() => onDeleteChunk(selectedChunk)}
                                 size='small'
                                 color='error'
-                                title='Delete Chunk'
+                                title={t('deleteChunk')}
                                 sx={{ ml: 1 }}
                             >
                                 <IconTrash />
                             </PermissionIconButton>
                         )}
-                        <IconButton onClick={onCancel} size='small' color='inherit' title='Close' sx={{ ml: 1 }}>
+                        <IconButton onClick={onCancel} size='small' color='inherit' title={t('common:close')} sx={{ ml: 1 }}>
                             <IconX />
                         </IconButton>
                     </div>

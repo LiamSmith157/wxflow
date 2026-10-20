@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import moment from 'moment/moment'
 import { useNavigate } from 'react-router-dom'
@@ -52,6 +53,7 @@ import { useError } from '@/store/context/ErrorContext'
 // ==============================|| Datasets ||============================== //
 
 const EvalDatasets = () => {
+    const { t } = useTranslation('evaluations')
     const navigate = useNavigate()
     const theme = useTheme()
     const { confirm } = useConfirm()
@@ -101,8 +103,8 @@ const EvalDatasets = () => {
     const addNew = () => {
         const dialogProp = {
             type: 'ADD',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Add',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:add'),
             data: {}
         }
         setDatasetDialogProps(dialogProp)
@@ -112,8 +114,8 @@ const EvalDatasets = () => {
     const edit = (dataset) => {
         const dialogProp = {
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Save',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:save'),
             data: dataset
         }
         setDatasetDialogProps(dialogProp)
@@ -122,10 +124,10 @@ const EvalDatasets = () => {
 
     const deleteDataset = async (dataset) => {
         const confirmPayload = {
-            title: `Delete`,
-            description: `Delete dataset ${dataset.name}?`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('delete'),
+            description: t('deleteDatasetName', { name: dataset.name }),
+            confirmButtonName: t('common:delete'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -134,7 +136,7 @@ const EvalDatasets = () => {
                 const deleteResp = await datasetsApi.deleteDataset(dataset.id)
                 if (deleteResp.data) {
                     enqueueSnackbar({
-                        message: 'Dataset deleted',
+                        message: t('datasetDeleted'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -149,9 +151,9 @@ const EvalDatasets = () => {
                 }
             } catch (error) {
                 enqueueSnackbar({
-                    message: `Failed to delete dataset: ${
-                        typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                    }`,
+                    message: t('failedToDeleteDatasetV1', {
+                        v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                    }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -205,7 +207,7 @@ const EvalDatasets = () => {
                             isEditButton={false}
                             onSearchChange={onSearchChange}
                             search={true}
-                            title='Datasets'
+                            title={t('datasets')}
                             description=''
                         >
                             <StyledPermissionButton
@@ -215,7 +217,7 @@ const EvalDatasets = () => {
                                 onClick={addNew}
                                 startIcon={<IconPlus />}
                             >
-                                Add New
+                                {t('common:addNew')}
                             </StyledPermissionButton>
                         </ViewHeader>
                         {!isLoading && datasets.length <= 0 ? (
@@ -227,7 +229,7 @@ const EvalDatasets = () => {
                                         alt='empty_datasetSVG'
                                     />
                                 </Box>
-                                <div>No Datasets Yet</div>
+                                <div>{t('noDatasetsYet')}</div>
                             </Stack>
                         ) : (
                             <>
@@ -245,10 +247,10 @@ const EvalDatasets = () => {
                                             }}
                                         >
                                             <TableRow>
-                                                <TableCell>Name</TableCell>
-                                                <TableCell>Description</TableCell>
-                                                <TableCell>Rows</TableCell>
-                                                <TableCell>Last Updated</TableCell>
+                                                <TableCell>{t('common:name')}</TableCell>
+                                                <TableCell>{t('common:description')}</TableCell>
+                                                <TableCell>{t('rows')}</TableCell>
+                                                <TableCell>{t('lastUpdated')}</TableCell>
                                                 <Available permission={'datasets:update,datasets:create'}>
                                                     <TableCell> </TableCell>
                                                 </Available>
@@ -324,7 +326,11 @@ const EvalDatasets = () => {
                                                             </TableCell>
                                                             <Available permission={'datasets:update,datasets:create'}>
                                                                 <TableCell>
-                                                                    <IconButton title='Edit' color='primary' onClick={() => edit(ds)}>
+                                                                    <IconButton
+                                                                        title={t('common:edit')}
+                                                                        color='primary'
+                                                                        onClick={() => edit(ds)}
+                                                                    >
                                                                         <IconEdit />
                                                                     </IconButton>
                                                                 </TableCell>
@@ -332,7 +338,7 @@ const EvalDatasets = () => {
                                                             <Available permission={'datasets:delete'}>
                                                                 <TableCell>
                                                                     <IconButton
-                                                                        title='Delete'
+                                                                        title={t('common:delete')}
                                                                         color='error'
                                                                         onClick={() => deleteDataset(ds)}
                                                                     >

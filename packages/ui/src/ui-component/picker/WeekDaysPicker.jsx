@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Box, Chip } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
+import { useTranslatedConfig } from '@/i18n/useTranslatedConfig'
 
 const DEFAULT_DAYS = [
     { label: 'Mon', value: '1' },
@@ -15,7 +16,8 @@ const DEFAULT_DAYS = [
 
 export const WeekDaysPicker = ({ value, options, onChange, disabled = false }) => {
     const theme = useTheme()
-    const days = options?.length ? options.map((o) => ({ label: o.label, value: o.name })) : DEFAULT_DAYS
+    const defaultDays = useTranslatedConfig(DEFAULT_DAYS)
+    const days = options?.length ? options.map((o) => ({ label: o.label, value: o.name })) : defaultDays
 
     const parseValue = (val) => {
         if (!val) return []

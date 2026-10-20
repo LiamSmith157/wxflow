@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 import { Badge, Tooltip } from '@mui/material'
 import { keyframes } from '@mui/system'
@@ -28,6 +29,7 @@ const STATUS_COLOR = {
 }
 
 const WebhookListenerFAB = ({ chatflowid, onOpenChange }) => {
+    const { t } = useTranslation('misc')
     const [open, setOpen] = useState(false)
     const [status, setStatus] = useState('idle')
 
@@ -41,7 +43,7 @@ const WebhookListenerFAB = ({ chatflowid, onOpenChange }) => {
 
     return (
         <>
-            <Tooltip title='Webhook Listener'>
+            <Tooltip title={t('webhookListener')}>
                 <Badge
                     overlap='circular'
                     variant='dot'

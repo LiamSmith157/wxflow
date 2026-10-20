@@ -1,4 +1,5 @@
 import { uniq, get, isEqual } from 'lodash'
+import i18n from '@/i18n'
 import moment from 'moment'
 
 export const getUniqueNodeId = (nodeData, nodes) => {
@@ -1006,7 +1007,7 @@ export const getCustomConditionOutputs = (value, nodeId, existingEdges, isDataGr
                         return undefined
                     }
                     if (!item.operation) {
-                        alert('Please select an operation for the condition')
+                        alert(i18n.t('common:selectOperationForCondition'))
                         return undefined
                     }
                     numberOfReturns.push(item.output)
@@ -1019,7 +1020,7 @@ export const getCustomConditionOutputs = (value, nodeId, existingEdges, isDataGr
     }
 
     if (numberOfReturns.length === 0) {
-        if (isDataGrid) alert('Please add an item for the condition')
+        if (isDataGrid) alert(i18n.t('common:addItemForCondition'))
         else
             alert(
                 'Please add a return statement in the condition code to define the output. You can refer to How to Use for more information.'

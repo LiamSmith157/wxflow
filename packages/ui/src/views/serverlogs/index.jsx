@@ -1,4 +1,5 @@
 import { useState, useEffect, forwardRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 
 // project imports
@@ -99,6 +100,7 @@ const subtractTime = (months, days, hours) => {
 }
 
 const Logs = () => {
+    const { t } = useTranslation('misc')
     const colorTheme = useTheme()
 
     const customStyle = EditorView.baseTheme({
@@ -207,7 +209,7 @@ const Logs = () => {
                 <ErrorBoundary error={error} />
             ) : (
                 <Stack flexDirection='column' sx={{ gap: 2 }}>
-                    <ViewHeader title='Logs' />
+                    <ViewHeader title={t('logs')} />
                     {isLoading ? (
                         <Box display='flex' flexDirection='column' gap={gridSpacing}>
                             <Skeleton width='25%' height={32} />
@@ -242,7 +244,7 @@ const Logs = () => {
                                 {selectedTimeSearch === 'Custom' && (
                                     <>
                                         <Stack sx={{ alignItems: 'center', justifyContent: 'flex-start', gap: 2 }} flexDirection='row'>
-                                            <b>From</b>
+                                            <b>{t('from')}</b>
                                             <DatePicker
                                                 selected={startDate}
                                                 onChange={(date) => onStartDateSelected(date)}
@@ -258,7 +260,7 @@ const Logs = () => {
                                             />
                                         </Stack>
                                         <Stack sx={{ alignItems: 'center', justifyContent: 'flex-start', gap: 2 }} flexDirection='row'>
-                                            <b>To</b>
+                                            <b>{t('to')}</b>
                                             <DatePicker
                                                 selected={endDate}
                                                 onChange={(date) => onEndDateSelected(date)}
@@ -301,7 +303,7 @@ const Logs = () => {
                                             alt='LogsEmptySVG'
                                         />
                                     </Box>
-                                    <div>No Logs Yet</div>
+                                    <div>{t('noLogsYet')}</div>
                                 </Stack>
                             )}
                         </>

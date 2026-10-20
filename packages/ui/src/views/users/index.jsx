@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import moment from 'moment'
 import * as PropTypes from 'prop-types'
@@ -51,6 +52,7 @@ import { useError } from '@/store/context/ErrorContext'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from '@/store/actions'
 
 function ShowUserRow(props) {
+    const { t } = useTranslation('admin')
     const customization = useSelector((state) => state.customization)
 
     const [open, setOpen] = useState(false)
@@ -160,7 +162,7 @@ function ShowUserRow(props) {
                     {props.row.status.toUpperCase() === 'INVITED' && (
                         <PermissionIconButton
                             permissionId={'workspace:add-user,users:manage'}
-                            title='Edit'
+                            title={t('common:edit')}
                             color='primary'
                             onClick={() => props.onEditClick(props.row)}
                         >
@@ -174,7 +176,7 @@ function ShowUserRow(props) {
                         ) : (
                             <PermissionIconButton
                                 permissionId={'workspace:unlink-user,users:manage'}
-                                title='Delete'
+                                title={t('common:delete')}
                                 color='error'
                                 onClick={() => props.onDeleteClick(props.row.user)}
                             >
@@ -186,7 +188,7 @@ function ShowUserRow(props) {
             <Drawer anchor='right' open={open} onClose={() => setOpen(false)} sx={{ minWidth: 320 }}>
                 <Box sx={{ p: 4, height: 'auto', width: 650 }}>
                     <Typography sx={{ textAlign: 'left', mb: 2 }} variant='h2'>
-                        Assigned Roles
+                        {t('assignedRoles')}
                     </Typography>
                     <TableContainer
                         style={{ display: 'flex', flexDirection: 'row' }}
@@ -201,8 +203,8 @@ function ShowUserRow(props) {
                                 }}
                             >
                                 <TableRow>
-                                    <StyledTableCell sx={{ width: '50%' }}>Role</StyledTableCell>
-                                    <StyledTableCell sx={{ width: '50%' }}>Workspace</StyledTableCell>
+                                    <StyledTableCell sx={{ width: '50%' }}>{t('role')}</StyledTableCell>
+                                    <StyledTableCell sx={{ width: '50%' }}>{t('workspace')}</StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -236,6 +238,7 @@ ShowUserRow.propTypes = {
 // ==============================|| Users ||============================== //
 
 const Users = () => {
+    const { t } = useTranslation('admin')
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
     const dispatch = useDispatch()
@@ -272,8 +275,8 @@ const Users = () => {
     const addNew = () => {
         const dialogProp = {
             type: 'ADD',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Send Invite',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('sendInvite'),
             data: null
         }
         setInviteDialogProps(dialogProp)
@@ -291,8 +294,8 @@ const Users = () => {
     const editInvite = (user) => {
         const dialogProp = {
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Update Invite',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('updateInvite'),
             data: user
         }
         setInviteDialogProps(dialogProp)
@@ -302,8 +305,8 @@ const Users = () => {
     const editUser = (user) => {
         const dialogProp = {
             type: 'EDIT',
-            cancelButtonName: 'Cancel',
-            confirmButtonName: 'Save',
+            cancelButtonName: t('common:cancel'),
+            confirmButtonName: t('common:save'),
             data: user
         }
         setInviteDialogProps(dialogProp)
@@ -312,10 +315,10 @@ const Users = () => {
 
     const deleteUser = async (user) => {
         const confirmPayload = {
-            title: `Delete`,
-            description: `Remove ${user.name ?? user.email} from organization?`,
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('delete'),
+            description: t('removeEmailFromOrganization', { email: user.name ?? user.email }),
+            confirmButtonName: t('common:delete'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -325,7 +328,7 @@ const Users = () => {
                 const deleteResp = await userApi.deleteOrganizationUser(currentUser.activeOrganizationId, user.id)
                 if (deleteResp.data) {
                     enqueueSnackbar({
-                        message: 'User removed from organization successfully',
+                        message: t('userRemovedFromOrganizationSuccessfu'),
                         options: {
                             key: new Date().getTime() + Math.random(),
                             variant: 'success',
@@ -340,9 +343,9 @@ const Users = () => {
                 }
             } catch (error) {
                 enqueueSnackbar({
-                    message: `Failed to delete User: ${
-                        typeof error.response.data === 'object' ? error.response.data.message : error.response.data
-                    }`,
+                    message: t('failedToDeleteUserV1', {
+                        v1: typeof error.response.data === 'object' ? error.response.data.message : error.response.data
+                    }),
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
@@ -400,7 +403,12 @@ const Users = () => {
                     <ErrorBoundary error={error} />
                 ) : (
                     <Stack flexDirection='column' sx={{ gap: 3 }}>
-                        <ViewHeader onSearchChange={onSearchChange} search={true} searchPlaceholder='Search Users' title='User Management'>
+                        <ViewHeader
+                            onSearchChange={onSearchChange}
+                            search={true}
+                            searchPlaceholder='Search Users'
+                            title={t('userManagement')}
+                        >
                             <StyledPermissionButton
                                 permissionId={'workspace:add-user,users:manage'}
                                 variant='contained'
@@ -409,7 +417,7 @@ const Users = () => {
                                 startIcon={<IconPlus />}
                                 id='btn_createUser'
                             >
-                                Invite User
+                                {t('inviteUser')}
                             </StyledPermissionButton>
                         </ViewHeader>
                         {!isLoading && users.length === 0 ? (
@@ -421,7 +429,7 @@ const Users = () => {
                                         alt='users_emptySVG'
                                     />
                                 </Box>
-                                <div>No Users Yet</div>
+                                <div>{t('noUsersYet')}</div>
                             </Stack>
                         ) : (
                             <>
@@ -443,10 +451,10 @@ const Users = () => {
                                                 >
                                                     <TableRow>
                                                         <StyledTableCell>&nbsp;</StyledTableCell>
-                                                        <StyledTableCell>Email/Name</StyledTableCell>
-                                                        <StyledTableCell>Assigned Roles</StyledTableCell>
-                                                        <StyledTableCell>Status</StyledTableCell>
-                                                        <StyledTableCell>Last Login</StyledTableCell>
+                                                        <StyledTableCell>{t('emailName')}</StyledTableCell>
+                                                        <StyledTableCell>{t('assignedRoles')}</StyledTableCell>
+                                                        <StyledTableCell>{t('common:status')}</StyledTableCell>
+                                                        <StyledTableCell>{t('lastLogin')}</StyledTableCell>
                                                         <StyledTableCell> </StyledTableCell>
                                                     </TableRow>
                                                 </TableHead>

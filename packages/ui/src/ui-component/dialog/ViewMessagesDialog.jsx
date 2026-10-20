@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { useState, useEffect, forwardRef } from 'react'
 import PropTypes from 'prop-types'
@@ -166,6 +167,7 @@ ConfirmDeleteMessageDialog.propTypes = {
 }
 
 const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
+    const { t } = useTranslation('components')
     const portalElement = document.getElementById('portal')
     const dispatch = useDispatch()
     const theme = useTheme()
@@ -265,10 +267,10 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
 
     const onDeleteMessages = () => {
         setHardDeleteDialogProps({
-            title: 'Delete Messages',
-            description: 'Are you sure you want to delete messages? This action cannot be undone.',
-            confirmButtonName: 'Delete',
-            cancelButtonName: 'Cancel'
+            title: t('deleteMessages'),
+            description: t('areYouSureYouWant'),
+            confirmButtonName: t('common:delete'),
+            cancelButtonName: t('common:cancel')
         })
         setHardDeleteDialogOpen(true)
     }
@@ -300,7 +302,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
 
             await chatmessageApi.deleteChatmessage(chatflowid, obj)
             enqueueSnackbar({
-                message: 'Successfully deleted messages',
+                message: t('successfullyDeletedMessages'),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
@@ -368,7 +370,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
             linkElement.click()
 
             enqueueSnackbar({
-                message: 'Messages exported successfully',
+                message: t('messagesExportedSuccessfully'),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
@@ -382,7 +384,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
         } catch (error) {
             console.error('Error exporting messages:', error)
             enqueueSnackbar({
-                message: 'Failed to export messages',
+                message: t('failedToExportMessages'),
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -403,10 +405,10 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                 ? `Are you sure you want to clear session id: ${chatmsg.sessionId} from ${chatmsg.memoryType}?`
                 : `Are you sure you want to clear messages?`
         const confirmPayload = {
-            title: `Clear Session`,
+            title: t('clearSession'),
             description,
-            confirmButtonName: 'Clear',
-            cancelButtonName: 'Cancel'
+            confirmButtonName: t('common:clear'),
+            cancelButtonName: t('common:cancel')
         }
         const isConfirmed = await confirm(confirmPayload)
 
@@ -855,7 +857,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                         }}
                     >
                         <div style={{ marginRight: 10 }}>
-                            <b style={{ marginRight: 10 }}>From Date</b>
+                            <b style={{ marginRight: 10 }}>{t('fromDate')}</b>
                             <DatePicker
                                 selected={startDate}
                                 onChange={(date) => onStartDateSelected(date)}
@@ -866,7 +868,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                             />
                         </div>
                         <div style={{ marginRight: 10 }}>
-                            <b style={{ marginRight: 10 }}>To Date</b>
+                            <b style={{ marginRight: 10 }}>{t('toDate')}</b>
                             <DatePicker
                                 selected={endDate}
                                 onChange={(date) => onEndDateSelected(date)}
@@ -887,7 +889,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                                 marginRight: 10
                             }}
                         >
-                            <b style={{ marginRight: 10 }}>Source</b>
+                            <b style={{ marginRight: 10 }}>{t('source')}</b>
                             <MultiDropdown
                                 key={JSON.stringify(chatTypeFilter)}
                                 name='chatType'
@@ -897,7 +899,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                                         name: 'INTERNAL'
                                     },
                                     {
-                                        label: 'API/Embed',
+                                        label: t('apiEmbed'),
                                         name: 'EXTERNAL'
                                     },
                                     {
@@ -905,15 +907,15 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                                         name: 'MCP'
                                     },
                                     {
-                                        label: 'Scheduled',
+                                        label: t('scheduled'),
                                         name: 'SCHEDULED'
                                     },
                                     {
-                                        label: 'Webhook',
+                                        label: t('webhook'),
                                         name: 'WEBHOOK'
                                     },
                                     {
-                                        label: 'Evaluations',
+                                        label: t('evaluations'),
                                         name: 'EVALUATION'
                                     }
                                 ]}
@@ -931,17 +933,17 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                                 marginRight: 10
                             }}
                         >
-                            <b style={{ marginRight: 10 }}>Feedback</b>
+                            <b style={{ marginRight: 10 }}>{t('feedback')}</b>
                             <MultiDropdown
                                 key={JSON.stringify(feedbackTypeFilter)}
                                 name='feedbackType'
                                 options={[
                                     {
-                                        label: 'Positive',
+                                        label: t('positive'),
                                         name: 'THUMBS_UP'
                                     },
                                     {
-                                        label: 'Negative',
+                                        label: t('negative'),
                                         name: 'THUMBS_DOWN'
                                     }
                                 ]}
@@ -970,7 +972,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                                 <KeyboardArrowDownIcon style={{ backgroundColor: customization.isDarkMode ? 'transparent' : 'inherit' }} />
                             }
                         >
-                            More Actions
+                            {t('moreActions')}
                         </Button>
                         <StyledMenu
                             id='messages-dialog-action-menu'
@@ -989,7 +991,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                                 disableRipple
                             >
                                 <IconFileExport style={{ marginRight: 8 }} />
-                                Export to JSON
+                                {t('exportToJson')}
                             </MenuItem>
                             {(stats.totalMessages ?? 0) > 0 && (
                                 <MenuItem
@@ -1000,7 +1002,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                                     disableRipple
                                 >
                                     <IconEraser style={{ marginRight: 8 }} />
-                                    Delete All
+                                    {t('deleteAll')}
                                 </MenuItem>
                             )}
                         </StyledMenu>
@@ -1016,11 +1018,11 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                             marginTop: 20
                         }}
                     >
-                        <StatsCard title='Total Sessions' stat={`${stats.totalSessions ?? 0}`} />
-                        <StatsCard title='Total Messages' stat={`${stats.totalMessages ?? 0}`} />
-                        <StatsCard title='Total Feedback Received' stat={`${stats.totalFeedback ?? 0}`} />
+                        <StatsCard title={t('totalSessions')} stat={`${stats.totalSessions ?? 0}`} />
+                        <StatsCard title={t('totalMessages')} stat={`${stats.totalMessages ?? 0}`} />
+                        <StatsCard title={t('totalFeedbackReceived')} stat={`${stats.totalFeedback ?? 0}`} />
                         <StatsCard
-                            title='Positive Feedback'
+                            title={t('positiveFeedback')}
                             stat={`${(((stats.positiveFeedback ?? 0) / (stats.totalFeedback ?? 1)) * 100 || 0).toFixed(2)}%`}
                         />
                     </div>
@@ -1034,7 +1036,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                                         alt='msgEmptySVG'
                                     />
                                 </Box>
-                                <div>No Messages</div>
+                                <div>{t('noMessages')}</div>
                             </Stack>
                         )}
                         {chatlogs && chatlogs.length > 0 && (
@@ -1145,7 +1147,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                                                 alignItems: 'end'
                                             }}
                                         >
-                                            <Tooltip title='Clear Message'>
+                                            <Tooltip title={t('clearMessage')}>
                                                 <IconButton color='error' onClick={() => clearChat(chatMessages[1])}>
                                                     <IconEraser />
                                                 </IconButton>
@@ -1207,7 +1209,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                                                                 <img
                                                                     style={{ marginLeft: '10px' }}
                                                                     src={userPNG}
-                                                                    alt='Me'
+                                                                    alt={t('me')}
                                                                     width='25'
                                                                     height='25'
                                                                     className='usericon'
@@ -1397,7 +1399,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                                                                                         )}
                                                                                         {agent.instructions && <p>{agent.instructions}</p>}
                                                                                         {agent.messages.length === 0 &&
-                                                                                            !agent.instructions && <p>Finished</p>}
+                                                                                            !agent.instructions && <p>{t('finished')}</p>}
                                                                                         {agent.sourceDocuments &&
                                                                                             agent.sourceDocuments.length > 0 && (
                                                                                                 <div
