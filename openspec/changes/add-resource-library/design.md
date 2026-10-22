@@ -34,7 +34,7 @@
 | `workspaceId`                | 所属工作区                                            |
 | `name`                       | 显示名称，工作区内唯一                                |
 | `nameKey`                    | `name` 去掉首尾空白后转小写，用于唯一索引和按名称查找 |
-| `group`                      | 一级分组，可为空                                      |
+| `groupName`                  | 一级分组，可为空（列名不用 `group`，它是 SQL 保留字） |
 | `kind`                       | `image` / `video` / `file`                            |
 | `mimeType`、`ext`、`size`    | 当前文件的内容类型、扩展名和字节数                    |
 | `originalName`               | 上传时的原文件名，用于下载和展示                      |
@@ -42,7 +42,7 @@
 
 唯一索引为 `(workspaceId, nameKey)`。之所以单独存 `nameKey`，是因为四种数据库对大小写不敏感比较的支持不一致，统一在应用层规范化最可靠。
 
-分组只作为一个字符串字段，不建分组表。资源页的分组列表就是当前工作区所有非空 `group` 的去重结果。备选是建一张分组表来支持空分组和排序，但第一期用不上。
+分组只作为一个字符串字段，不建分组表。资源页的分组列表就是当前工作区所有非空 `groupName` 的去重结果。备选是建一张分组表来支持空分组和排序，但第一期用不上。
 
 ### 2. 文件存放
 
@@ -65,7 +65,7 @@ res://name/<名称>         手写或拼变量，变量替换后按 nameKey 查�
 
 两种前缀写得很明确，解析时不用猜，以后需要也可以加别的形式。
 
-解析由注册到媒体来源解析器的 `resourceSource` 完成。它排在 URL 和绝对路径前面，只匹配 `res://` 开头的值。`MediaContext` 要新增 `workspaceId`，供它限定查找范围；这是对 `add-wechat-channel` 接口唯一的改动。解析结果是资源文件的本地路径，`temporary: false`，发送后不删除。
+解析由注册到媒体来源解析器的 `resourceSource` 完成。注册接口把它排在内置的 URL 和绝对路径之后；三种来源匹配的值互不重叠（它只匹配 `res://` 开头的值），所以顺序不影响结果。`MediaContext` 新增 `workspaceId`，供它限定查找范围；这是对 `add-wechat-channel` 接口唯一的改动。`IChannelRuntime.resolveMedia` 相应多了一个可选参数 `{ kinds }`，节点用它说明自己接受哪些类型。解析结果是资源文件的本地路径，`temporary: false`，发送后不删除。
 
 类型校验也在解析时完成：调用方在 `MediaContext` 中带上节点允许的类型（Send Image 为 `image`，Send Video 为 `video`，Send File 不限）。
 
@@ -95,15 +95,15 @@ loadMethod 在 `packages/components` 中运行，通过 `options.appDataSource` 
 
 ### 6. 接口
 
-| 方法与路径                         | 权限               | 说明                                                           |
-| ---------------------------------- | ------------------ | -------------------------------------------------------------- |
-| `GET /api/v1/resources`            | `resources:view`   | 列表，支持 `kind`、`group`、`search` 筛选，每项带 `usageCount` |
-| `POST /api/v1/resources`           | `resources:create` | multipart 上传：`file`、`name`、`group`                        |
-| `PUT /api/v1/resources/:id`        | `resources:update` | 改名、改分组                                                   |
-| `PUT /api/v1/resources/:id/file`   | `resources:update` | 替换文件                                                       |
-| `DELETE /api/v1/resources/:id`     | `resources:delete` | 删除资源和文件                                                 |
-| `GET /api/v1/resources/:id/file`   | `resources:view`   | 预览或下载（`?download=1` 时带附件文件名）                     |
-| `GET /api/v1/resources/:id/usages` | `resources:view`   | 引用该资源的流程；`?byName=1` 时只返回按名称引用的流程         |
+| 方法与路径                         | 权限               | 说明                                                               |
+| ---------------------------------- | ------------------ | ------------------------------------------------------------------ |
+| `GET /api/v1/resources`            | `resources:view`   | 列表，支持 `kind`、`groupName`、`search` 筛选，每项带 `usageCount` |
+| `POST /api/v1/resources`           | `resources:create` | multipart 上传：`file`、`name`、`groupName`                        |
+| `PUT /api/v1/resources/:id`        | `resources:update` | 改名、改分组                                                       |
+| `PUT /api/v1/resources/:id/file`   | `resources:update` | 替换文件                                                           |
+| `DELETE /api/v1/resources/:id`     | `resources:delete` | 删除资源和文件                                                     |
+| `GET /api/v1/resources/:id/file`   | `resources:view`   | 预览或下载（`?download=1` 时带附件文件名）                         |
+| `GET /api/v1/resources/:id/usages` | `resources:view`   | 引用该资源的流程；`?byName=1` 时只返回按名称引用的流程             |
 
 删除和改名的确认在前端完成：先调 `usages`，展示结果，用户确认后再发删除或改名请求。服务端不做二次确认，也不因为有引用而拒绝请求（规格要求不强制阻止）。
 
