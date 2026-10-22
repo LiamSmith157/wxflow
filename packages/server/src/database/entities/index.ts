@@ -30,6 +30,7 @@ import { ScheduleTriggerLog } from './ScheduleTriggerLog'
 import { ChannelInstance } from './ChannelInstance'
 import { ChannelSubscription } from './ChannelSubscription'
 import { ChannelSetting } from './ChannelSetting'
+import { Resource } from './Resource'
 
 export const entities = {
     ChatFlow,
@@ -65,5 +66,6 @@ export const entities = {
     ScheduleTriggerLog,
     ChannelInstance,
     ChannelSubscription,
-    ChannelSetting
+    ChannelSetting,
+    Resource
 }

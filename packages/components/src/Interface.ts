@@ -61,6 +61,8 @@ export interface INodeOptionsValue {
     label: string
     name: string
     description?: string
+    /** Heading to list the option under (dropdowns that show groups) */
+    group?: string
     imageSrc?: string
     client?: Array<ClientType>
     show?: INodeDisplay
@@ -496,8 +498,11 @@ export interface IChannelRuntime {
     call(channel: string, instance: string, method: string, params: Record<string, any>, timeoutMs?: number): Promise<IChannelCallOutcome>
     /** Fetch media bytes through the channel (WeChat voice) */
     fetchMedia(channel: string, instance: string, kind: string, ref: string): Promise<IChannelCallOutcome & { data?: Buffer }>
-    /** Resolve a media parameter (URL or absolute path) into a local file */
-    resolveMedia(value: string): Promise<IChannelMedia>
+    /**
+     * Resolve a media parameter (URL, absolute path or a `res://` resource of the run's workspace) into a local file.
+     * `kinds` limits which kinds of library resource are accepted (Send Image takes images only).
+     */
+    resolveMedia(value: string, options?: { kinds?: Array<'image' | 'video' | 'file'> }): Promise<IChannelMedia>
     /** Delete the file of a send once it finished (only downloaded files are removed) */
     releaseMedia(media: IChannelMedia): Promise<void>
     /** Directory for files fetched from the channel (wxflow and the DLL use the same path) */

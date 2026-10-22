@@ -31,6 +31,16 @@ describe('media send nodes', () => {
         expect(out.output).toMatchObject({ state: 'ok', to: 'wxid_friend' })
     })
 
+    it('tells the runtime which kinds of library resource each node accepts', async () => {
+        const ch = createFakeChannels({ event: messageEvent() })
+        ch.mediaFiles['res://id/1'] = { path: 'C:\\Users\\op\\.wxflow\\resources\\ws\\1.png', temporary: false }
+        for (const node of [image, video, file]) {
+            await node.run(data(node, { wechatTo: 'x', wechatMedia: 'res://id/1' }), '', runOptions(ch))
+        }
+        expect(ch.resolveKinds).toEqual([['image'], ['video'], undefined])
+        expect(ch.sends.map((s) => s.params.path)).toEqual(Array(3).fill('C:\\Users\\op\\.wxflow\\resources\\ws\\1.png'))
+    })
+
     it('sends an image fetched upstream (the path output by Fetch Image)', async () => {
         const ch = createFakeChannels({ event: messageEvent() })
         const fetched = 'C:\\Users\\op\\.wxflow\\wechat\\images\\1.jpg'

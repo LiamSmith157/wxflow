@@ -13,6 +13,9 @@ import { getChannelHub } from './channels/ChannelHub'
 import { getChannelRegistry } from './channels/ChannelRegistry'
 import { initChannelServices } from './services/channel/bootstrap'
 import { initMediaDir, stopMediaDir } from './channels/media/startup'
+import { registerResourceSource } from './channels/media/resourceSource'
+import { getMediaResolver } from './channels/media/resolverInstance'
+import resourcesService from './services/resources'
 import { startWeChatGateway, stopWeChatGateway } from './channels/wechat/gatewayService'
 import { ChatFlow } from './database/entities/ChatFlow'
 import { getDataSource } from './DataSource'
@@ -174,6 +177,8 @@ export class App {
             // WeChat gateway: a bind failure or queue mode only disables the channel, never the server
             initChannelServices(getChannelHub(), logger)
             await initMediaDir(logger)
+            // `res://` references in the media parameters of send nodes point at the resource library
+            registerResourceSource(getMediaResolver(), resourcesService)
             await startWeChatGateway({ registry: getChannelRegistry(), sink: getChannelHub(), logger })
 
             logger.info('🎉 [server]: All initialization steps completed successfully!')

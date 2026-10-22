@@ -106,8 +106,8 @@ export const createChannelRuntime = (deps: ChannelRuntimeDeps, ctx: ChannelRunti
             return adapter.fetchMedia(instance, kind, ref)
         },
 
-        async resolveMedia(value: string): Promise<IChannelMedia> {
-            return resolver.resolve(value, mediaContext)
+        async resolveMedia(value: string, options?: { kinds?: Array<'image' | 'video' | 'file'> }): Promise<IChannelMedia> {
+            return resolver.resolve(value, { ...mediaContext, workspaceId: ctx.workspaceId, resourceKinds: options?.kinds })
         },
 
         async releaseMedia(media: IChannelMedia): Promise<void> {

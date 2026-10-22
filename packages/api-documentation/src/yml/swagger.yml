@@ -9,6 +9,7 @@ tags:
     - name: leads
     - name: ping
     - name: prediction
+    - name: resources
     - name: tools
     - name: upsert-history
     - name: variables
@@ -1700,8 +1701,8 @@ paths:
             operationId: sendChannelTestImage
             summary: Send the built-in test image
             description: >-
-                Send a built-in image to a conversation through an online instance, to verify the exchange-directory
-                path mapping. When the mapping is wrong the failure reason reported by the DLL is returned.
+                Send a built-in image to a conversation through an online instance, to verify that sending media
+                works end to end. When sending fails, the failure reason reported by the DLL is returned.
                 Requires channelInstances:manage.
             parameters:
                 - in: path
@@ -1749,8 +1750,8 @@ paths:
             operationId: getChannelGatewayStatus
             summary: Get the channel gateway status
             description: >-
-                Gateway running state, listen address and port, and the result of the startup self-check of the
-                exchange directory. Requires channelInstances:view.
+                Gateway running state, listen address and port, and, only when there is a problem, why the media
+                working directory cannot be used. Requires channelInstances:view.
             responses:
                 '200':
                     description: Successful operation
@@ -1805,11 +1806,347 @@ paths:
                     description: Invalid value
                 '403':
                     description: Missing channelInstances:manage permission
+    /resources:
+        get:
+            tags:
+                - resources
+            security:
+                - bearerAuth: []
+            operationId: listResources
+            summary: List resources
+            description: >-
+                List the resources (images, videos and documents) of the current workspace, each with the number of
+                flows that use it. Requires resources:view.
+            parameters:
+                - in: query
+                  name: kind
+                  required: false
+                  schema:
+                      type: string
+                      enum: [image, video, file]
+                  description: Only resources of this kind
+                - in: query
+                  name: groupName
+                  required: false
+                  schema:
+                      type: string
+                  description: Only resources in this group
+                - in: query
+                  name: ungrouped
+                  required: false
+                  schema:
+                      type: boolean
+                  description: Only resources without a group
+                - in: query
+                  name: search
+                  required: false
+                  schema:
+                      type: string
+                  description: Case-insensitive part of the name
+            responses:
+                '200':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Resource'
+                '403':
+                    description: Missing resources:view permission
+        post:
+            tags:
+                - resources
+            security:
+                - bearerAuth: []
+            operationId: createResource
+            summary: Upload a resource
+            description: >-
+                Upload an image (jpg, png, gif, webp), a video (mp4) or a document (pdf, doc, docx, xls, xlsx, ppt, pptx,
+                txt, zip). The type is decided from the content of the file, not from its extension. The file is kept on
+                the local disk of the wxflow machine. Requires resources:create.
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            required:
+                                - file
+                            properties:
+                                file:
+                                    type: string
+                                    format: binary
+                                name:
+                                    type: string
+                                    description: Resource name, unique in the workspace (case-insensitive). Defaults to the file name without extension
+                                    example: poster-beijing
+                                groupName:
+                                    type: string
+                                    description: One-level group, optional
+            responses:
+                '201':
+                    description: The created resource
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Resource'
+                '400':
+                    description: No file, an empty file, or an invalid name
+                '403':
+                    description: Missing resources:create permission
+                '409':
+                    description: The name is already used in this workspace
+                '413':
+                    description: The file is larger than the limit (RESOURCE_MAX_MB, 50 MB by default)
+                '415':
+                    description: The file type is not supported
+    /resources/{id}:
+        put:
+            tags:
+                - resources
+            security:
+                - bearerAuth: []
+            operationId: updateResource
+            summary: Rename a resource or change its group
+            description: >-
+                Rename a resource and/or change its group. Flows that point at the resource by id are not affected; flows
+                that point at it by name stop finding it after a rename. Requires resources:update.
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Resource ID
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                groupName:
+                                    type: string
+                                    nullable: true
+                                    description: New group; null or an empty string clears it
+            responses:
+                '200':
+                    description: The updated resource
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Resource'
+                '400':
+                    description: Invalid name or group
+                '403':
+                    description: Missing resources:update permission
+                '404':
+                    description: Resource not found in this workspace
+                '409':
+                    description: The name is already used in this workspace
+        delete:
+            tags:
+                - resources
+            security:
+                - bearerAuth: []
+            operationId: deleteResource
+            summary: Delete a resource
+            description: >-
+                Delete the resource and its file. A resource that flows still point at is deleted all the same; those
+                flows fail with a clear message when they run. Requires resources:delete.
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Resource ID
+            responses:
+                '204':
+                    description: Deleted
+                '403':
+                    description: Missing resources:delete permission
+                '404':
+                    description: Resource not found in this workspace
+                '409':
+                    description: The file is in use by another program, try again later
+    /resources/{id}/file:
+        get:
+            tags:
+                - resources
+            security:
+                - bearerAuth: []
+            operationId: getResourceFile
+            summary: Show or download the file of a resource
+            description: >-
+                Images and videos are returned inline; documents, and any request with download=1, are returned as an
+                attachment. Requires resources:view.
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Resource ID
+                - in: query
+                  name: download
+                  required: false
+                  schema:
+                      type: boolean
+                  description: Return the file as an attachment
+            responses:
+                '200':
+                    description: The file
+                    content:
+                        application/octet-stream:
+                            schema:
+                                type: string
+                                format: binary
+                '403':
+                    description: Missing resources:view permission
+                '404':
+                    description: Resource not found in this workspace, or its file is missing
+        put:
+            tags:
+                - resources
+            security:
+                - bearerAuth: []
+            operationId: replaceResourceFile
+            summary: Replace the file of a resource
+            description: >-
+                Replace the file and keep the id, name and group, so flows keep working with the new file. The new file
+                must be of the same kind (image, video or document). Requires resources:update.
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Resource ID
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            required:
+                                - file
+                            properties:
+                                file:
+                                    type: string
+                                    format: binary
+            responses:
+                '200':
+                    description: The updated resource
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Resource'
+                '400':
+                    description: No file, an empty file, or a file of another kind
+                '403':
+                    description: Missing resources:update permission
+                '404':
+                    description: Resource not found in this workspace
+                '409':
+                    description: The file is in use by another program, try again later
+                '413':
+                    description: The file is larger than the limit
+                '415':
+                    description: The file type is not supported
+    /resources/{id}/usages:
+        get:
+            tags:
+                - resources
+            security:
+                - bearerAuth: []
+            operationId: getResourceUsages
+            summary: Flows that use a resource
+            description: >-
+                Flows of the workspace that point at the resource by id or by a fixed name (res://id/... or
+                res://name/...). References whose name is built with a variable cannot be found. Requires resources:view.
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Resource ID
+                - in: query
+                  name: byName
+                  required: false
+                  schema:
+                      type: boolean
+                  description: Only flows that break when the resource is renamed (those that use its name)
+            responses:
+                '200':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/ResourceUsage'
+                '403':
+                    description: Missing resources:view permission
+                '404':
+                    description: Resource not found in this workspace
 components:
     responses:
         UnauthorizedError:
             description: Access token is missing or invalid
     schemas:
+        Resource:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                    example: poster-beijing
+                groupName:
+                    type: string
+                    nullable: true
+                kind:
+                    type: string
+                    enum: [image, video, file]
+                mimeType:
+                    type: string
+                    example: image/png
+                ext:
+                    type: string
+                    example: .png
+                size:
+                    type: integer
+                    description: Size in bytes
+                originalName:
+                    type: string
+                    description: File name at upload time
+                createdDate:
+                    type: string
+                    format: date-time
+                updatedDate:
+                    type: string
+                    format: date-time
+                usageCount:
+                    type: integer
+                    description: Flows that use the resource by id or by a fixed name (only in the list)
+        ResourceUsage:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Flow ID
+                name:
+                    type: string
+                    description: Flow name
+                via:
+                    type: string
+                    enum: [id, name, both]
+                    description: How the flow points at the resource
         ChannelInstance:
             type: object
             properties:
@@ -1850,20 +2187,15 @@ components:
                 reason:
                     type: string
                     description: Why the gateway is not running
-                exchange:
+                media:
                     type: object
-                    description: Startup self-check of the exchange directory
+                    description: Startup self-check of the media working directory (~/.wxflow/wechat)
                     properties:
                         ok:
                             type: boolean
-                        dir:
-                            type: string
-                        hostDir:
-                            type: string
-                        mapped:
-                            type: boolean
                         error:
                             type: string
+                            description: Why the directory cannot be used, written for the operator
         ChannelSettings:
             type: object
             properties:

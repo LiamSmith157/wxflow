@@ -1,5 +1,14 @@
 import { ICommonObject, INode, INodeData, INodeParams } from '../../../src/Interface'
-import { WECHAT_CATEGORY, WECHAT_COLOR, listWechatInstances, mediaParam, recipientParam, sendMedia, sendTailParams } from './shared'
+import {
+    WECHAT_CATEGORY,
+    WECHAT_COLOR,
+    listVideoResources,
+    listWechatInstances,
+    mediaParam,
+    recipientParam,
+    sendMedia,
+    sendTailParams
+} from './shared'
 
 class WeChatSendVideo_Agentflow implements INode {
     label: string
@@ -16,7 +25,7 @@ class WeChatSendVideo_Agentflow implements INode {
     constructor() {
         this.label = 'Send Video'
         this.name = 'wechatSendVideoAgentflow'
-        this.version = 1.0
+        this.version = 1.1
         this.type = 'WeChatSendVideo'
         this.category = WECHAT_CATEGORY
         this.description = 'Send a video from a WeChat account'
@@ -24,7 +33,11 @@ class WeChatSendVideo_Agentflow implements INode {
         this.color = WECHAT_COLOR
         this.inputs = [
             recipientParam,
-            mediaParam('Video (path or URL)', 'The mp4 video to send: the full path of a file on this machine, or an http(s) URL'),
+            mediaParam(
+                'Video',
+                'The mp4 video to send: pick one from the resource library, or enter the full path of a file on this machine, an http(s) URL, or res://name/<resource name> (the name may contain variables)',
+                'listVideoResources'
+            ),
             {
                 label: 'Duration (seconds)',
                 name: 'wechatVideoDuration',
@@ -36,11 +49,13 @@ class WeChatSendVideo_Agentflow implements INode {
         ]
     }
 
-    loadMethods = { listWechatInstances }
+    loadMethods = { listWechatInstances, listVideoResources }
 
     async run(nodeData: INodeData, _: string, options: ICommonObject): Promise<any> {
         const duration = Number(nodeData.inputs?.wechatVideoDuration)
-        return sendMedia(nodeData, options, this.name, 'send.video', Number.isFinite(duration) && duration > 0 ? { duration } : {})
+        return sendMedia(nodeData, options, this.name, 'send.video', Number.isFinite(duration) && duration > 0 ? { duration } : {}, [
+            'video'
+        ])
     }
 }
 

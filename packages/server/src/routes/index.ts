@@ -50,6 +50,7 @@ import toolsRouter from './tools'
 import upsertHistoryRouter from './upsert-history'
 import validationRouter from './validation'
 import variablesRouter from './variables'
+import resourcesRouter from './resources'
 import verifyRouter from './verify'
 import versionRouter from './versions'
 import webhookRouter from './webhook'
@@ -110,6 +111,7 @@ router.use('/public-executions', publicExecutionsRouter)
 router.use('/stats', statsRouter)
 router.use('/tools', toolsRouter)
 router.use('/variables', variablesRouter)
+router.use('/resources', resourcesRouter)
 router.use('/verify', verifyRouter)
 router.use('/webhook', webhookRouter)
 router.use('/webhook-listener', webhookListenerRouter)

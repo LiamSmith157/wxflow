@@ -149,31 +149,69 @@ export const branch = (count: number, selected: number): Array<{ isFulfilled: bo
 
 // ─── Media send ──────────────────────────────────────────────────────────────
 
-export const mediaParam = (label: string, description: string): INodeParams => ({
+type ResourceKind = 'image' | 'video' | 'file'
+
+/**
+ * The media parameter: pick a resource of the library from the list, or type a URL, the full path of a local file
+ * or `res://name/<resource name>` (free text). A pick is stored as `res://id/<id>`, so renaming the resource later
+ * does not break the flow. `acceptVariable` keeps variables in the typed value working.
+ */
+export const mediaParam = (label: string, description: string, loadMethod: string): INodeParams => ({
     label,
     name: 'wechatMedia',
-    type: 'string',
+    type: 'asyncOptions',
+    loadMethod,
+    freeSolo: true,
     description,
-    placeholder: 'D:\\media\\poster.jpg or https://example.com/a.jpg',
     acceptVariable: true
 })
 
+const UNGROUPED = 'Ungrouped'
+
+/** Resources of the workspace in the search options (the server sets it from the signed-in user), listed by group */
+const listResources =
+    (kinds?: ResourceKind[]) =>
+    async (_: INodeData, options: ICommonObject = {}): Promise<INodeOptionsValue[]> => {
+        const appDataSource = options.appDataSource as DataSource
+        const databaseEntities = options.databaseEntities as IDatabaseEntity
+        if (!appDataSource || !databaseEntities?.['Resource']) return []
+        const resources = await appDataSource.getRepository(databaseEntities['Resource']).findBy({ ...(options.searchOptions || {}) })
+        return resources
+            .filter((r: any) => !kinds || kinds.includes(r.kind))
+            .map((r: any) => ({
+                label: r.name,
+                name: `res://id/${r.id}`,
+                description: r.groupName || undefined,
+                group: r.groupName || UNGROUPED
+            }))
+            .sort((a: INodeOptionsValue, b: INodeOptionsValue) => {
+                // grouped resources first, in group order; the ungrouped ones last
+                const rank = (o: INodeOptionsValue) => (o.group === UNGROUPED ? 1 : 0)
+                return rank(a) - rank(b) || (a.group ?? '').localeCompare(b.group ?? '') || a.label.localeCompare(b.label)
+            })
+    }
+
+export const listImageResources = listResources(['image'])
+export const listVideoResources = listResources(['video'])
+export const listAllResources = listResources()
+
 /**
- * Send a file-based message (image, file, video). The media parameter is a URL or the full path of a local file; the
- * DLL opens the resolved path as it is. A file downloaded for this send is removed afterwards, whatever the outcome.
+ * Send a file-based message (image, file, video). The media parameter is a URL, the full path of a local file or a
+ * `res://` resource (of the kinds given); the DLL opens the resolved path as it is. A file downloaded for this send is removed afterwards, whatever the outcome.
  */
 export const sendMedia = async (
     nodeData: INodeData,
     options: ICommonObject,
     name: string,
     method: string,
-    extraParams: Record<string, any> = {}
+    extraParams: Record<string, any> = {},
+    kinds?: Array<'image' | 'video' | 'file'>
 ): Promise<ICommonObject> => {
     const ctx = await prepareSend(nodeData, options, 'wechatTo')
     const mediaValue = text(nodeData.inputs?.wechatMedia)
     // resolving problems (missing file, unusable value, download refused) fail the node with the
     // operator-facing message from the runtime
-    const media = await ctx.channels.resolveMedia(mediaValue)
+    const media = await ctx.channels.resolveMedia(mediaValue, { kinds })
     try {
         return await sendMethod(
             nodeData,

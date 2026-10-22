@@ -23,6 +23,8 @@ export interface FakeChannels extends IChannelRuntime {
     sends: FakeSend[]
     calls: Array<{ instance: string; method: string; params: Record<string, any>; timeoutMs?: number }>
     released: IChannelMedia[]
+    /** The `kinds` each resolveMedia() call asked for */
+    resolveKinds: Array<Array<'image' | 'video' | 'file'> | undefined>
     /** Result returned by send(); a function can answer per call */
     sendOutcome: IChannelSendResult | ((req: FakeSend) => IChannelSendResult)
     /** Scripted results of call(), by method */
@@ -45,6 +47,7 @@ export const createFakeChannels = (
         sends: [],
         calls: [],
         released: [],
+        resolveKinds: [],
         sendOutcome: { state: 'ok', jobId: 'job-1' },
         callResults: {},
         mediaResults: {},
@@ -74,7 +77,8 @@ export const createFakeChannels = (
         async fetchMedia(_channel, _instance, _kind, ref) {
             return fake.mediaResults[ref] ?? { ok: false, error: { code: 404, message: 'media not found' } }
         },
-        async resolveMedia(value) {
+        async resolveMedia(value, mediaOptions) {
+            fake.resolveKinds.push(mediaOptions?.kinds)
             const found = fake.mediaFiles[value]
             if (!found) throw new Error(`文件 \`${value}\` 不存在,请检查路径`)
             if (found instanceof Error) throw found

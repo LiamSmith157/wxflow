@@ -98,6 +98,10 @@ export const AsyncDropdown = ({
     const getDefaultOptionValue = () => (multiple ? [] : '')
     const addNewOption = [{ label: '- Create New -', name: '-create-' }]
     let [internalValue, setInternalValue] = useState(value ?? 'choose an option')
+    const freeTextValue =
+        freeSolo && !multiple && typeof internalValue === 'string' && internalValue && internalValue !== 'choose an option'
+            ? internalValue
+            : undefined
     const { reactFlowInstance } = useContext(flowContext)
 
     const fetchCredentialList = async () => {
@@ -197,7 +201,11 @@ export const AsyncDropdown = ({
                     setOpen(false)
                 }}
                 options={options}
-                value={findMatchingOptions(options, internalValue) || getDefaultOptionValue()}
+                // typed text is kept when the field loses focus; a value that is not one of the options (a typed path, a res://name/
+                // reference) is shown as it is
+                autoSelect={freeSolo}
+                groupBy={options.some((option) => option.group) ? (option) => tNode(option.group ?? '') : undefined}
+                value={findMatchingOptions(options, internalValue) || freeTextValue || getDefaultOptionValue()}
                 onChange={(e, selection) => {
                     if (multiple) {
                         let value = ''
@@ -208,7 +216,14 @@ export const AsyncDropdown = ({
                         setInternalValue(value)
                         onSelect(value)
                     } else {
-                        const value = selection ? selection.name : ''
+                        let value
+                        if (typeof selection === 'string') {
+                            // text typed into a freeSolo field: the exact label of an option picks that option, anything else is kept as typed
+                            const text = selection.trim()
+                            value = options.find((option) => option.label === text || tNode(option.label) === text)?.name ?? text
+                        } else {
+                            value = selection ? selection.name : ''
+                        }
                         if (isCreateNewOption && value === '-create-') {
                             onCreateNew()
                         } else {

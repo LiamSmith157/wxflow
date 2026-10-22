@@ -18,6 +18,7 @@ describe('menu items', () => {
             ['tools', '/tools'],
             ['credentials', '/credentials'],
             ['variables', '/variables'],
+            ['resources', '/resources'],
             ['apikey', '/apikey'],
             ['document-stores', '/document-stores'],
             ['channel-instances', '/channel-instances'],
@@ -43,6 +44,16 @@ describe('menu items', () => {
         expect(entry.title).toBe('menu:channelInstances')
         expect(en.channelInstances).toBe('Channel Instances')
         expect(zhCN.channelInstances).toBe('渠道实例')
+    })
+
+    it('puts Resources right after Variables, behind the resources:view permission', () => {
+        const entries = flatten(dashboard).map((n) => n.id)
+        expect(entries.indexOf('resources')).toBe(entries.indexOf('variables') + 1)
+        const entry = flatten(dashboard).find((n) => n.id === 'resources')
+        expect(entry.permission).toBe('resources:view')
+        expect(entry.title).toBe('menu:resources')
+        expect(en.resources).toBe('Resources')
+        expect(zhCN.resources).toBe('资源库')
     })
 
     it('keeps the agent settings entries', () => {

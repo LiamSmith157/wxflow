@@ -18,6 +18,10 @@ export interface MediaContext {
     mediaRoot: string
     /** Upper bound for URL downloads */
     maxDownloadBytes: number
+    /** Workspace of the flow run; `res://` references are looked up in it */
+    workspaceId?: string
+    /** Kinds of resource the caller accepts (any when absent), e.g. only images for Send Image */
+    resourceKinds?: Array<'image' | 'video' | 'file'>
 }
 
 export interface MediaSource {

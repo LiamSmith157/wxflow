@@ -5,6 +5,7 @@ import { ChannelRegistry } from './ChannelRegistry'
 import { createChannelSender } from './ChannelSender'
 import { ChannelConfig } from './config'
 import { MediaResolver } from './media/resolver'
+import { ResourceLookup, ResourceRecord, registerResourceSource } from './media/resourceSource'
 import { MockChannelAdapter } from './MockChannelAdapter'
 import { createChannelRuntime } from './runtime'
 import { GatewayStatus } from './wechat/gatewayService'
@@ -22,7 +23,12 @@ beforeEach(() => {
 afterEach(() => fs.rmSync(root, { recursive: true, force: true }))
 
 const setup = (
-    opts: { register?: boolean; workspaceInstances?: string[]; settings?: { masterEnabled: boolean; sendRateLimitPerMinute: number } } = {}
+    opts: {
+        register?: boolean
+        workspaceInstances?: string[]
+        settings?: { masterEnabled: boolean; sendRateLimitPerMinute: number }
+        resolver?: MediaResolver
+    } = {}
 ) => {
     const adapter = new MockChannelAdapter()
     adapter.addInstance('wxid_a')
@@ -39,7 +45,7 @@ const setup = (
     const deps = {
         registry,
         sender: createChannelSender({ registry, getSettings: async () => settings }),
-        resolver: new MediaResolver(),
+        resolver: opts.resolver ?? new MediaResolver(),
         config,
         listWorkspaceInstances: async (ws: string) =>
             (ws === 'wsA' ? opts.workspaceInstances ?? ['wxid_a', 'wxid_off'] : []).map((k) => ({ instanceKey: k, displayName: k })),
@@ -198,6 +204,42 @@ describe('channel runtime handle', () => {
             const rt = runtime()
             expect(rt.mediaDir('images')).toBe(path.join(root, 'images'))
             expect(rt.mediaDir('voice')).toBe(path.join(root, 'voice'))
+        })
+    })
+
+    describe('library resources', () => {
+        const poster: ResourceRecord = { id: 'r1', workspaceId: 'wsA', name: 'pic', kind: 'image', ext: '.png' }
+        const lookup: ResourceLookup = {
+            findById: async (ws, id) => (ws === poster.workspaceId && id === poster.id ? poster : null),
+            findByNameKey: async (ws, key) => (ws === poster.workspaceId && key === poster.name ? poster : null),
+            pathOf: (r) => path.join(root, 'images', `${r.id}${r.ext}`)
+        }
+        const withResources = () => {
+            const resolver = new MediaResolver()
+            registerResourceSource(resolver, lookup)
+            fs.writeFileSync(lookup.pathOf(poster), 'x')
+            return setup({ resolver })
+        }
+
+        it('resolves a resource of the workspace the run belongs to and keeps its file on release', async () => {
+            const { runtime } = withResources()
+            const rt = runtime(undefined, 'wsA')
+            const media = await rt.resolveMedia('res://name/pic', { kinds: ['image'] })
+            expect(media).toEqual({ path: lookup.pathOf(poster), temporary: false })
+            await rt.releaseMedia(media)
+            expect(fs.existsSync(lookup.pathOf(poster))).toBe(true)
+        })
+
+        it('does not see the resources of another workspace', async () => {
+            const { runtime } = withResources()
+            await expect(runtime(undefined, 'wsB').resolveMedia('res://id/r1')).rejects.toThrow('资源不存在')
+        })
+
+        it('passes the accepted kinds on and refuses the wrong one', async () => {
+            const { runtime } = withResources()
+            await expect(runtime().resolveMedia('res://id/r1', { kinds: ['video'] })).rejects.toThrow('资源 `pic` 是图片,不能作为视频发送')
+            await expect(runtime().resolveMedia('res://id/r1', { kinds: ['image'] })).resolves.toBeTruthy()
+            await expect(runtime().resolveMedia('res://id/r1')).resolves.toBeTruthy()
         })
     })
 })

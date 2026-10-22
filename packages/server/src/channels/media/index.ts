@@ -1,5 +1,6 @@
 export * from './workdir'
 export * from './errors'
 export * from './resolver'
+export * from './resourceSource'
 export * from './cleanup'
 export * from './selfCheck'

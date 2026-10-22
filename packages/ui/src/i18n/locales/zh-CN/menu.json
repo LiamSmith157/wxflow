@@ -25,5 +25,6 @@
     "loadAgents": "加载 Agents",
     "exportAgents": "导出 Agents",
     "deleteAgents": "删除 Agents",
-    "channelInstances": "渠道实例"
+    "channelInstances": "渠道实例",
+    "resources": "资源库"
 }

@@ -358,6 +358,7 @@ const checkMediaWarnings = async (flowId: string, workspaceId?: string): Promise
         const config = getChannelConfig()
         return findMediaWarnings(flowData.nodes ?? [], getMediaResolver(), {
             mediaRoot: config.mediaRoot,
+            workspaceId: flow.workspaceId,
             maxDownloadBytes: config.maxDownloadBytes
         })
     } catch (error) {

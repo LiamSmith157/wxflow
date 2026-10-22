@@ -2,8 +2,13 @@ import { IReactFlowNode } from '../../Interface'
 import { MediaError } from './errors'
 import { MediaContext, MediaResolver } from './resolver'
 
-/** Nodes whose `wechatMedia` parameter points at a file */
-export const MEDIA_NODE_NAMES = new Set(['wechatSendImageAgentflow', 'wechatSendFileAgentflow', 'wechatSendVideoAgentflow'])
+/** Nodes whose `wechatMedia` parameter points at a file, with the kinds of library resource each one accepts */
+export const MEDIA_NODE_KINDS: Record<string, Array<'image' | 'video' | 'file'> | undefined> = {
+    wechatSendImageAgentflow: ['image'],
+    wechatSendFileAgentflow: undefined,
+    wechatSendVideoAgentflow: ['video']
+}
+export const MEDIA_NODE_NAMES = new Set(Object.keys(MEDIA_NODE_KINDS))
 
 export interface MediaWarning {
     id: string
@@ -25,7 +30,7 @@ export const findMediaWarnings = async (nodes: IReactFlowNode[], resolver: Media
         const value = typeof raw === 'string' ? raw.trim() : ''
         if (!value || value.includes('{{') || /^https?:\/\//i.test(value)) continue
         try {
-            await resolver.resolve(value, ctx)
+            await resolver.resolve(value, { ...ctx, resourceKinds: MEDIA_NODE_KINDS[node.data.name] })
         } catch (e) {
             if (e instanceof MediaError) warnings.push({ id: node.id, label: node.data.label, name: node.data.name, issues: [e.message] })
             // anything else (a custom source failing for its own reasons) is not a file-missing problem

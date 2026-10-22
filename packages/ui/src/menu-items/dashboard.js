@@ -21,7 +21,8 @@ import {
     IconFileDatabase,
     IconShieldLock,
     IconListCheck,
-    IconBrandWechat
+    IconBrandWechat,
+    IconPhoto
 } from '@tabler/icons-react'
 
 // constant
@@ -47,7 +48,8 @@ const icons = {
     IconFileDatabase,
     IconShieldLock,
     IconListCheck,
-    IconBrandWechat
+    IconBrandWechat,
+    IconPhoto
 }
 
 // Menu titles are i18n keys (namespace:key); they are translated where they are rendered
@@ -107,6 +109,15 @@ const dashboard = {
                     icon: icons.IconVariable,
                     breadcrumbs: true,
                     permission: 'variables:view'
+                },
+                {
+                    id: 'resources',
+                    title: 'menu:resources',
+                    type: 'item',
+                    url: '/resources',
+                    icon: icons.IconPhoto,
+                    breadcrumbs: true,
+                    permission: 'resources:view'
                 },
                 {
                     id: 'apikey',

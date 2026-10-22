@@ -1,5 +1,14 @@
 import { ICommonObject, INode, INodeData, INodeParams } from '../../../src/Interface'
-import { WECHAT_CATEGORY, WECHAT_COLOR, listWechatInstances, mediaParam, recipientParam, sendMedia, sendTailParams } from './shared'
+import {
+    WECHAT_CATEGORY,
+    WECHAT_COLOR,
+    listAllResources,
+    listWechatInstances,
+    mediaParam,
+    recipientParam,
+    sendMedia,
+    sendTailParams
+} from './shared'
 
 class WeChatSendFile_Agentflow implements INode {
     label: string
@@ -16,7 +25,7 @@ class WeChatSendFile_Agentflow implements INode {
     constructor() {
         this.label = 'Send File'
         this.name = 'wechatSendFileAgentflow'
-        this.version = 1.0
+        this.version = 1.1
         this.type = 'WeChatSendFile'
         this.category = WECHAT_CATEGORY
         this.description = 'Send a file from a WeChat account'
@@ -24,12 +33,16 @@ class WeChatSendFile_Agentflow implements INode {
         this.color = WECHAT_COLOR
         this.inputs = [
             recipientParam,
-            mediaParam('File (path or URL)', 'The file to send: the full path of a file on this machine, or an http(s) URL'),
+            mediaParam(
+                'File',
+                'The file to send: pick one from the resource library, or enter the full path of a file on this machine, an http(s) URL, or res://name/<resource name> (the name may contain variables)',
+                'listAllResources'
+            ),
             ...sendTailParams
         ]
     }
 
-    loadMethods = { listWechatInstances }
+    loadMethods = { listWechatInstances, listAllResources }
 
     async run(nodeData: INodeData, _: string, options: ICommonObject): Promise<any> {
         return sendMedia(nodeData, options, this.name, 'send.file')

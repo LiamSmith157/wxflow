@@ -59,6 +59,7 @@ import { RefactorEnterpriseDatabase1737076223692 } from '../../../enterprise/dat
 import { ExecutionLinkWorkspaceId1746862866554 } from '../../../enterprise/database/migrations/sqlite/1746862866554-ExecutionLinkWorkspaceId'
 import { DropAssistantAndCustomTemplate1790000000000 } from './1790000000000-DropAssistantAndCustomTemplate'
 import { AddChannelEntities1791000000000 } from './1791000000000-AddChannelEntities'
+import { AddResourceEntity1792000000000 } from './1792000000000-AddResourceEntity'
 
 export const sqliteMigrations = [
     Init1693835579790,
@@ -120,5 +121,6 @@ export const sqliteMigrations = [
     AddScheduleEntities1772000000000,
     AddSSOIdentityBinding1780000000000,
     DropAssistantAndCustomTemplate1790000000000,
-    AddChannelEntities1791000000000
+    AddChannelEntities1791000000000,
+    AddResourceEntity1792000000000
 ]

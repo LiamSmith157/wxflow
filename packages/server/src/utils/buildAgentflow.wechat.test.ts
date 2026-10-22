@@ -58,3 +58,51 @@ describe('resolveVariables: $wechat.*', () => {
         expect(inputs?.text).toBe('wxid_a/wxid_bot {{ $vars.unknown }}')
     })
 })
+
+describe('resolveVariables: the media parameter is a dropdown (asyncOptions) that also takes typed values', () => {
+    const dropdownNode = (value: string): any => ({
+        id: 'n1',
+        name: 'wechatSendImageAgentflow',
+        inputs: { wechatMedia: value },
+        inputParams: [
+            { name: 'wechatMedia', type: 'asyncOptions', loadMethod: 'listImageResources', freeSolo: true, acceptVariable: true }
+        ],
+        inputAnchors: []
+    })
+    const resolveMedia = async (value: string, wechat?: Record<string, any>) =>
+        (
+            await resolveVariables(
+                dropdownNode(value),
+                '',
+                {},
+                undefined,
+                [],
+                [],
+                '',
+                [],
+                {},
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                wechat
+            )
+        ).inputs?.wechatMedia
+
+    it('replaces a variable that is part of a typed resource name', async () => {
+        expect(await resolveMedia('res://name/海报-{{ $wechat.city }}', { city: '上海' })).toBe('res://name/海报-上海')
+    })
+
+    it('leaves a reference picked from the list as it is', async () => {
+        expect(await resolveMedia('res://id/3f2c1a9e-aaaa-4bbb-8ccc-0123456789ab')).toBe('res://id/3f2c1a9e-aaaa-4bbb-8ccc-0123456789ab')
+    })
+
+    it('leaves a local path and a URL as they are', async () => {
+        expect(await resolveMedia('D:素材海报.jpg')).toBe('D:素材海报.jpg')
+        expect(await resolveMedia('https://example.com/a.png?x=1')).toBe('https://example.com/a.png?x=1')
+    })
+
+    it('replaces a variable that is the whole value', async () => {
+        expect(await resolveMedia('{{ $wechat.poster }}', { poster: 'res://name/海报-北京' })).toBe('res://name/海报-北京')
+    })
+})

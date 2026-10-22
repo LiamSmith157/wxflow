@@ -39,6 +39,7 @@ const Evaluators = Loadable(lazy(() => import('@/views/evaluators')))
 
 // channel instances routing
 const ChannelInstances = Loadable(lazy(() => import('@/views/channelInstances')))
+const Resources = Loadable(lazy(() => import('@/views/resources')))
 
 // account routing
 const Account = Loadable(lazy(() => import('@/views/account')))
@@ -116,6 +117,14 @@ const MainRoutes = {
             element: (
                 <RequireAuth permission={'variables:view'}>
                     <Variables />
+                </RequireAuth>
+            )
+        },
+        {
+            path: '/resources',
+            element: (
+                <RequireAuth permission={'resources:view'}>
+                    <Resources />
                 </RequireAuth>
             )
         },
