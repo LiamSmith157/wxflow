@@ -29,13 +29,13 @@ const status = {
     state: 'running',
     host: '127.0.0.1',
     port: 56233,
-    exchange: { ok: true, dir: '/exchange', hostDir: 'C:\\wxflow\\exchange' }
+    media: { ok: true }
 }
 const settings = { masterEnabled: true, sendRateLimitPerMinute: 20 }
 const instance = { id: 'i1', instanceKey: 'wxid_a', displayName: 'Alice', online: true, workspaceId: null, lastSeenAt: null }
 
-const renderPage = (instances) => {
-    channelInstancesApi.getGatewayStatus.mockResolvedValue({ data: status })
+const renderPage = (instances, gatewayStatus = status) => {
+    channelInstancesApi.getGatewayStatus.mockResolvedValue({ data: gatewayStatus })
     channelInstancesApi.getSettings.mockResolvedValue({ data: settings })
     channelInstancesApi.getInstances.mockResolvedValue({ data: instances })
     const store = createStore((state = { notifier: { notifications: [] }, auth: { user: { activeWorkspaceId: 'w1' } } }) => state)
@@ -61,6 +61,21 @@ describe('ChannelInstances page', () => {
         await waitFor(() => expect(screen.getByText(/dialPort/)).toBeInTheDocument())
         expect(screen.getByText(/Listening on 127.0.0.1:56233/)).toBeInTheDocument()
         expect(screen.getByText(/dialPort.*56233/)).toBeInTheDocument()
+    })
+
+    it('shows nothing about the media folder while it is healthy', async () => {
+        renderPage([])
+        await waitFor(() => expect(screen.getByText(/Listening on 127.0.0.1:56233/)).toBeInTheDocument())
+        expect(screen.queryByTestId('media-dir-problem')).not.toBeInTheDocument()
+        expect(screen.queryByText(/exchange/i)).not.toBeInTheDocument()
+    })
+
+    it('shows why the media folder is unusable', async () => {
+        const error = '媒体目录不可用: C:\\Users\\op\\.wxflow\\wechat(EACCES),请检查该目录的权限和磁盘空间'
+        renderPage([], { ...status, media: { ok: false, error } })
+        await waitFor(() => expect(screen.getByTestId('media-dir-problem')).toBeInTheDocument())
+        expect(screen.getByTestId('media-dir-problem')).toHaveTextContent(error)
+        expect(screen.getByTestId('media-dir-problem')).toHaveTextContent('Media folder problem')
     })
 
     it('lists instances and offers assignment to managers', async () => {

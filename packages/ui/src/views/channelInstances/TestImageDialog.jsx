@@ -5,7 +5,7 @@ import { Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText,
 
 import channelInstancesApi from '@/api/channelInstances'
 
-/** Sends the built-in picture through one instance to a conversation, to check the exchange-folder mapping */
+/** Sends the built-in picture through one instance to a conversation, to check that sending media works */
 const TestImageDialog = ({ open, instance, onClose }) => {
     const { t } = useTranslation('channels')
     const [to, setTo] = useState('filehelper')

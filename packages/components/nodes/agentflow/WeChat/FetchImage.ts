@@ -35,7 +35,7 @@ class WeChatFetchImage_Agentflow implements INode {
         this.version = 1.0
         this.type = 'WeChatFetchImage'
         this.category = WECHAT_CATEGORY
-        this.description = 'Decrypt an image of a received message into the exchange folder and output its path'
+        this.description = 'Decrypt an image of a received message and output the path of the file'
         this.baseClasses = [this.type]
         this.color = WECHAT_COLOR
         this.inputs = [
@@ -95,29 +95,22 @@ class WeChatFetchImage_Agentflow implements INode {
         const typeProblem = triggerTypeProblem(options, svrid, MSG_TYPE_IMAGE, '图片')
         if (typeProblem) return failed(typeProblem)
 
-        // the DLL decrypts into the exchange folder so that wxflow can read the result
-        const { hostDir } = channels.mediaDir('images')
+        // the DLL decrypts into wxflow's own images folder, which wxflow reads back
+        const outDir = channels.mediaDir('images')
         // the DLL polls up to waitSeconds; the call timeout leaves a margin on top
         const outcome = await channels.call(
             WECHAT_CHANNEL,
             instance,
             'image.get',
-            { svrid, kind, waitSeconds, outDir: hostDir },
+            { svrid, kind, waitSeconds, outDir },
             (waitSeconds + 15) * 1000
         )
         if (!outcome.ok) return failed(outcome.error?.message ?? 'image.get 失败')
 
         const result = (outcome.result ?? {}) as ICommonObject
         if (typeof result.path !== 'string' || !result.path) return failed('微信没有返回图片路径')
-        let localPath: string
-        try {
-            localPath = channels.fromHostPath(result.path)
-        } catch (e) {
-            return failed((e as Error).message)
-        }
-        if (!fs.existsSync(localPath)) {
-            return failed(`图片已解密,但 wxflow 读不到文件 ${result.path},请检查交换目录的挂载和路径映射`)
-        }
+        const localPath = result.path
+        if (!fs.existsSync(localPath)) return failed(`图片已解密,但找不到文件 ${localPath}`)
         return fetchBranchResult(nodeData, this.name, options, input, true, {
             instance,
             svrid,

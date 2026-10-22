@@ -24,10 +24,7 @@ class WeChatSendFile_Agentflow implements INode {
         this.color = WECHAT_COLOR
         this.inputs = [
             recipientParam,
-            mediaParam(
-                'File (path or URL)',
-                'The file to send: a path relative to the assets folder, a path inside the exchange folder, or an http(s) URL'
-            ),
+            mediaParam('File (path or URL)', 'The file to send: the full path of a file on this machine, or an http(s) URL'),
             ...sendTailParams
         ]
     }

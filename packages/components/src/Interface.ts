@@ -465,12 +465,9 @@ export interface IChannelCallOutcome {
     error?: { code: number; message: string }
 }
 
-/** A media file resolved into the exchange directory */
+/** A media file resolved to a local path that both wxflow and the channel client (the DLL) can open */
 export interface IChannelMedia {
-    /** The file as wxflow sees it */
     path: string
-    /** The same file as the channel client (the DLL) sees it */
-    hostPath: string
     /** Downloaded for this send only; release it once the send finished */
     temporary: boolean
 }
@@ -499,14 +496,12 @@ export interface IChannelRuntime {
     call(channel: string, instance: string, method: string, params: Record<string, any>, timeoutMs?: number): Promise<IChannelCallOutcome>
     /** Fetch media bytes through the channel (WeChat voice) */
     fetchMedia(channel: string, instance: string, kind: string, ref: string): Promise<IChannelCallOutcome & { data?: Buffer }>
-    /** Resolve a media parameter (URL, absolute path or path relative to assets/) into a file in the exchange directory */
+    /** Resolve a media parameter (URL or absolute path) into a local file */
     resolveMedia(value: string): Promise<IChannelMedia>
     /** Delete the file of a send once it finished (only downloaded files are removed) */
     releaseMedia(media: IChannelMedia): Promise<void>
-    /** Directory for files fetched from the channel: wxflow's view and the DLL's view */
-    mediaDir(kind: 'images' | 'voice'): { dir: string; hostDir: string }
-    /** Convert a path reported by the DLL into one wxflow can read */
-    fromHostPath(hostPath: string): string
+    /** Directory for files fetched from the channel (wxflow and the DLL use the same path) */
+    mediaDir(kind: 'images' | 'voice'): string
     /** Default wait for the terminal state of a send, in seconds */
     sendWaitSeconds: number
 }

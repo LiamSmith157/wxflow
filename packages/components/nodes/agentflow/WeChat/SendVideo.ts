@@ -24,10 +24,7 @@ class WeChatSendVideo_Agentflow implements INode {
         this.color = WECHAT_COLOR
         this.inputs = [
             recipientParam,
-            mediaParam(
-                'Video (path or URL)',
-                'The mp4 video to send: a path relative to the assets folder, a path inside the exchange folder, or an http(s) URL'
-            ),
+            mediaParam('Video (path or URL)', 'The mp4 video to send: the full path of a file on this machine, or an http(s) URL'),
             {
                 label: 'Duration (seconds)',
                 name: 'wechatVideoDuration',

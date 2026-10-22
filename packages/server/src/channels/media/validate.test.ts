@@ -8,33 +8,35 @@ import { MediaResolver } from './resolver'
 jest.mock('wxflow-components', () => ({ secureAxiosRequest: jest.fn() }))
 
 let root: string
-const ctx = () => ({ exchange: { dir: root, hostDir: 'C:\\wxflow\\exchange', mapped: true }, maxDownloadBytes: 1024 })
+let poster: string
+const ctx = () => ({ mediaRoot: root, maxDownloadBytes: 1024 })
 
 const node = (id: string, name: string, media: unknown): IReactFlowNode =>
     ({ id, data: { name, label: name, inputs: { wechatMedia: media } } } as unknown as IReactFlowNode)
 
 beforeEach(() => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'wxflow-validate-'))
-    fs.mkdirSync(path.join(root, 'assets', '海报'), { recursive: true })
-    fs.writeFileSync(path.join(root, 'assets', '海报', 'a.jpg'), 'x')
+    poster = path.join(root, '海报.jpg')
+    fs.writeFileSync(poster, 'x')
 })
 afterEach(() => fs.rmSync(root, { recursive: true, force: true }))
 
 describe('findMediaWarnings', () => {
-    it('warns about a fixed path whose file does not exist, naming the Windows folder', async () => {
-        const warnings = await findMediaWarnings([node('n1', 'wechatSendImageAgentflow', '海报/不存在.jpg')], new MediaResolver(), ctx())
+    it('warns about a fixed path whose file does not exist, naming the path', async () => {
+        const missing = path.join(root, '不存在.jpg')
+        const warnings = await findMediaWarnings([node('n1', 'wechatSendImageAgentflow', missing)], new MediaResolver(), ctx())
         expect(warnings).toEqual([
             {
                 id: 'n1',
                 label: 'wechatSendImageAgentflow',
                 name: 'wechatSendImageAgentflow',
-                issues: ['素材 `assets/海报/不存在.jpg` 不存在,请检查 `C:\\wxflow\\exchange\\assets` 目录']
+                issues: [`文件 \`${missing}\` 不存在,请检查路径`]
             }
         ])
     })
 
     it('does not warn when the file exists', async () => {
-        expect(await findMediaWarnings([node('n1', 'wechatSendImageAgentflow', '海报/a.jpg')], new MediaResolver(), ctx())).toEqual([])
+        expect(await findMediaWarnings([node('n1', 'wechatSendImageAgentflow', poster)], new MediaResolver(), ctx())).toEqual([])
     })
 
     it('does not check values with variables or URLs', async () => {
@@ -55,16 +57,16 @@ describe('findMediaWarnings', () => {
         expect(await findMediaWarnings(nodes, new MediaResolver(), ctx())).toEqual([])
     })
 
-    it('warns about an absolute path outside the exchange directory', async () => {
-        const warnings = await findMediaWarnings([node('n1', 'wechatSendFileAgentflow', 'D:\\其他\\a.pdf')], new MediaResolver(), ctx())
-        expect(warnings[0].issues[0]).toContain('必须放在交换目录内')
+    it('warns about a relative path: it needs a URL or a full path', async () => {
+        const warnings = await findMediaWarnings([node('n1', 'wechatSendFileAgentflow', '海报/a.pdf')], new MediaResolver(), ctx())
+        expect(warnings[0].issues[0]).toContain('http(s) 地址或文件的完整路径')
     })
 
     it('reports every affected node', async () => {
         const nodes = [
-            node('n1', 'wechatSendImageAgentflow', 'nope1.jpg'),
-            node('n2', 'wechatSendVideoAgentflow', 'nope2.mp4'),
-            node('n3', 'wechatSendFileAgentflow', '海报/a.jpg')
+            node('n1', 'wechatSendImageAgentflow', path.join(root, 'nope1.jpg')),
+            node('n2', 'wechatSendVideoAgentflow', path.join(root, 'nope2.mp4')),
+            node('n3', 'wechatSendFileAgentflow', poster)
         ]
         const warnings = await findMediaWarnings(nodes, new MediaResolver(), ctx())
         expect(warnings.map((w) => w.id)).toEqual(['n1', 'n2'])

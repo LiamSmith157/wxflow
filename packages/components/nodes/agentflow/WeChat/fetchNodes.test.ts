@@ -24,10 +24,11 @@ describe('Fetch Image', () => {
         expect(fetchImage.outputs.map((o: any) => o.label)).toEqual(['Success', 'Failed'])
     })
 
-    it('asks the DLL to decrypt into the images folder (Windows path) and outputs a readable path', async () => {
-        const ch = createFakeChannels({ event: imageEvent(), exchangeRoot: root })
-        fs.writeFileSync(path.join(root, 'images', 'p.jpg'), 'JPEG')
-        ch.callResults['image.get'] = { ok: true, result: { path: 'C:\\wxflow\\exchange\\images\\p.jpg', fmt: 'jpg', size: 4 } }
+    it('asks the DLL to decrypt into the images folder and outputs the path of the file', async () => {
+        const ch = createFakeChannels({ event: imageEvent(), mediaRoot: root })
+        const written = path.join(root, 'images', 'p.jpg')
+        fs.writeFileSync(written, 'JPEG')
+        ch.callResults['image.get'] = { ok: true, result: { path: written, fmt: 'jpg', size: 4 } }
         const out = await fetchImage.run(
             data(fetchImage, { wechatSvrid: '8970001234567890123', wechatImageKind: 'hd', wechatWaitDownload: 5 }),
             '',
@@ -37,25 +38,25 @@ describe('Fetch Image', () => {
             {
                 instance: 'wxid_bot',
                 method: 'image.get',
-                params: { svrid: '8970001234567890123', kind: 'hd', waitSeconds: 5, outDir: 'C:\\wxflow\\exchange\\images' },
+                params: { svrid: '8970001234567890123', kind: 'hd', waitSeconds: 5, outDir: path.join(root, 'images') },
                 timeoutMs: 20000
             }
         ])
         expect(branches(out)).toEqual([true, false])
-        expect(out.output.path).toBe(`${root}/images/p.jpg`)
+        expect(out.output.path).toBe(written)
         expect(fs.readFileSync(out.output.path, 'utf8')).toBe('JPEG')
         expect(out.output).toMatchObject({ success: true, fmt: 'jpg', size: 4 })
     })
 
     it('uses the defaults: original image, 8 seconds', async () => {
-        const ch = createFakeChannels({ event: imageEvent(), exchangeRoot: root })
+        const ch = createFakeChannels({ event: imageEvent(), mediaRoot: root })
         ch.callResults['image.get'] = { ok: false, error: { code: 504, message: '等待超时未下载' } }
         await fetchImage.run(data(fetchImage, { wechatSvrid: '1' }), '', runOptions(ch))
         expect(ch.calls[0].params).toMatchObject({ kind: 'raw', waitSeconds: 8 })
     })
 
     it('caps the wait at 60 seconds and never goes below 0', async () => {
-        const ch = createFakeChannels({ event: imageEvent(), exchangeRoot: root })
+        const ch = createFakeChannels({ event: imageEvent(), mediaRoot: root })
         ch.callResults['image.get'] = { ok: false, error: { code: 504, message: 'x' } }
         await fetchImage.run(data(fetchImage, { wechatSvrid: '1', wechatWaitDownload: 600 }), '', runOptions(ch))
         await fetchImage.run(data(fetchImage, { wechatSvrid: '1', wechatWaitDownload: -3 }), '', runOptions(ch))
@@ -64,7 +65,7 @@ describe('Fetch Image', () => {
     })
 
     it('takes the failed branch with the DLL reason when the image cannot be found', async () => {
-        const ch = createFakeChannels({ event: imageEvent(), exchangeRoot: root })
+        const ch = createFakeChannels({ event: imageEvent(), mediaRoot: root })
         ch.callResults['image.get'] = { ok: false, error: { code: 504, message: '等待超时未下载' } }
         const out = await fetchImage.run(data(fetchImage, { wechatSvrid: '1' }), '', runOptions(ch))
         expect(branches(out)).toEqual([false, true])
@@ -72,7 +73,7 @@ describe('Fetch Image', () => {
     })
 
     it('takes the failed branch for a text message without calling the DLL', async () => {
-        const ch = createFakeChannels({ event: messageEvent({ msgType: 1 }), exchangeRoot: root })
+        const ch = createFakeChannels({ event: messageEvent({ msgType: 1 }), mediaRoot: root })
         const out = await fetchImage.run(data(fetchImage, { wechatSvrid: '8970001234567890123' }), '', runOptions(ch))
         expect(branches(out)).toEqual([false, true])
         expect(out.output.error).toContain('不是图片消息')
@@ -80,28 +81,30 @@ describe('Fetch Image', () => {
     })
 
     it('takes the failed branch without a svrid', async () => {
-        const ch = createFakeChannels({ event: { channel: 'wechat', instance: 'wxid_bot', event: 'wx.login' }, exchangeRoot: root })
+        const ch = createFakeChannels({ event: { channel: 'wechat', instance: 'wxid_bot', event: 'wx.login' }, mediaRoot: root })
         const out = await fetchImage.run(data(fetchImage, { wechatSvrid: '' }), '', runOptions(ch))
         expect(branches(out)).toEqual([false, true])
         expect(out.output.error).toContain('缺少 svrid')
     })
 
-    it('takes the failed branch when wxflow cannot read the file the DLL wrote (mapping problem)', async () => {
-        const ch = createFakeChannels({ event: imageEvent(), exchangeRoot: root })
-        ch.callResults['image.get'] = { ok: true, result: { path: 'C:\\wxflow\\exchange\\images\\ghost.jpg' } }
+    it('takes the failed branch when the file the DLL reports does not exist', async () => {
+        const ch = createFakeChannels({ event: imageEvent(), mediaRoot: root })
+        ch.callResults['image.get'] = { ok: true, result: { path: path.join(root, 'images', 'ghost.jpg') } }
         const out = await fetchImage.run(data(fetchImage, { wechatSvrid: '1' }), '', runOptions(ch))
         expect(branches(out)).toEqual([false, true])
-        expect(out.output.error).toContain('读不到文件')
+        expect(out.output.error).toContain('找不到文件')
     })
 
-    it('takes the failed branch when the DLL reports a path outside the exchange folder', async () => {
-        const ch = createFakeChannels({ event: imageEvent(), exchangeRoot: root })
-        ch.callResults['image.get'] = { ok: true, result: { path: 'D:\\elsewhere\\a.jpg' } }
-        expect(branches(await fetchImage.run(data(fetchImage, { wechatSvrid: '1' }), '', runOptions(ch)))).toEqual([false, true])
+    it('takes the failed branch when the DLL reports no path', async () => {
+        const ch = createFakeChannels({ event: imageEvent(), mediaRoot: root })
+        ch.callResults['image.get'] = { ok: true, result: {} }
+        const out = await fetchImage.run(data(fetchImage, { wechatSvrid: '1' }), '', runOptions(ch))
+        expect(branches(out)).toEqual([false, true])
+        expect(out.output.error).toContain('没有返回图片路径')
     })
 
     it('fails the node when no instance can be used', async () => {
-        const ch = createFakeChannels({ exchangeRoot: root })
+        const ch = createFakeChannels({ mediaRoot: root })
         await expect(fetchImage.run(data(fetchImage, { wechatSvrid: '1' }), '', runOptions(ch))).rejects.toThrow('没有可用的实例')
     })
 })
@@ -110,18 +113,18 @@ describe('Fetch Voice', () => {
     const voiceEvent = () => messageEvent({ msgType: 34, svrid: '5550001' })
 
     it('saves the audio as a WAV file in the voice folder and outputs its path', async () => {
-        const ch = createFakeChannels({ event: voiceEvent(), exchangeRoot: root })
+        const ch = createFakeChannels({ event: voiceEvent(), mediaRoot: root })
         ch.mediaResults['5550001'] = { ok: true, data: Buffer.from('RIFF-WAV'), result: { contentType: 'audio/wav' } }
         const out = await fetchVoice.run(data(fetchVoice, { wechatSvrid: '5550001' }), '', runOptions(ch))
         expect(branches(out)).toEqual([true, false])
-        expect(out.output.path.startsWith(`${root}/voice/voice-5550001-`)).toBe(true)
+        expect(out.output.path.startsWith(path.join(root, 'voice', 'voice-5550001-'))).toBe(true)
         expect(out.output.path.endsWith('.wav')).toBe(true)
         expect(fs.readFileSync(out.output.path, 'utf8')).toBe('RIFF-WAV')
         expect(out.output).toMatchObject({ success: true, size: 8, contentType: 'audio/wav' })
     })
 
     it('takes the failed branch when the audio does not arrive', async () => {
-        const ch = createFakeChannels({ event: voiceEvent(), exchangeRoot: root })
+        const ch = createFakeChannels({ event: voiceEvent(), mediaRoot: root })
         ch.mediaResults['5550001'] = { ok: false, error: { code: 504, message: '语音音频帧未到达' } }
         const out = await fetchVoice.run(data(fetchVoice, { wechatSvrid: '5550001' }), '', runOptions(ch))
         expect(branches(out)).toEqual([false, true])
@@ -129,21 +132,21 @@ describe('Fetch Voice', () => {
     })
 
     it('takes the failed branch for a message that is not a voice message', async () => {
-        const ch = createFakeChannels({ event: messageEvent({ msgType: 1, svrid: '5550001' }), exchangeRoot: root })
+        const ch = createFakeChannels({ event: messageEvent({ msgType: 1, svrid: '5550001' }), mediaRoot: root })
         const out = await fetchVoice.run(data(fetchVoice, { wechatSvrid: '5550001' }), '', runOptions(ch))
         expect(branches(out)).toEqual([false, true])
         expect(out.output.error).toContain('不是语音消息')
     })
 
     it('rejects a svrid that is not a number (it becomes part of a file name)', async () => {
-        const ch = createFakeChannels({ event: voiceEvent(), exchangeRoot: root })
+        const ch = createFakeChannels({ event: voiceEvent(), mediaRoot: root })
         const out = await fetchVoice.run(data(fetchVoice, { wechatSvrid: '../../etc/passwd' }), '', runOptions(ch))
         expect(branches(out)).toEqual([false, true])
         expect(fs.existsSync(path.join(root, 'voice'))).toBe(false)
     })
 
     it('takes the failed branch without a svrid', async () => {
-        const ch = createFakeChannels({ event: voiceEvent(), exchangeRoot: root })
+        const ch = createFakeChannels({ event: voiceEvent(), mediaRoot: root })
         expect(branches(await fetchVoice.run(data(fetchVoice, { wechatSvrid: '' }), '', runOptions(ch)))).toEqual([false, true])
     })
 })

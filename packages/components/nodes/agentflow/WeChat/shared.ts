@@ -154,14 +154,13 @@ export const mediaParam = (label: string, description: string): INodeParams => (
     name: 'wechatMedia',
     type: 'string',
     description,
-    placeholder: '海报/a.jpg, C:\\wxflow\\exchange\\assets\\a.jpg or https://example.com/a.jpg',
+    placeholder: 'D:\\media\\poster.jpg or https://example.com/a.jpg',
     acceptVariable: true
 })
 
 /**
- * Send a file-based message (image, file, video). The media parameter is a URL, a path inside the exchange
- * directory or a path relative to assets/; the DLL receives its Windows path. A file downloaded for this send is
- * removed afterwards, whatever the outcome.
+ * Send a file-based message (image, file, video). The media parameter is a URL or the full path of a local file; the
+ * DLL opens the resolved path as it is. A file downloaded for this send is removed afterwards, whatever the outcome.
  */
 export const sendMedia = async (
     nodeData: INodeData,
@@ -172,7 +171,7 @@ export const sendMedia = async (
 ): Promise<ICommonObject> => {
     const ctx = await prepareSend(nodeData, options, 'wechatTo')
     const mediaValue = text(nodeData.inputs?.wechatMedia)
-    // resolving problems (missing file, outside the exchange directory, download refused) fail the node with the
+    // resolving problems (missing file, unusable value, download refused) fail the node with the
     // operator-facing message from the runtime
     const media = await ctx.channels.resolveMedia(mediaValue)
     try {
@@ -181,7 +180,7 @@ export const sendMedia = async (
             name,
             ctx,
             method,
-            { wxid: ctx.to, path: media.hostPath, ...extraParams },
+            { wxid: ctx.to, path: media.path, ...extraParams },
             { to: ctx.to, media: mediaValue, ...extraParams }
         )
     } finally {

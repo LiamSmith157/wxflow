@@ -3,7 +3,6 @@ import os from 'os'
 import path from 'path'
 import { Readable } from 'stream'
 import { secureAxiosRequest } from 'wxflow-components'
-import { ExchangeConfig } from './exchange'
 import { MediaError } from './errors'
 import { MediaResolver, MediaSource } from './resolver'
 
@@ -12,12 +11,12 @@ jest.mock('wxflow-components', () => ({ secureAxiosRequest: jest.fn() }))
 const mockRequest = secureAxiosRequest as jest.Mock
 
 let root: string
-let ctx: { exchange: ExchangeConfig; maxDownloadBytes: number }
+let ctx: { mediaRoot: string; maxDownloadBytes: number }
 
 beforeEach(() => {
-    root = fs.mkdtempSync(path.join(os.tmpdir(), 'wxflow-exchange-'))
-    for (const d of ['assets', 'tmp', 'images']) fs.mkdirSync(path.join(root, d), { recursive: true })
-    ctx = { exchange: { dir: root, hostDir: root, mapped: false }, maxDownloadBytes: 1024 }
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'wxflow-media-'))
+    fs.mkdirSync(path.join(root, 'tmp'), { recursive: true })
+    ctx = { mediaRoot: root, maxDownloadBytes: 1024 }
     mockRequest.mockReset()
 })
 
@@ -31,46 +30,42 @@ const response = (body: Buffer, headers: Record<string, string> = {}, status = 2
 
 describe('MediaResolver', () => {
     describe('recognition order', () => {
-        it('lists the built-in sources in order', () => {
-            expect(new MediaResolver().sourceNames()).toEqual(['url', 'absolute-path', 'assets-relative'])
+        it('lists the built-in sources in order: URL, then absolute path', () => {
+            expect(new MediaResolver().sourceNames()).toEqual(['url', 'absolute-path'])
         })
 
-        it('treats a plain value as a path relative to assets/', async () => {
-            fs.mkdirSync(path.join(root, 'assets', '海报'))
-            fs.writeFileSync(path.join(root, 'assets', '海报', 'a.jpg'), 'x')
-            const r = await new MediaResolver().resolve('海报/a.jpg', ctx)
-            expect(r.path).toBe(path.join(root, 'assets', '海报', 'a.jpg'))
-            expect(r.temporary).toBe(false)
+        it('accepts an absolute path anywhere on the machine and hands it over as it is', async () => {
+            const elsewhere = fs.mkdtempSync(path.join(os.tmpdir(), 'wxflow-elsewhere-'))
+            try {
+                const file = path.join(elsewhere, '海报 a.jpg')
+                fs.writeFileSync(file, 'x')
+                const r = await new MediaResolver().resolve(file, ctx)
+                expect(r).toEqual({ path: file, temporary: false })
+            } finally {
+                fs.rmSync(elsewhere, { recursive: true, force: true })
+            }
         })
 
-        it('accepts an absolute path inside the exchange directory', async () => {
-            const file = path.join(root, 'images', 'p.png')
+        it('trims the value before looking at it', async () => {
+            const file = path.join(root, 'p.png')
             fs.writeFileSync(file, 'x')
-            const r = await new MediaResolver().resolve(file, ctx)
-            expect(r.path).toBe(file)
+            expect((await new MediaResolver().resolve(`  ${file}  `, ctx)).path).toBe(file)
         })
 
-        it('rejects an absolute path outside the exchange directory', async () => {
-            const err = await new MediaResolver().resolve('/etc/hosts', ctx).catch((e) => e)
+        it('refuses a relative path and says a URL or a full path is needed', async () => {
+            const err = await new MediaResolver().resolve('海报/a.jpg', ctx).catch((e) => e)
             expect(err).toBeInstanceOf(MediaError)
-            expect(err.message).toContain('交换目录')
+            expect(err.message).toContain('海报/a.jpg')
+            expect(err.message).toContain('http(s) 地址或文件的完整路径')
+            expect(err.message).toContain('D:\\素材\\海报.jpg')
         })
 
-        it('rejects a relative path that escapes assets/', async () => {
-            fs.writeFileSync(path.join(root, 'secret.txt'), 'x')
-            await expect(new MediaResolver().resolve('../secret.txt', ctx)).rejects.toThrow('超出了 assets 目录')
+        it('refuses a scheme nobody registered', async () => {
+            await expect(new MediaResolver().resolve('res://id/1', ctx)).rejects.toThrow('无法识别的媒体')
         })
 
         it('rejects an empty value', async () => {
             await expect(new MediaResolver().resolve('  ', ctx)).rejects.toThrow('媒体参数为空')
-        })
-
-        it('maps a Windows host path typed by the operator back to the container', async () => {
-            const mapped = { dir: root, hostDir: 'C:\\wxflow\\exchange', mapped: true }
-            fs.writeFileSync(path.join(root, 'assets', 'a.jpg'), 'x')
-            const r = await new MediaResolver().resolve('C:\\wxflow\\exchange\\assets\\a.jpg', { ...ctx, exchange: mapped })
-            expect(r.path).toBe(path.join(root, 'assets', 'a.jpg'))
-            expect(r.hostPath).toBe('C:\\wxflow\\exchange\\assets\\a.jpg')
         })
 
         it('lets a registered source take over its own scheme without changing the built-ins', async () => {
@@ -78,32 +73,38 @@ describe('MediaResolver', () => {
             const resSource: MediaSource = {
                 name: 'res',
                 matches: (v) => v.startsWith('res://'),
-                resolve: async (v) => ({ path: `/x/${v}`, hostPath: `/x/${v}`, temporary: false })
+                resolve: async (v) => ({ path: `/x/${v}`, temporary: false })
             }
             resolver.register(resSource)
-            expect(resolver.sourceNames()).toEqual(['url', 'absolute-path', 'res', 'assets-relative'])
+            expect(resolver.sourceNames()).toEqual(['url', 'absolute-path', 'res'])
             expect((await resolver.resolve('res://logo', ctx)).path).toBe('/x/res://logo')
-            fs.writeFileSync(path.join(root, 'assets', 'a.jpg'), 'x')
-            expect((await resolver.resolve('a.jpg', ctx)).path).toBe(path.join(root, 'assets', 'a.jpg'))
+            const file = path.join(root, 'a.jpg')
+            fs.writeFileSync(file, 'x')
+            expect((await resolver.resolve(file, ctx)).path).toBe(file)
+            await expect(resolver.resolve('a.jpg', ctx)).rejects.toThrow('无法识别的媒体')
+        })
+
+        it('replaces a source registered twice under the same name', () => {
+            const resolver = new MediaResolver()
+            const make = (): MediaSource => ({ name: 'res', matches: () => false, resolve: async () => ({ path: '', temporary: false }) })
+            resolver.register(make())
+            resolver.register(make())
+            expect(resolver.sourceNames()).toEqual(['url', 'absolute-path', 'res'])
         })
     })
 
     describe('missing files', () => {
-        it('reports a missing asset with the Windows folder to check', async () => {
-            const mapped = { dir: root, hostDir: 'C:\\wxflow\\exchange', mapped: true }
-            const err = await new MediaResolver().resolve('海报/a.jpg', { ...ctx, exchange: mapped }).catch((e) => e)
+        it('names the path the operator typed and what to do', async () => {
+            const missing = path.join(root, 'gone.png')
+            const err = await new MediaResolver().resolve(missing, ctx).catch((e) => e)
             expect(err).toBeInstanceOf(MediaError)
-            expect(err.message).toBe('素材 `assets/海报/a.jpg` 不存在,请检查 `C:\\wxflow\\exchange\\assets` 目录')
-            expect(err.message).not.toContain(root)
-            expect(err.stack).toBeDefined()
+            expect(err.message).toBe(`文件 \`${missing}\` 不存在,请检查路径`)
         })
 
-        it('reports a missing absolute file with its Windows path', async () => {
-            const mapped = { dir: root, hostDir: 'C:\\wxflow\\exchange', mapped: true }
-            const err = await new MediaResolver()
-                .resolve(path.join(root, 'images', 'gone.png'), { ...ctx, exchange: mapped })
-                .catch((e) => e)
-            expect(err.message).toBe('文件 `C:\\wxflow\\exchange\\images\\gone.png` 不存在,请检查 `C:\\wxflow\\exchange\\images` 目录')
+        it('treats a directory as missing', async () => {
+            const err = await new MediaResolver().resolve(root, ctx).catch((e) => e)
+            expect(err).toBeInstanceOf(MediaError)
+            expect(err.message).toContain('不存在')
         })
     })
 

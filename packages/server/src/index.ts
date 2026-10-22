@@ -12,7 +12,7 @@ import { CachePool } from './CachePool'
 import { getChannelHub } from './channels/ChannelHub'
 import { getChannelRegistry } from './channels/ChannelRegistry'
 import { initChannelServices } from './services/channel/bootstrap'
-import { initExchange, stopExchange } from './channels/media/startup'
+import { initMediaDir, stopMediaDir } from './channels/media/startup'
 import { startWeChatGateway, stopWeChatGateway } from './channels/wechat/gatewayService'
 import { ChatFlow } from './database/entities/ChatFlow'
 import { getDataSource } from './DataSource'
@@ -173,7 +173,7 @@ export class App {
 
             // WeChat gateway: a bind failure or queue mode only disables the channel, never the server
             initChannelServices(getChannelHub(), logger)
-            await initExchange(logger)
+            await initMediaDir(logger)
             await startWeChatGateway({ registry: getChannelRegistry(), sink: getChannelHub(), logger })
 
             logger.info('🎉 [server]: All initialization steps completed successfully!')
@@ -395,7 +395,7 @@ export class App {
             this.sseStreamer.stopHeartbeat()
             const removePromises: any[] = []
             removePromises.push(this.telemetry.flush())
-            stopExchange()
+            stopMediaDir()
             removePromises.push(stopWeChatGateway(getChannelRegistry()))
             if (this.queueManager) {
                 removePromises.push(this.redisSubscriber.disconnect())

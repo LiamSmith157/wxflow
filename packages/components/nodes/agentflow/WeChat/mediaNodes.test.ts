@@ -6,7 +6,7 @@ const file = load('./SendFile')
 const video = load('./SendVideo')
 
 const data = (node: any, inputs: Record<string, any>): any => ({ id: `${node.name}_0`, inputs })
-const asset = { path: '/exchange/assets/海报/a.jpg', hostPath: 'C:\\wxflow\\exchange\\assets\\海报\\a.jpg', temporary: false }
+const poster = { path: 'D:\\素材\\海报.jpg', temporary: false }
 
 describe('media send nodes', () => {
     it('are WeChat nodes named after their method', () => {
@@ -21,38 +21,36 @@ describe('media send nodes', () => {
         ['image', image, 'send.image'],
         ['file', file, 'send.file'],
         ['video', video, 'send.video']
-    ])('%s: the DLL receives the Windows path of the file', async (_name, node, method) => {
+    ])('%s: the DLL receives the path of the file as it is', async (_name, node, method) => {
         const ch = createFakeChannels({ event: messageEvent() })
-        ch.mediaFiles['海报/a.jpg'] = asset
-        const out = await node.run(data(node, { wechatTo: 'wxid_friend', wechatMedia: '海报/a.jpg' }), '', runOptions(ch))
+        ch.mediaFiles['D:\\素材\\海报.jpg'] = poster
+        const out = await node.run(data(node, { wechatTo: 'wxid_friend', wechatMedia: 'D:\\素材\\海报.jpg' }), '', runOptions(ch))
         expect(ch.sends).toHaveLength(1)
         expect(ch.sends[0].method).toBe(method)
-        expect(ch.sends[0].params).toEqual({ wxid: 'wxid_friend', path: 'C:\\wxflow\\exchange\\assets\\海报\\a.jpg' })
+        expect(ch.sends[0].params).toEqual({ wxid: 'wxid_friend', path: 'D:\\素材\\海报.jpg' })
         expect(out.output).toMatchObject({ state: 'ok', to: 'wxid_friend' })
     })
 
-    it('sends an image fetched upstream (an absolute path inside the exchange directory)', async () => {
+    it('sends an image fetched upstream (the path output by Fetch Image)', async () => {
         const ch = createFakeChannels({ event: messageEvent() })
-        ch.mediaFiles['/exchange/images/1.jpg'] = {
-            path: '/exchange/images/1.jpg',
-            hostPath: 'C:\\wxflow\\exchange\\images\\1.jpg',
-            temporary: false
-        }
-        await image.run(data(image, { wechatTo: 'x', wechatMedia: '/exchange/images/1.jpg' }), '', runOptions(ch))
-        expect(ch.sends[0].params.path).toBe('C:\\wxflow\\exchange\\images\\1.jpg')
+        const fetched = 'C:\\Users\\op\\.wxflow\\wechat\\images\\1.jpg'
+        ch.mediaFiles[fetched] = { path: fetched, temporary: false }
+        await image.run(data(image, { wechatTo: 'x', wechatMedia: fetched }), '', runOptions(ch))
+        expect(ch.sends[0].params.path).toBe(fetched)
     })
 
     it('releases a downloaded file after the send', async () => {
         const ch = createFakeChannels({ event: messageEvent() })
-        const downloaded = { path: '/exchange/tmp/u.png', hostPath: 'C:\\wxflow\\exchange\\tmp\\u.png', temporary: true }
+        const downloaded = { path: 'C:\\Users\\op\\.wxflow\\wechat\\tmp\\u.png', temporary: true }
         ch.mediaFiles['https://example.com/u.png'] = downloaded
         await image.run(data(image, { wechatTo: 'x', wechatMedia: 'https://example.com/u.png' }), '', runOptions(ch))
+        expect(ch.sends[0].params.path).toBe(downloaded.path)
         expect(ch.released).toEqual([downloaded])
     })
 
     it('releases the file even when the send fails', async () => {
         const ch = createFakeChannels({ event: messageEvent() })
-        const downloaded = { path: '/exchange/tmp/u.png', hostPath: 'C:\\wxflow\\exchange\\tmp\\u.png', temporary: true }
+        const downloaded = { path: 'C:\\Users\\op\\.wxflow\\wechat\\tmp\\u.png', temporary: true }
         ch.mediaFiles['https://example.com/u.png'] = downloaded
         ch.sendOutcome = { state: 'fail', error: 'boom' }
         const out = await image.run(data(image, { wechatTo: 'x', wechatMedia: 'https://example.com/u.png' }), '', runOptions(ch))
@@ -62,31 +60,33 @@ describe('media send nodes', () => {
 
     it('fails with the operator message when the file is missing and sends nothing', async () => {
         const ch = createFakeChannels({ event: messageEvent() })
-        await expect(image.run(data(image, { wechatTo: 'x', wechatMedia: '海报/不存在.jpg' }), '', runOptions(ch))).rejects.toThrow(
-            '素材 `assets/海报/不存在.jpg` 不存在,请检查 `C:\\wxflow\\exchange\\assets` 目录'
+        await expect(image.run(data(image, { wechatTo: 'x', wechatMedia: 'D:\\素材\\不存在.jpg' }), '', runOptions(ch))).rejects.toThrow(
+            '文件 `D:\\素材\\不存在.jpg` 不存在,请检查路径'
         )
         expect(ch.sends).toEqual([])
     })
 
     it('does not resolve the media when there is no instance', async () => {
         const ch = createFakeChannels()
-        ch.mediaFiles['a.jpg'] = asset
-        await expect(image.run(data(image, { wechatTo: 'x', wechatMedia: 'a.jpg' }), '', runOptions(ch))).rejects.toThrow('没有可用的实例')
+        ch.mediaFiles['D:\\a.jpg'] = poster
+        await expect(image.run(data(image, { wechatTo: 'x', wechatMedia: 'D:\\a.jpg' }), '', runOptions(ch))).rejects.toThrow(
+            '没有可用的实例'
+        )
         expect(ch.released).toEqual([])
     })
 
     it('Send Video passes the optional duration', async () => {
         const ch = createFakeChannels({ event: messageEvent() })
-        ch.mediaFiles['v.mp4'] = { path: '/exchange/assets/v.mp4', hostPath: 'C:\\wxflow\\exchange\\assets\\v.mp4', temporary: false }
-        await video.run(data(video, { wechatTo: 'x', wechatMedia: 'v.mp4', wechatVideoDuration: 12 }), '', runOptions(ch))
-        expect(ch.sends[0].params).toEqual({ wxid: 'x', path: 'C:\\wxflow\\exchange\\assets\\v.mp4', duration: 12 })
-        await video.run(data(video, { wechatTo: 'x', wechatMedia: 'v.mp4' }), '', runOptions(ch))
-        expect(ch.sends[1].params).toEqual({ wxid: 'x', path: 'C:\\wxflow\\exchange\\assets\\v.mp4' })
+        ch.mediaFiles['D:\\v.mp4'] = { path: 'D:\\v.mp4', temporary: false }
+        await video.run(data(video, { wechatTo: 'x', wechatMedia: 'D:\\v.mp4', wechatVideoDuration: 12 }), '', runOptions(ch))
+        expect(ch.sends[0].params).toEqual({ wxid: 'x', path: 'D:\\v.mp4', duration: 12 })
+        await video.run(data(video, { wechatTo: 'x', wechatMedia: 'D:\\v.mp4' }), '', runOptions(ch))
+        expect(ch.sends[1].params).toEqual({ wxid: 'x', path: 'D:\\v.mp4' })
     })
 
     it('fails when the recipient is empty', async () => {
         const ch = createFakeChannels({ event: messageEvent() })
-        ch.mediaFiles['a.jpg'] = asset
-        await expect(image.run(data(image, { wechatTo: '', wechatMedia: 'a.jpg' }), '', runOptions(ch))).rejects.toThrow('收件人为空')
+        ch.mediaFiles['D:\\a.jpg'] = poster
+        await expect(image.run(data(image, { wechatTo: '', wechatMedia: 'D:\\a.jpg' }), '', runOptions(ch))).rejects.toThrow('收件人为空')
     })
 })

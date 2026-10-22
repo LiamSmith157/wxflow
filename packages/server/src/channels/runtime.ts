@@ -2,7 +2,7 @@ import { IChannelCallOutcome, IChannelInstanceInfo, IChannelMedia, IChannelRunti
 import { ChannelRegistry } from './ChannelRegistry'
 import { ChannelSender } from './ChannelSender'
 import { ChannelConfig } from './config'
-import { exchangeSubdir, fromHostPath, hostSubdir } from './media/exchange'
+import { mediaSubdir } from './media/workdir'
 import { removeTemporary } from './media/cleanup'
 import { MediaResolver } from './media/resolver'
 import { GatewayStatus } from './wechat/gatewayService'
@@ -38,7 +38,7 @@ const unavailableReason = (status: GatewayStatus): string => {
 /** The IChannelRuntime handed to nodes for one run; everything is scoped to the run's workspace */
 export const createChannelRuntime = (deps: ChannelRuntimeDeps, ctx: ChannelRuntimeContext): IChannelRuntime => {
     const { registry, sender, resolver, config } = deps
-    const mediaContext = { exchange: config.exchange, maxDownloadBytes: config.maxDownloadBytes }
+    const mediaContext = { mediaRoot: config.mediaRoot, maxDownloadBytes: config.maxDownloadBytes }
 
     const notAvailable = (channel: string): { ok: false; error: { code: number; message: string } } => ({
         ok: false,
@@ -115,11 +115,7 @@ export const createChannelRuntime = (deps: ChannelRuntimeDeps, ctx: ChannelRunti
         },
 
         mediaDir(kind) {
-            return { dir: exchangeSubdir(config.exchange, kind), hostDir: hostSubdir(config.exchange, kind) }
-        },
-
-        fromHostPath(hostPath: string): string {
-            return fromHostPath(config.exchange, hostPath)
+            return mediaSubdir(config.mediaRoot, kind)
         }
     }
 }

@@ -34,7 +34,7 @@ class WeChatFetchVoice_Agentflow implements INode {
         this.version = 1.0
         this.type = 'WeChatFetchVoice'
         this.category = WECHAT_CATEGORY
-        this.description = 'Save the audio of a voice message as a WAV file in the exchange folder and output its path'
+        this.description = 'Save the audio of a voice message as a WAV file and output its path'
         this.baseClasses = [this.type]
         this.color = WECHAT_COLOR
         this.inputs = [
@@ -73,7 +73,7 @@ class WeChatFetchVoice_Agentflow implements INode {
         const outcome = await channels.fetchMedia(WECHAT_CHANNEL, instance, 'voice', svrid)
         if (!outcome.ok || !outcome.data || outcome.data.length === 0) return failed(outcome.error?.message ?? '没有取到语音数据')
 
-        const { dir } = channels.mediaDir('voice')
+        const dir = channels.mediaDir('voice')
         const file = path.join(dir, `voice-${svrid}-${Date.now()}.wav`)
         try {
             await fs.promises.mkdir(dir, { recursive: true })

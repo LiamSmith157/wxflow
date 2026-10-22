@@ -58,17 +58,6 @@ services:
             - AZURE_BLOB_STORAGE_ACCOUNT_KEY=${AZURE_BLOB_STORAGE_ACCOUNT_KEY}
             - AZURE_BLOB_STORAGE_CONTAINER_NAME=${AZURE_BLOB_STORAGE_CONTAINER_NAME}
 
-            # WECHAT CHANNEL
-            # Inside the container the gateway must listen on 0.0.0.0 for the loopback port mapping below to reach it.
-            - WECHAT_GATEWAY_HOST=${WECHAT_GATEWAY_HOST:-0.0.0.0}
-            - WECHAT_EXCHANGE_DIR=${WECHAT_EXCHANGE_DIR:-/exchange}
-            - WECHAT_EXCHANGE_DIR_HOST=${WECHAT_EXCHANGE_DIR_HOST:-C:\wxflow\exchange}
-            # Optional, see .env.example:
-            # - WECHAT_GATEWAY_PORT=${WECHAT_GATEWAY_PORT}   # 0 turns the gateway off
-            # - WECHAT_MEDIA_MAX_MB=${WECHAT_MEDIA_MAX_MB}
-            # - WECHAT_SEND_WAIT_SECONDS=${WECHAT_SEND_WAIT_SECONDS}
-            # - WECHAT_FETCHED_RETENTION_DAYS=${WECHAT_FETCHED_RETENTION_DAYS}
-
             # SETTINGS
             - NUMBER_OF_PROXIES=${NUMBER_OF_PROXIES}
             - CORS_ORIGINS=${CORS_ORIGINS}
@@ -164,9 +153,6 @@ services:
             - MIN_SCHEDULE_INTERVAL_SECONDS=${MIN_SCHEDULE_INTERVAL_SECONDS}
         ports:
             - '${PORT}:${PORT}'
-            # WeChat gateway: AIHelpLib.dll dials in from the Windows host. Published on the host loopback only.
-            # If you change WECHAT_GATEWAY_PORT, change both numbers here too.
-            - '127.0.0.1:56233:56233'
         healthcheck:
             test: ['CMD', 'curl', '-f', 'http://localhost:${PORT}/api/v1/ping']
             interval: 10s
@@ -177,9 +163,4 @@ services:
             # Container now runs as the non-root `node` user, whose home is /home/node.
             # Ensure the host directory is writable by that user (e.g. `chown -R 1000:1000 ~/.wxflow` on Linux hosts).
             - ~/.wxflow:/home/node/.wxflow
-            # WeChat exchange folder, shared with AIHelpLib.dll on the Windows host (assets/ tmp/ images/ voice/ resources/).
-            # Both sides must see the same folder; WECHAT_EXCHANGE_DIR_HOST is that folder's Windows path.
-            - type: bind
-              source: ${WECHAT_EXCHANGE_DIR_HOST:-C:\wxflow\exchange}
-              target: /exchange
         entrypoint: /bin/sh -c "sleep 3; wxflow start"

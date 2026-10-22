@@ -16,7 +16,7 @@ let status: GatewayStatus
 
 beforeEach(() => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'wxflow-runtime-'))
-    for (const d of ['assets', 'tmp', 'images', 'voice']) fs.mkdirSync(path.join(root, d))
+    for (const d of ['tmp', 'images', 'voice']) fs.mkdirSync(path.join(root, d))
     status = { state: 'running', host: '127.0.0.1', port: 56233 }
 })
 afterEach(() => fs.rmSync(root, { recursive: true, force: true }))
@@ -31,7 +31,7 @@ const setup = (
     if (opts.register !== false) registry.register(adapter)
     const settings = opts.settings ?? { masterEnabled: true, sendRateLimitPerMinute: 20 }
     const config: ChannelConfig = {
-        exchange: { dir: root, hostDir: 'C:\\wxflow\\exchange', mapped: true },
+        mediaRoot: root,
         maxDownloadBytes: 1024,
         sendWaitSeconds: 1,
         fetchedRetentionDays: 7
@@ -163,34 +163,41 @@ describe('channel runtime handle', () => {
     })
 
     describe('media', () => {
-        it('resolves an asset to its Windows path and keeps the file on release', async () => {
+        it('resolves a local file to its own path and keeps the file on release', async () => {
             const { runtime } = setup()
-            fs.writeFileSync(path.join(root, 'assets', 'a.jpg'), 'x')
+            const file = path.join(root, 'images', 'a.jpg')
+            fs.writeFileSync(file, 'x')
             const rt = runtime()
-            const media = await rt.resolveMedia('a.jpg')
-            expect(media.hostPath).toBe('C:\\wxflow\\exchange\\assets\\a.jpg')
+            const media = await rt.resolveMedia(file)
+            expect(media).toEqual({ path: file, temporary: false })
             await rt.releaseMedia(media)
-            expect(fs.existsSync(path.join(root, 'assets', 'a.jpg'))).toBe(true)
+            expect(fs.existsSync(file)).toBe(true)
         })
 
         it('removes a temporary download on release', async () => {
             const { runtime } = setup()
             const tmp = path.join(root, 'tmp', 't.png')
             fs.writeFileSync(tmp, 'x')
-            await runtime().releaseMedia({ path: tmp, hostPath: 'C:\\x', temporary: true })
+            await runtime().releaseMedia({ path: tmp, temporary: true })
             expect(fs.existsSync(tmp)).toBe(false)
         })
 
-        it('reports a missing asset with the Windows folder to check', async () => {
+        it('reports a missing file with the path to check', async () => {
             const { runtime } = setup()
-            await expect(runtime().resolveMedia('海报/nope.jpg')).rejects.toThrow('请检查 `C:\\wxflow\\exchange\\assets` 目录')
+            const missing = path.join(root, 'nope.jpg')
+            await expect(runtime().resolveMedia(missing)).rejects.toThrow(`文件 \`${missing}\` 不存在,请检查路径`)
         })
 
-        it('maps directories and DLL paths between the two views', () => {
+        it('refuses a relative path', async () => {
+            const { runtime } = setup()
+            await expect(runtime().resolveMedia('海报/a.jpg')).rejects.toThrow('http(s) 地址或文件的完整路径')
+        })
+
+        it('gives the folders for fetched files inside the media working directory', () => {
             const { runtime } = setup()
             const rt = runtime()
-            expect(rt.mediaDir('images')).toEqual({ dir: path.join(root, 'images'), hostDir: 'C:\\wxflow\\exchange\\images' })
-            expect(rt.fromHostPath('C:\\wxflow\\exchange\\images\\1.jpg')).toBe(path.join(root, 'images', '1.jpg'))
+            expect(rt.mediaDir('images')).toBe(path.join(root, 'images'))
+            expect(rt.mediaDir('voice')).toBe(path.join(root, 'voice'))
         })
     })
 })

@@ -342,8 +342,8 @@ const checkFlowValidation = async (flowId: string, workspaceId?: string): Promis
 }
 
 /**
- * Warnings about fixed media paths of WeChat send nodes that do not exist in the exchange directory. They are
- * shown after a save and never block it.
+ * Warnings about fixed media values of WeChat send nodes (a local file that does not exist, a value that is neither
+ * a URL nor a full path). They are shown after a save and never block it.
  */
 const checkMediaWarnings = async (flowId: string, workspaceId?: string): Promise<MediaWarning[]> => {
     try {
@@ -357,7 +357,7 @@ const checkMediaWarnings = async (flowId: string, workspaceId?: string): Promise
         const flowData: IReactFlowObject = JSON.parse(flow.flowData)
         const config = getChannelConfig()
         return findMediaWarnings(flowData.nodes ?? [], getMediaResolver(), {
-            exchange: config.exchange,
+            mediaRoot: config.mediaRoot,
             maxDownloadBytes: config.maxDownloadBytes
         })
     } catch (error) {

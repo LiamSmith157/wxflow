@@ -90,7 +90,7 @@ const sendTest = async (req: Request, res: Response, next: NextFunction) => {
         const config = getChannelConfig()
         const result = await sendTestImage(
             registry.get(instance.channel),
-            config.exchange,
+            config.mediaRoot,
             instance.instanceKey,
             to,
             config.sendWaitSeconds * 1000

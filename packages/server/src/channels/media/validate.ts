@@ -13,9 +13,9 @@ export interface MediaWarning {
 }
 
 /**
- * Check the fixed media parameters of a flow: a path that does not exist in the exchange directory yields a
- * warning that names the Windows folder to check. Values with variables and URLs are not checked (they are only
- * known at run time), and nothing is ever downloaded here.
+ * Check the fixed media parameters of a flow: a local path whose file does not exist (or a value that is neither a
+ * URL nor a full path) yields a warning that names what to check. Values with variables and URLs are not checked
+ * (they are only known at run time), and nothing is ever downloaded here.
  */
 export const findMediaWarnings = async (nodes: IReactFlowNode[], resolver: MediaResolver, ctx: MediaContext): Promise<MediaWarning[]> => {
     const warnings: MediaWarning[] = []

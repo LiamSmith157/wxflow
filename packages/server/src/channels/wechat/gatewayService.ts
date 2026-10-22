@@ -1,5 +1,5 @@
 import { ChannelRegistry } from '../ChannelRegistry'
-import { ExchangeCheck } from '../media/selfCheck'
+import { MediaDirCheck } from '../media/selfCheck'
 import { ChannelSink } from '../types'
 import { GatewayLogger, WeChatGateway, WECHAT_CHANNEL } from './WeChatGateway'
 
@@ -14,8 +14,8 @@ export interface GatewayStatus {
     port: number
     /** Why the gateway is not running (disabled, queue mode, bind failure) */
     reason?: string
-    /** Result of the startup self-check of the exchange directory */
-    exchange?: ExchangeCheck
+    /** Result of the startup self-check of the media working directory */
+    media?: MediaDirCheck
 }
 
 export interface StartGatewayOptions {
@@ -34,13 +34,13 @@ const parsePort = (raw: string | undefined): number => {
     return Number.isInteger(n) && n >= 0 && n <= 65535 ? n : NaN
 }
 
-let exchangeCheck: ExchangeCheck | undefined
+let mediaDirCheck: MediaDirCheck | undefined
 
-export const setExchangeCheck = (check: ExchangeCheck | undefined): void => {
-    exchangeCheck = check
+export const setMediaDirCheck = (check: MediaDirCheck | undefined): void => {
+    mediaDirCheck = check
 }
 
-export const getGatewayStatus = (): GatewayStatus => ({ ...status, ...(exchangeCheck ? { exchange: exchangeCheck } : {}) })
+export const getGatewayStatus = (): GatewayStatus => ({ ...status, ...(mediaDirCheck ? { media: mediaDirCheck } : {}) })
 
 export const getWeChatGateway = (): WeChatGateway | undefined => gateway
 

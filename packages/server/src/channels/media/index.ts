@@ -1,4 +1,4 @@
-export * from './exchange'
+export * from './workdir'
 export * from './errors'
 export * from './resolver'
 export * from './cleanup'

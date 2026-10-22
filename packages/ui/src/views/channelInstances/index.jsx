@@ -134,30 +134,10 @@ const ChannelInstances = () => {
                                 </Typography>
                             )}
                         </Stack>
-                        {status.exchange && (
-                            <Box sx={{ mt: 2 }}>
-                                <Stack direction='row' alignItems='center' sx={{ gap: 1 }}>
-                                    <Typography variant='subtitle2'>{t('exchangeDirectory')}</Typography>
-                                    <Chip
-                                        size='small'
-                                        color={status.exchange.ok ? 'success' : 'error'}
-                                        label={status.exchange.ok ? t('exchangeOk') : t('exchangeProblem')}
-                                    />
-                                </Stack>
-                                <Typography variant='body2' color='text.secondary'>
-                                    {t('exchangeInContainer', { dir: status.exchange.dir })}
-                                </Typography>
-                                {status.exchange.mapped && (
-                                    <Typography variant='body2' color='text.secondary'>
-                                        {t('exchangeOnWindows', { dir: status.exchange.hostDir })}
-                                    </Typography>
-                                )}
-                                {status.exchange.error && (
-                                    <Alert severity='error' sx={{ mt: 1 }}>
-                                        {status.exchange.error}
-                                    </Alert>
-                                )}
-                            </Box>
+                        {status.media && !status.media.ok && (
+                            <Alert severity='error' sx={{ mt: 2 }} data-testid='media-dir-problem'>
+                                <strong>{t('mediaDirectoryProblem')}</strong> {status.media.error}
+                            </Alert>
                         )}
                     </Paper>
                 )}

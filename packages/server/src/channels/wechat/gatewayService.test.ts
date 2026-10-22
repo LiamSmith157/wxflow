@@ -86,20 +86,18 @@ describe('startWeChatGateway', () => {
     })
 })
 
-describe('gateway status with exchange self-check', () => {
-    it('keeps the server up and reports an unhealthy exchange directory in the status', async () => {
-        const { checkExchange } = await import('../media/selfCheck')
-        const { setExchangeCheck } = await import('./gatewayService')
-        const check = await checkExchange({ dir: '/definitely/not/mounted', hostDir: 'C:\\wxflow\\exchange', mapped: true })
-        setExchangeCheck(check)
+describe('gateway status with media directory self-check', () => {
+    it('keeps the server up and reports an unusable media directory in the status', async () => {
+        const { setMediaDirCheck } = await import('./gatewayService')
+        setMediaDirCheck({ ok: false, error: '媒体目录不可用: D:\\x(EACCES),请检查该目录的权限和磁盘空间' })
         try {
             const port = await freePort()
             const status = await startWeChatGateway({ registry, sink, logger, env: { WECHAT_GATEWAY_PORT: String(port) } })
             expect(status.state).toBe('running')
-            expect(status.exchange?.ok).toBe(false)
-            expect(status.exchange?.error).toContain('交换目录不存在')
+            expect(status.media?.ok).toBe(false)
+            expect(status.media?.error).toContain('媒体目录不可用')
         } finally {
-            setExchangeCheck(undefined)
+            setMediaDirCheck(undefined)
         }
     })
 })

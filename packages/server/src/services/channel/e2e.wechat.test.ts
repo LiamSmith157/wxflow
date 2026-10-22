@@ -3,6 +3,8 @@
 // subscription/instance/settings services, channel runtime, sender and the real Cooldown and Send Text nodes.
 // Only storage (in-memory repositories) and the flow executor (a small stand-in for utilBuildChatflow) are replaced.
 import net from 'net'
+import os from 'os'
+import path from 'path'
 import { ReadableStream } from 'stream/web'
 import { WebSocket } from 'ws'
 
@@ -189,7 +191,7 @@ describe('WeChat channel end to end', () => {
                 sender,
                 resolver: new MediaResolver(),
                 config: {
-                    exchange: { dir: '/exchange', hostDir: 'C:\\wxflow\\exchange', mapped: true },
+                    mediaRoot: path.join(os.tmpdir(), 'wxflow-e2e-media'),
                     maxDownloadBytes: 1024,
                     sendWaitSeconds: 5,
                     fetchedRetentionDays: 7

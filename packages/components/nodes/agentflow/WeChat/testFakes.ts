@@ -1,4 +1,6 @@
 // In-memory IChannelRuntime for unit tests of the WeChat nodes (no gateway, no WebSocket).
+import os from 'os'
+import path from 'path'
 import {
     IChannelCallOutcome,
     IChannelInstanceInfo,
@@ -29,13 +31,13 @@ export interface FakeChannels extends IChannelRuntime {
     mediaResults: Record<string, IChannelCallOutcome & { data?: Buffer }>
     /** Media resolution table: value -> resolved media or an error to throw */
     mediaFiles: Record<string, IChannelMedia | Error>
-    dirs: { images: { dir: string; hostDir: string }; voice: { dir: string; hostDir: string } }
+    dirs: { images: string; voice: string }
 }
 
 export const createFakeChannels = (
-    over: { workspaceId?: string; event?: ICommonObject; instances?: IChannelInstanceInfo[]; exchangeRoot?: string } = {}
+    over: { workspaceId?: string; event?: ICommonObject; instances?: IChannelInstanceInfo[]; mediaRoot?: string } = {}
 ): FakeChannels => {
-    const root = over.exchangeRoot ?? '/exchange'
+    const root = over.mediaRoot ?? path.join(os.tmpdir(), 'wxflow-fake-media')
     const fake: FakeChannels = {
         workspaceId: over.workspaceId ?? 'ws',
         event: over.event,
@@ -47,10 +49,7 @@ export const createFakeChannels = (
         callResults: {},
         mediaResults: {},
         mediaFiles: {},
-        dirs: {
-            images: { dir: `${root}/images`, hostDir: 'C:\\wxflow\\exchange\\images' },
-            voice: { dir: `${root}/voice`, hostDir: 'C:\\wxflow\\exchange\\voice' }
-        },
+        dirs: { images: path.join(root, 'images'), voice: path.join(root, 'voice') },
         sendWaitSeconds: 30,
 
         async listInstances() {
@@ -77,7 +76,7 @@ export const createFakeChannels = (
         },
         async resolveMedia(value) {
             const found = fake.mediaFiles[value]
-            if (!found) throw new Error(`素材 \`assets/${value}\` 不存在,请检查 \`C:\\wxflow\\exchange\\assets\` 目录`)
+            if (!found) throw new Error(`文件 \`${value}\` 不存在,请检查路径`)
             if (found instanceof Error) throw found
             return found
         },
@@ -86,11 +85,6 @@ export const createFakeChannels = (
         },
         mediaDir(kind) {
             return fake.dirs[kind]
-        },
-        fromHostPath(hostPath) {
-            const prefix = 'C:\\wxflow\\exchange\\'
-            if (!hostPath.startsWith(prefix)) throw new Error(`DLL 返回的路径不在交换目录内: ${hostPath}`)
-            return `${root}/` + hostPath.slice(prefix.length).replace(/\\/g, '/')
         }
     }
     return fake

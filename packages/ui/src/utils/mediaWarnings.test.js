@@ -9,7 +9,7 @@ describe('mediaWarningsToMap', () => {
                 id: 'n1',
                 label: 'Send Image',
                 name: 'wechatSendImageAgentflow',
-                issues: ['素材 `assets/a.jpg` 不存在,请检查 `C:\\wxflow\\exchange\\assets` 目录']
+                issues: ['文件 `D:\\素材\\a.jpg` 不存在,请检查路径']
             },
             { id: 'n2', issues: ['x', 'y'] }
         ]

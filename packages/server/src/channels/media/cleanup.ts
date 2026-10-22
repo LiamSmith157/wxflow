@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { GatewayLogger } from '../wechat/WeChatGateway'
-import { ExchangeConfig, exchangeSubdir } from './exchange'
+import { mediaSubdir } from './workdir'
 import { ResolvedMedia } from './resolver'
 
 const HOUR_MS = 60 * 60 * 1000
@@ -52,15 +52,15 @@ export interface CleanupResult {
 }
 
 /** tmp/ files older than 24h, plus images/ and voice/ files older than the retention period */
-export const cleanupExchange = async (
-    cfg: ExchangeConfig,
+export const cleanupMedia = async (
+    root: string,
     { now = Date.now(), retentionDays = DEFAULT_FETCHED_RETENTION_DAYS }: CleanupOptions = {}
 ): Promise<CleanupResult> => {
     const retentionMs = retentionDays * 24 * HOUR_MS
     return {
-        tmp: await removeOlderThan(exchangeSubdir(cfg, 'tmp'), TMP_MAX_AGE_MS, now),
-        images: await removeOlderThan(exchangeSubdir(cfg, 'images'), retentionMs, now),
-        voice: await removeOlderThan(exchangeSubdir(cfg, 'voice'), retentionMs, now)
+        tmp: await removeOlderThan(mediaSubdir(root, 'tmp'), TMP_MAX_AGE_MS, now),
+        images: await removeOlderThan(mediaSubdir(root, 'images'), retentionMs, now),
+        voice: await removeOlderThan(mediaSubdir(root, 'voice'), retentionMs, now)
     }
 }
 
@@ -70,14 +70,13 @@ export const parseRetentionDays = (raw: string | undefined): number => {
 }
 
 /** Clean once now and then every hour; returns a function that stops the schedule */
-export const startCleanupSchedule = (cfg: ExchangeConfig, logger: GatewayLogger, retentionDays: number): (() => void) => {
+export const startCleanupSchedule = (root: string, logger: GatewayLogger, retentionDays: number): (() => void) => {
     const run = () =>
-        cleanupExchange(cfg, { retentionDays })
+        cleanupMedia(root, { retentionDays })
             .then((r) => {
-                if (r.tmp + r.images + r.voice > 0)
-                    logger.info(`[wechat-exchange] 清理完成: tmp=${r.tmp} images=${r.images} voice=${r.voice}`)
+                if (r.tmp + r.images + r.voice > 0) logger.info(`[wechat-media] 清理完成: tmp=${r.tmp} images=${r.images} voice=${r.voice}`)
             })
-            .catch((e) => logger.warn(`[wechat-exchange] 清理失败: ${(e as Error).message}`))
+            .catch((e) => logger.warn(`[wechat-media] 清理失败: ${(e as Error).message}`))
     void run()
     const timer = setInterval(run, HOUR_MS)
     timer.unref?.()
