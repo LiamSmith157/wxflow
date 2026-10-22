@@ -19,6 +19,7 @@ import enAdmin from './locales/en/admin.json'
 import enAuth from './locales/en/auth.json'
 import enMisc from './locales/en/misc.json'
 import enNodes from './locales/en/nodes.json'
+import enChannels from './locales/en/channels.json'
 import zhCommon from './locales/zh-CN/common.json'
 import zhLayout from './locales/zh-CN/layout.json'
 import zhMenu from './locales/zh-CN/menu.json'
@@ -36,6 +37,7 @@ import zhAdmin from './locales/zh-CN/admin.json'
 import zhAuth from './locales/zh-CN/auth.json'
 import zhMisc from './locales/zh-CN/misc.json'
 import zhNodes from './locales/zh-CN/nodes.json'
+import zhChannels from './locales/zh-CN/channels.json'
 
 export const FALLBACK_LANGUAGE = 'en'
 export const LANGUAGE_STORAGE_KEY = 'lang'
@@ -64,7 +66,8 @@ export const resources = {
         admin: enAdmin,
         auth: enAuth,
         misc: enMisc,
-        nodes: enNodes
+        nodes: enNodes,
+        channels: enChannels
     },
     'zh-CN': {
         common: zhCommon,
@@ -83,7 +86,8 @@ export const resources = {
         admin: zhAdmin,
         auth: zhAuth,
         misc: zhMisc,
-        nodes: zhNodes
+        nodes: zhNodes,
+        channels: zhChannels
     }
 }
 

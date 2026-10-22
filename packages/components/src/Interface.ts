@@ -438,3 +438,75 @@ export interface IHumanInput {
     startNodeId: string
     feedback?: string
 }
+
+/**
+ * Channel handle given to nodes at run time (options.channels). Nodes never touch a channel library or the
+ * gateway; the server implements this on top of its channel adapters, so tests can replace it with a fake.
+ */
+export interface IChannelInstanceInfo {
+    instanceKey: string
+    displayName?: string
+    online: boolean
+}
+
+export type ChannelSendState = 'ok' | 'fail' | 'pending' | 'rate_limited' | 'skipped'
+
+export interface IChannelSendResult {
+    state: ChannelSendState
+    jobId?: string
+    error?: string
+    /** Raw result of the channel call, when it was made */
+    result?: any
+}
+
+export interface IChannelCallOutcome {
+    ok: boolean
+    result?: any
+    error?: { code: number; message: string }
+}
+
+/** A media file resolved into the exchange directory */
+export interface IChannelMedia {
+    /** The file as wxflow sees it */
+    path: string
+    /** The same file as the channel client (the DLL) sees it */
+    hostPath: string
+    /** Downloaded for this send only; release it once the send finished */
+    temporary: boolean
+}
+
+export interface IChannelRuntime {
+    /** Workspace the flow runs in; nodes can only use instances of this workspace */
+    workspaceId: string
+    /** The channel event that started the run (channel, instance, event name and the event's fields), if any */
+    event?: ICommonObject
+    /** Instances of this workspace for a channel, for parameter options */
+    listInstances(channel: string): Promise<IChannelInstanceInfo[]>
+    /**
+     * The instance a node must use: the requested one, else the instance of the triggering event. Throws an error
+     * written for the operator when there is none, it is not of this workspace, it is offline or the gateway is down.
+     */
+    resolveInstance(channel: string, requested?: string): Promise<string>
+    /** Send through the channel with the master switch and send rate limit applied */
+    send(req: {
+        channel: string
+        instance: string
+        method: string
+        params: Record<string, any>
+        waitSeconds?: number
+    }): Promise<IChannelSendResult>
+    /** Plain call (reads such as contacts or image.get); no send limits */
+    call(channel: string, instance: string, method: string, params: Record<string, any>, timeoutMs?: number): Promise<IChannelCallOutcome>
+    /** Fetch media bytes through the channel (WeChat voice) */
+    fetchMedia(channel: string, instance: string, kind: string, ref: string): Promise<IChannelCallOutcome & { data?: Buffer }>
+    /** Resolve a media parameter (URL, absolute path or path relative to assets/) into a file in the exchange directory */
+    resolveMedia(value: string): Promise<IChannelMedia>
+    /** Delete the file of a send once it finished (only downloaded files are removed) */
+    releaseMedia(media: IChannelMedia): Promise<void>
+    /** Directory for files fetched from the channel: wxflow's view and the DLL's view */
+    mediaDir(kind: 'images' | 'voice'): { dir: string; hostDir: string }
+    /** Convert a path reported by the DLL into one wxflow can read */
+    fromHostPath(hostPath: string): string
+    /** Default wait for the terminal state of a send, in seconds */
+    sendWaitSeconds: number
+}

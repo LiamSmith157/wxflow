@@ -14,7 +14,21 @@ import {
     IconNote,
     IconWorld,
     IconRelationOneToManyFilled,
-    IconVectorBezier2
+    IconVectorBezier2,
+    IconArrowsSplit2,
+    IconMessage,
+    IconPhoto,
+    IconPaperclip,
+    IconMovie,
+    IconAt,
+    IconLink,
+    IconQuote,
+    IconAddressBook,
+    IconPhotoDown,
+    IconMicrophone,
+    IconSnowflake,
+    IconHourglass,
+    IconFilter
 } from '@tabler/icons-react'
 
 export const gridSpacing = 3
@@ -37,6 +51,9 @@ export const ErrorMessage = {
     INVALID_WORKSPACE: 'No Workspace Assigned',
     UNKNOWN_ERROR: 'Unknown Error'
 }
+// Node palette groups of the agentflow canvas, in display order. A future channel (for example WhatsApp) adds one entry.
+export const AGENTFLOW_PALETTE_CATEGORIES = ['Agent Flows', 'WeChat']
+
 export const AGENTFLOW_ICONS = [
     {
         name: 'conditionAgentflow',
@@ -112,6 +129,78 @@ export const AGENTFLOW_ICONS = [
         name: 'executeFlowAgentflow',
         icon: IconVectorBezier2,
         color: '#a3b18a'
+    },
+    // generic nodes added for channel flows (Agent Flows group)
+    {
+        name: 'cooldownAgentflow',
+        icon: IconSnowflake,
+        color: '#5BB7E5'
+    },
+    {
+        name: 'delayAgentflow',
+        icon: IconHourglass,
+        color: '#9C8CF0'
+    },
+    {
+        name: 'talkerFilterAgentflow',
+        icon: IconFilter,
+        color: '#F28B82'
+    },
+    // WeChat group: all in WeChat green
+    {
+        name: 'wechatMessageTypeRouterAgentflow',
+        icon: IconArrowsSplit2,
+        color: '#07C160'
+    },
+    {
+        name: 'wechatSendTextAgentflow',
+        icon: IconMessage,
+        color: '#07C160'
+    },
+    {
+        name: 'wechatSendImageAgentflow',
+        icon: IconPhoto,
+        color: '#07C160'
+    },
+    {
+        name: 'wechatSendFileAgentflow',
+        icon: IconPaperclip,
+        color: '#07C160'
+    },
+    {
+        name: 'wechatSendVideoAgentflow',
+        icon: IconMovie,
+        color: '#07C160'
+    },
+    {
+        name: 'wechatSendAtMentionAgentflow',
+        icon: IconAt,
+        color: '#07C160'
+    },
+    {
+        name: 'wechatSendLinkCardAgentflow',
+        icon: IconLink,
+        color: '#07C160'
+    },
+    {
+        name: 'wechatQuoteReplyAgentflow',
+        icon: IconQuote,
+        color: '#07C160'
+    },
+    {
+        name: 'wechatSearchContactsAgentflow',
+        icon: IconAddressBook,
+        color: '#07C160'
+    },
+    {
+        name: 'wechatFetchImageAgentflow',
+        icon: IconPhotoDown,
+        color: '#07C160'
+    },
+    {
+        name: 'wechatFetchVoiceAgentflow',
+        icon: IconMicrophone,
+        color: '#07C160'
     }
 ]
 

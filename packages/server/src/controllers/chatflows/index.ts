@@ -9,6 +9,7 @@ import { ScheduleBeat } from '../../schedule/ScheduleBeat'
 import apiKeyService from '../../services/apikey'
 import chatflowsService from '../../services/chatflows'
 import scheduleService from '../../services/schedule'
+import { channelSubscriptionService } from '../../services/channel'
 import { GeneralErrorMessage } from '../../utils/constants'
 import { getRunningExpressApp } from '../../utils/getRunningExpressApp'
 import { getPageAndLimitParams } from '../../utils/pagination'
@@ -431,7 +432,51 @@ const toggleScheduleEnabled = async (req: Request, res: Response, next: NextFunc
     }
 }
 
+const getChannelStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        if (!req.params?.id) {
+            throw new InternalFlowiseError(
+                StatusCodes.PRECONDITION_FAILED,
+                'Error: chatflowsController.getChannelStatus - id not provided!'
+            )
+        }
+        const workspaceId = req.user?.activeWorkspaceId
+        if (!workspaceId) {
+            throw new InternalFlowiseError(StatusCodes.NOT_FOUND, 'Error: chatflowsController.getChannelStatus - workspace not found!')
+        }
+        const record = await channelSubscriptionService.getForChatflow(req.params.id, workspaceId)
+        return res.json({ enabled: record?.enabled ?? false, subscribed: !!record, record })
+    } catch (error) {
+        next(error)
+    }
+}
+
+const toggleChannelEnabled = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        if (!req.params?.id) {
+            throw new InternalFlowiseError(
+                StatusCodes.PRECONDITION_FAILED,
+                'Error: chatflowsController.toggleChannelEnabled - id not provided!'
+            )
+        }
+        const workspaceId = req.user?.activeWorkspaceId
+        if (!workspaceId) {
+            throw new InternalFlowiseError(StatusCodes.NOT_FOUND, 'Error: chatflowsController.toggleChannelEnabled - workspace not found!')
+        }
+        const { enabled } = req.body ?? {}
+        if (typeof enabled !== 'boolean') {
+            throw new InternalFlowiseError(StatusCodes.BAD_REQUEST, '"enabled" must be a boolean')
+        }
+        const record = await channelSubscriptionService.setEnabled(req.params.id, workspaceId, enabled)
+        return res.json({ enabled: record.enabled, subscribed: true, record })
+    } catch (error) {
+        next(error)
+    }
+}
+
 export default {
+    getChannelStatus,
+    toggleChannelEnabled,
     checkIfChatflowIsValidForStreaming,
     checkIfChatflowIsValidForUploads,
     deleteChatflow,

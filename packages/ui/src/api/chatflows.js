@@ -28,6 +28,10 @@ const getScheduleStatus = (id) => client.get(`/chatflows/${id}/schedule/status`)
 
 const toggleScheduleEnabled = (id, enabled) => client.patch(`/chatflows/${id}/schedule/enabled`, { enabled })
 
+const getChannelStatus = (id) => client.get(`/chatflows/${id}/channel/status`)
+
+const toggleChannelEnabled = (id, enabled) => client.patch(`/chatflows/${id}/channel/enabled`, { enabled })
+
 const getScheduleTriggerLogs = (id, params) => client.get(`/chatflows/${id}/schedule/trigger-logs`, { params })
 
 const deleteScheduleTriggerLogs = (id, logIds) => client.delete(`/chatflows/${id}/schedule/trigger-logs`, { data: { logIds } })
@@ -47,6 +51,8 @@ export default {
     clearWebhookSecret,
     getScheduleStatus,
     toggleScheduleEnabled,
+    getChannelStatus,
+    toggleChannelEnabled,
     getScheduleTriggerLogs,
     deleteScheduleTriggerLogs
 }

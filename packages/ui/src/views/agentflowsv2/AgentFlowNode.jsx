@@ -31,13 +31,15 @@ import {
     IconMessageCircle,
     IconClockHour4,
     IconListDetails,
-    IconWebhook
+    IconWebhook,
+    IconBrandWechat
 } from '@tabler/icons-react'
 import StopCircleIcon from '@mui/icons-material/StopCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
 
 // const
 import { baseURL, AGENTFLOW_ICONS } from '@/store/constant'
+import { joinNodeWarnings } from '@/utils/mediaWarnings'
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     background: theme.palette.card.main,
@@ -83,6 +85,9 @@ const AgentFlowNode = ({ data }) => {
         if (isHovered) return alpha(nodeColor, 0.8)
         return alpha(nodeColor, 0.5)
     }
+
+    // the node's own warning plus warnings about missing media files found when the flow was last saved
+    const shownWarning = joinNodeWarnings(warningMessage, canvas.mediaWarnings?.[data.id])
 
     const getOutputAnchors = () => {
         return data.outputAnchors ?? []
@@ -311,8 +316,8 @@ const AgentFlowNode = ({ data }) => {
                     </Tooltip>
                 )}
 
-                {warningMessage && (
-                    <Tooltip placement='right-start' title={<span style={{ whiteSpace: 'pre-line' }}>{warningMessage}</span>}>
+                {shownWarning && (
+                    <Tooltip placement='right-start' title={<span style={{ whiteSpace: 'pre-line' }}>{shownWarning}</span>}>
                         <Avatar
                             variant='rounded'
                             sx={{
@@ -413,7 +418,8 @@ const AgentFlowNode = ({ data }) => {
                                         chatInput: { icon: <IconMessageCircle size={14} /> },
                                         formInput: { icon: <IconListDetails size={14} /> },
                                         scheduleInput: { icon: <IconClockHour4 size={14} /> },
-                                        webhookTrigger: { icon: <IconWebhook size={14} /> }
+                                        webhookTrigger: { icon: <IconWebhook size={14} /> },
+                                        wechatEvent: { icon: <IconBrandWechat size={14} /> }
                                     }
                                     const info = iconMap[inputType]
                                     if (!info) return null

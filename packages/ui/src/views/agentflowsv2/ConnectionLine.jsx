@@ -3,6 +3,9 @@ import { EdgeLabelRenderer, useStore, getBezierPath } from 'reactflow'
 import PropTypes from 'prop-types'
 import { AGENTFLOW_ICONS } from '@/store/constant'
 import { useTheme } from '@mui/material/styles'
+import { useSelector } from 'react-redux'
+import { tn } from '@/i18n/nodes'
+import { getBranchEdgeLabel } from '@/utils/branchLabels'
 
 function EdgeLabel({ transform, isHumanInput, label, color }) {
     return (
@@ -47,7 +50,11 @@ const ConnectionLine = ({ fromX, fromY, toX, toY, fromPosition, toPosition }) =>
     const theme = useTheme()
     const nodeName = (connectionHandleId || '').split('_')[0] || ''
 
-    const isLabelVisible = nodeName === 'humanInputAgentflow' || nodeName === 'conditionAgentflow' || nodeName === 'conditionAgentAgentflow'
+    const componentNodes = useSelector((state) => state.canvas.componentNodes)
+    const branchLabel = getBranchEdgeLabel(connectionHandleId, componentNodes)
+
+    const isLabelVisible =
+        nodeName === 'humanInputAgentflow' || nodeName === 'conditionAgentflow' || nodeName === 'conditionAgentAgentflow' || !!branchLabel
 
     const getEdgeLabel = () => {
         let edgeLabel = undefined
@@ -60,6 +67,7 @@ const ConnectionLine = ({ fromX, fromY, toX, toY, fromPosition, toPosition }) =>
             edgeLabel = (isNaN(_edgeLabel) ? 0 : _edgeLabel).toString()
             edgeLabel = edgeLabel === '0' ? 'proceed' : 'reject'
         }
+        if (branchLabel) edgeLabel = tn(branchLabel)
         return edgeLabel
     }
 

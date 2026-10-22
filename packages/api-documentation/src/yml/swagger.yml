@@ -1,6 +1,7 @@
 tags:
     - name: agentflowv2-generator
     - name: attachments
+    - name: channel-instances
     - name: chatmessage
     - name: chatflows
     - name: document-store
@@ -1613,11 +1614,277 @@ paths:
                     description: Variable not found
                 '500':
                     description: Internal server error
+    /channel-instances:
+        get:
+            tags:
+                - channel-instances
+            security:
+                - bearerAuth: []
+            operationId: listChannelInstances
+            summary: List channel instances
+            description: >-
+                List channel instances (for example logged-in WeChat accounts) visible to the current workspace.
+                Users with channelInstances:manage also see unassigned instances. Requires channelInstances:view.
+            parameters:
+                - in: query
+                  name: channel
+                  required: false
+                  schema:
+                      type: string
+                      example: wechat
+                  description: Only return instances of this channel
+            responses:
+                '200':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/ChannelInstance'
+                '403':
+                    description: Missing channelInstances:view permission
+    /channel-instances/{id}/assignment:
+        put:
+            tags:
+                - channel-instances
+            security:
+                - bearerAuth: []
+            operationId: assignChannelInstance
+            summary: Assign a channel instance to a workspace
+            description: >-
+                Assign an unassigned instance to a workspace, move an instance of the current workspace to another
+                workspace, or unassign it with a null workspaceId. Unassigned instances never trigger flows and cannot
+                be used by send nodes. Requires channelInstances:manage.
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Channel instance ID
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - workspaceId
+                            properties:
+                                workspaceId:
+                                    type: string
+                                    nullable: true
+                                    description: Target workspace ID, or null to unassign
+            responses:
+                '200':
+                    description: The updated instance
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ChannelInstance'
+                '400':
+                    description: workspaceId is neither a string nor null
+                '403':
+                    description: Missing channelInstances:manage permission, or the instance belongs to another workspace
+                '404':
+                    description: Instance or target workspace not found
+                '412':
+                    description: workspaceId missing from the body
+    /channel-instances/{id}/test-image:
+        post:
+            tags:
+                - channel-instances
+            security:
+                - bearerAuth: []
+            operationId: sendChannelTestImage
+            summary: Send the built-in test image
+            description: >-
+                Send a built-in image to a conversation through an online instance, to verify the exchange-directory
+                path mapping. When the mapping is wrong the failure reason reported by the DLL is returned.
+                Requires channelInstances:manage.
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: Channel instance ID
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - to
+                            properties:
+                                to:
+                                    type: string
+                                    description: Recipient conversation (wxid or chatroom id)
+                                    example: filehelper
+            responses:
+                '200':
+                    description: Result of the test send
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ChannelTestImageResult'
+                '403':
+                    description: Missing channelInstances:manage permission
+                '404':
+                    description: Instance not found in the current workspace
+                '409':
+                    description: Instance is offline
+                '412':
+                    description: Recipient missing
+                '503':
+                    description: Channel gateway is not running
+    /channel-instances/gateway-status:
+        get:
+            tags:
+                - channel-instances
+            security:
+                - bearerAuth: []
+            operationId: getChannelGatewayStatus
+            summary: Get the channel gateway status
+            description: >-
+                Gateway running state, listen address and port, and the result of the startup self-check of the
+                exchange directory. Requires channelInstances:view.
+            responses:
+                '200':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ChannelGatewayStatus'
+                '403':
+                    description: Missing channelInstances:view permission
+    /channel-instances/settings:
+        get:
+            tags:
+                - channel-instances
+            security:
+                - bearerAuth: []
+            operationId: getChannelSettings
+            summary: Get the channel safety settings of the current workspace
+            description: Master switch and per-instance send rate limit. Requires channelInstances:view.
+            responses:
+                '200':
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ChannelSettings'
+                '403':
+                    description: Missing channelInstances:view permission
+        put:
+            tags:
+                - channel-instances
+            security:
+                - bearerAuth: []
+            operationId: updateChannelSettings
+            summary: Update the channel safety settings of the current workspace
+            description: >-
+                Turn the channel master switch on or off and set the per-instance send limit. Both fields are
+                optional. Requires channelInstances:manage.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ChannelSettings'
+            responses:
+                '200':
+                    description: The updated settings
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ChannelSettings'
+                '400':
+                    description: Invalid value
+                '403':
+                    description: Missing channelInstances:manage permission
 components:
     responses:
         UnauthorizedError:
             description: Access token is missing or invalid
     schemas:
+        ChannelInstance:
+            type: object
+            properties:
+                id:
+                    type: string
+                channel:
+                    type: string
+                    example: wechat
+                instanceKey:
+                    type: string
+                    description: Channel-specific identity, the wxid for WeChat
+                    example: wxid_abc123
+                displayName:
+                    type: string
+                workspaceId:
+                    type: string
+                    nullable: true
+                    description: Owning workspace, null when unassigned
+                workspaceName:
+                    type: string
+                lastSeenAt:
+                    type: string
+                    format: date-time
+                online:
+                    type: boolean
+        ChannelGatewayStatus:
+            type: object
+            properties:
+                state:
+                    type: string
+                    enum: [running, disabled, queue_mode, failed, not_started]
+                host:
+                    type: string
+                    example: 127.0.0.1
+                port:
+                    type: integer
+                    example: 56233
+                reason:
+                    type: string
+                    description: Why the gateway is not running
+                exchange:
+                    type: object
+                    description: Startup self-check of the exchange directory
+                    properties:
+                        ok:
+                            type: boolean
+                        dir:
+                            type: string
+                        hostDir:
+                            type: string
+                        mapped:
+                            type: boolean
+                        error:
+                            type: string
+        ChannelSettings:
+            type: object
+            properties:
+                masterEnabled:
+                    type: boolean
+                    description: When off, no channel event triggers a flow and send nodes are skipped
+                sendRateLimitPerMinute:
+                    type: integer
+                    minimum: 1
+                    maximum: 1000
+                    example: 20
+        ChannelTestImageResult:
+            type: object
+            properties:
+                state:
+                    type: string
+                    enum: [ok, fail, pending]
+                jobId:
+                    type: string
+                error:
+                    type: string
         ApiKey:
             type: object
             properties:

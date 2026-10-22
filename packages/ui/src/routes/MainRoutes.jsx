@@ -37,6 +37,9 @@ const EvalDatasetRows = Loadable(lazy(() => import('@/views/datasets/DatasetItem
 const EvalDatasets = Loadable(lazy(() => import('@/views/datasets')))
 const Evaluators = Loadable(lazy(() => import('@/views/evaluators')))
 
+// channel instances routing
+const ChannelInstances = Loadable(lazy(() => import('@/views/channelInstances')))
+
 // account routing
 const Account = Loadable(lazy(() => import('@/views/account')))
 
@@ -113,6 +116,14 @@ const MainRoutes = {
             element: (
                 <RequireAuth permission={'variables:view'}>
                     <Variables />
+                </RequireAuth>
+            )
+        },
+        {
+            path: '/channel-instances',
+            element: (
+                <RequireAuth permission={'channelInstances:view'}>
+                    <ChannelInstances />
                 </RequireAuth>
             )
         },

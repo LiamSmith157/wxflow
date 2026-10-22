@@ -132,6 +132,7 @@
         "express-session": "^1.18.1",
         "wxflow-components": "workspace:^",
         "flowise-nim-container-manager": "^1.0.11",
+        "fzstd": "^0.1.1",
         "wxflow-ui": "workspace:^",
         "geoip-lite": "^1.4.10",
         "global-agent": "^3.0.0",
@@ -178,6 +179,7 @@
         "winston": "^3.9.0",
         "winston-azure-blob": "^1.5.0",
         "winston-daily-rotate-file": "^5.0.0",
+        "ws": "8.18.3",
         "zod": "^3.25.76 || ^4"
     },
     "devDependencies": {
@@ -198,6 +200,7 @@
         "@types/sanitize-html": "^2.9.5",
         "@types/supertest": "^6.0.3",
         "@types/turndown": "^5.0.5",
+        "@types/ws": "^8.5.10",
         "concurrently": "^7.1.0",
         "cypress": "^13.13.0",
         "jest": "^29.7.0",

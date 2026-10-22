@@ -187,7 +187,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
     const [sourceDialogProps, setSourceDialogProps] = useState({})
     const [hardDeleteDialogOpen, setHardDeleteDialogOpen] = useState(false)
     const [hardDeleteDialogProps, setHardDeleteDialogProps] = useState({})
-    const [chatTypeFilter, setChatTypeFilter] = useState(['INTERNAL', 'EXTERNAL', 'MCP', 'SCHEDULED', 'WEBHOOK'])
+    const [chatTypeFilter, setChatTypeFilter] = useState(['INTERNAL', 'EXTERNAL', 'MCP', 'SCHEDULED', 'WEBHOOK', 'CHANNEL'])
     const [feedbackTypeFilter, setFeedbackTypeFilter] = useState([])
     const [startDate, setStartDate] = useState(new Date(new Date().setMonth(new Date().getMonth() - 1)))
     const [endDate, setEndDate] = useState(new Date())
@@ -343,6 +343,8 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
             return 'Scheduled'
         } else if (chatType === 'WEBHOOK') {
             return 'Webhook'
+        } else if (chatType === 'CHANNEL') {
+            return 'WeChat'
         }
         return 'API/Embed'
     }
@@ -752,7 +754,7 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
         return () => {
             setChatLogs([])
             setChatMessages([])
-            setChatTypeFilter(['INTERNAL', 'EXTERNAL', 'MCP', 'SCHEDULED', 'WEBHOOK'])
+            setChatTypeFilter(['INTERNAL', 'EXTERNAL', 'MCP', 'SCHEDULED', 'WEBHOOK', 'CHANNEL'])
             setFeedbackTypeFilter([])
             setSelectedMessageIndex(0)
             setSelectedChatId('')
@@ -913,6 +915,10 @@ const ViewMessagesDialog = ({ show, dialogProps, onCancel }) => {
                                     {
                                         label: t('webhook'),
                                         name: 'WEBHOOK'
+                                    },
+                                    {
+                                        label: t('wechatChannel'),
+                                        name: 'CHANNEL'
                                     },
                                     {
                                         label: t('evaluations'),

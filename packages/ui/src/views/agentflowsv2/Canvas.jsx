@@ -11,6 +11,7 @@ import {
     REMOVE_DIRTY,
     SET_DIRTY,
     SET_CHATFLOW,
+    SET_MEDIA_WARNINGS,
     enqueueSnackbar as enqueueSnackbarAction,
     closeSnackbar as closeSnackbarAction
 } from '@/store/actions'
@@ -39,6 +40,9 @@ import { flowContext } from '@/store/context/ReactFlowContext'
 // API
 import nodesApi from '@/api/nodes'
 import chatflowsApi from '@/api/chatflows'
+import validationApi from '@/api/validation'
+import { mediaWarningsToMap } from '@/utils/mediaWarnings'
+import { getBranchEdgeLabel } from '@/utils/branchLabels'
 
 // Hooks
 import useApi from '@/hooks/useApi'
@@ -151,6 +155,10 @@ const AgentflowCanvas = () => {
             edgeLabel = params.sourceHandle.split('-').pop()
             edgeLabel = edgeLabel === '0' ? 'proceed' : 'reject'
         }
+
+        // router / fetch / cooldown / filter nodes name their branches
+        const branchLabel = getBranchEdgeLabel(params.sourceHandle, canvas.componentNodes)
+        if (branchLabel) edgeLabel = branchLabel
 
         // Check if both source and target nodes are within the same iteration node
         const sourceNode = reactFlowInstance.getNodes().find((node) => node.id === params.source)
@@ -547,6 +555,7 @@ const AgentflowCanvas = () => {
             setNodes(initialFlow.nodes || [])
             setEdges(initialFlow.edges || [])
             dispatch({ type: SET_CHATFLOW, chatflow })
+            loadMediaWarnings(chatflow.id)
         } else if (getSpecificChatflowApi.error) {
             errorFailed(`Failed to retrieve ${canvasTitle}: ${getSpecificChatflowApi.error.response.data.message}`)
         }
@@ -554,12 +563,24 @@ const AgentflowCanvas = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getSpecificChatflowApi.data, getSpecificChatflowApi.error])
 
+    // Warnings about missing media files never block a save; they are fetched after it and shown on the nodes
+    const loadMediaWarnings = async (flowId) => {
+        try {
+            const response = await validationApi.checkMediaWarnings(flowId)
+            dispatch({ type: SET_MEDIA_WARNINGS, mediaWarnings: mediaWarningsToMap(response.data) })
+        } catch (e) {
+            // the warnings are advisory: a failed check must not disturb the editor
+            dispatch({ type: SET_MEDIA_WARNINGS, mediaWarnings: {} })
+        }
+    }
+
     // Create new chatflow successful
     useEffect(() => {
         if (createNewChatflowApi.data) {
             const chatflow = createNewChatflowApi.data
             dispatch({ type: SET_CHATFLOW, chatflow })
             saveChatflowSuccess()
+            loadMediaWarnings(chatflow.id)
             window.history.replaceState(state, null, `/v2/agentcanvas/${chatflow.id}`)
         } else if (createNewChatflowApi.error) {
             errorFailed(`Failed to save ${canvasTitle}: ${createNewChatflowApi.error.response.data.message}`)
@@ -573,6 +594,7 @@ const AgentflowCanvas = () => {
         if (updateChatflowApi.data) {
             dispatch({ type: SET_CHATFLOW, chatflow: updateChatflowApi.data })
             saveChatflowSuccess()
+            loadMediaWarnings(updateChatflowApi.data.id)
         } else if (updateChatflowApi.error) {
             errorFailed(`Failed to save ${canvasTitle}: ${updateChatflowApi.error.response.data.message}`)
         }

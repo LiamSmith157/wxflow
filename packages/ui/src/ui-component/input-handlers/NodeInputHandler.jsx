@@ -1178,6 +1178,12 @@ const NodeInputHandler = ({
                             />
                         )}
 
+                        {inputParam.name === 'wechatDirection' && (data.inputs?.wechatDirection ?? inputParam.default) !== 'in' && (
+                            <Alert severity='warning' variant='outlined' sx={{ mt: 1, py: 0.5 }}>
+                                {t('wechatDirectionLoopWarning')}
+                            </Alert>
+                        )}
+
                         {inputParam.name === 'webhookSecret' && (
                             <Box sx={{ mt: 1 }}>
                                 {!canvasChatflow?.webhookSecretConfigured && !webhookSecretPlaintext ? (

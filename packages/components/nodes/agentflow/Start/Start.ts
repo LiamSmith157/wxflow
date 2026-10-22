@@ -1,4 +1,5 @@
-import { ICommonObject, INode, INodeData, INodeParams } from '../../../src/Interface'
+import { DataSource } from 'typeorm'
+import { ICommonObject, IDatabaseEntity, INode, INodeData, INodeOptionsValue, INodeParams } from '../../../src/Interface'
 
 const TIMEZONE_OPTIONS: { label: string; name: string }[] = (() => {
     try {
@@ -48,7 +49,7 @@ class Start_Agentflow implements INode {
     constructor() {
         this.label = 'Start'
         this.name = 'startAgentflow'
-        this.version = 1.4
+        this.version = 1.5
         this.type = 'Start'
         this.category = 'Agent Flows'
         this.description = 'Starting point of the agentflow'
@@ -82,6 +83,12 @@ class Start_Agentflow implements INode {
                         label: 'Schedule Input',
                         name: 'scheduleInput',
                         description: 'Start the workflow on a recurring schedule (cron)',
+                        client: ['agentflowv2']
+                    },
+                    {
+                        label: 'WeChat Event',
+                        name: 'wechatEvent',
+                        description: 'Start the workflow when something happens in a connected WeChat account',
                         client: ['agentflowv2']
                     }
                 ],
@@ -725,6 +732,193 @@ class Start_Agentflow implements INode {
                 }
             },
             {
+                label: 'Event Type',
+                name: 'wechatEventType',
+                type: 'options',
+                description: 'Which WeChat event starts the flow',
+                options: [
+                    { label: 'Message Received', name: 'msg.insert', description: 'A message arrived in a conversation' },
+                    { label: 'Quick Keyword Hit', name: 'quickkey.hit', description: 'A quick keyword typed in the input box was matched' },
+                    {
+                        label: 'Session Switch',
+                        name: 'session.switch',
+                        description: 'The selected conversation in the main window changed'
+                    },
+                    { label: 'Media Saved', name: 'msg.media', description: 'An image, video or file was saved to disk' },
+                    { label: 'Login', name: 'wx.login', description: 'The WeChat account logged in' },
+                    { label: 'Logout', name: 'wx.logout', description: 'The WeChat account logged out' },
+                    { label: 'Payment', name: 'msg.pay', description: 'Transfers, red packets and payment notifications' }
+                ],
+                default: 'msg.insert',
+                show: {
+                    startInputType: 'wechatEvent'
+                }
+            },
+            {
+                label: 'Instance Scope',
+                name: 'wechatInstanceScope',
+                type: 'options',
+                description: 'Which WeChat accounts of this workspace can start the flow',
+                options: [
+                    { label: 'All Instances', name: 'all', description: 'Every instance assigned to this workspace' },
+                    { label: 'Specific Instance', name: 'specific', description: 'Only the selected instance' }
+                ],
+                default: 'all',
+                show: {
+                    startInputType: 'wechatEvent'
+                }
+            },
+            {
+                label: 'Instance',
+                name: 'wechatInstance',
+                type: 'asyncOptions',
+                loadMethod: 'listWechatInstances',
+                show: {
+                    startInputType: 'wechatEvent',
+                    wechatInstanceScope: 'specific'
+                }
+            },
+            {
+                label: 'Direction',
+                name: 'wechatDirection',
+                type: 'options',
+                description:
+                    "Inbound only is the default so that messages sent by this account (including this flow's own replies) never start the flow again",
+                options: [
+                    { label: 'Inbound Only', name: 'in', description: 'Messages received from others' },
+                    { label: 'Outbound Only', name: 'out', description: 'Messages sent by this account' },
+                    { label: 'Inbound and Outbound', name: 'any', description: 'Risk of reply loops: the flow can trigger itself' }
+                ],
+                default: 'in',
+                show: {
+                    startInputType: 'wechatEvent',
+                    wechatEventType: 'msg.insert'
+                }
+            },
+            {
+                label: 'Conversations',
+                name: 'wechatTalkers',
+                type: 'string',
+                description: 'Only these conversations (wxid or chatroom id, comma separated). Leave empty for all conversations',
+                placeholder: 'wxid_abc, 12345678@chatroom',
+                optional: true,
+                show: {
+                    startInputType: 'wechatEvent',
+                    wechatEventType: 'msg.insert'
+                }
+            },
+            {
+                label: 'Conversation Type',
+                name: 'wechatChatScope',
+                type: 'options',
+                options: [
+                    { label: 'Any', name: 'any' },
+                    { label: 'Group Chats', name: 'group' },
+                    { label: 'Private Chats', name: 'c2c' }
+                ],
+                default: 'any',
+                show: {
+                    startInputType: 'wechatEvent',
+                    wechatEventType: 'msg.insert'
+                }
+            },
+            {
+                label: 'Message Types',
+                name: 'wechatMsgTypes',
+                type: 'multiOptions',
+                description: 'Which kinds of messages start the flow. Select none for all kinds',
+                options: [
+                    { label: 'Text', name: '1' },
+                    { label: 'Image', name: '3' },
+                    { label: 'Voice', name: '34' },
+                    { label: 'Link', name: '5' },
+                    { label: 'File', name: '6' },
+                    { label: 'Video', name: '43' }
+                ],
+                default: ['1'],
+                optional: true,
+                show: {
+                    startInputType: 'wechatEvent',
+                    wechatEventType: 'msg.insert'
+                }
+            },
+            {
+                label: 'Keywords',
+                name: 'wechatQuickKeys',
+                type: 'string',
+                description: 'Only these quick keywords (comma separated). Leave empty for any keyword',
+                optional: true,
+                show: {
+                    startInputType: 'wechatEvent',
+                    wechatEventType: 'quickkey.hit'
+                }
+            },
+            {
+                label: 'Switch To',
+                name: 'wechatSwitchTo',
+                type: 'string',
+                description: 'Only when switching to these conversations (comma separated). Leave empty for any',
+                optional: true,
+                show: {
+                    startInputType: 'wechatEvent',
+                    wechatEventType: 'session.switch'
+                }
+            },
+            {
+                label: 'Media Type',
+                name: 'wechatMediaType',
+                type: 'options',
+                options: [
+                    { label: 'Any', name: 'any' },
+                    { label: 'Image', name: 'image' },
+                    { label: 'Video', name: 'video' },
+                    { label: 'File', name: 'file' }
+                ],
+                default: 'any',
+                show: {
+                    startInputType: 'wechatEvent',
+                    wechatEventType: 'msg.media'
+                }
+            },
+            {
+                label: 'Payment Event Types',
+                name: 'wechatPayKinds',
+                type: 'multiOptions',
+                description: 'Select none for all payment events, including types added in the future',
+                options: [
+                    { label: 'Transfer', name: 'transfer' },
+                    { label: 'Red Packet', name: 'redpacket' },
+                    { label: 'Red Packet Opened', name: 'redpacket_opened' },
+                    { label: 'QR Code Payment Received', name: 'recv_qrcode' },
+                    { label: 'Payment Receipt', name: 'pay_receipt' },
+                    { label: 'Merchant Transfer Received', name: 'recv_merchant' },
+                    { label: 'Refund', name: 'refund' },
+                    { label: 'Transfer Expired', name: 'transfer_expired' },
+                    { label: 'Other WeChat Pay', name: 'wxpay_other' }
+                ],
+                optional: true,
+                show: {
+                    startInputType: 'wechatEvent',
+                    wechatEventType: 'msg.pay'
+                }
+            },
+            {
+                label: 'Money Flow',
+                name: 'wechatPayDirection',
+                type: 'options',
+                description: 'Events whose direction is undetermined (such as expired transfers) are only received with Any',
+                options: [
+                    { label: 'Any', name: 'any' },
+                    { label: 'Incoming Only', name: 'in' },
+                    { label: 'Outgoing Only', name: 'out' }
+                ],
+                default: 'any',
+                show: {
+                    startInputType: 'wechatEvent',
+                    wechatEventType: 'msg.pay'
+                }
+            },
+            {
                 label: 'Ephemeral Memory',
                 name: 'startEphemeralMemory',
                 type: 'boolean',
@@ -761,6 +955,24 @@ class Start_Agentflow implements INode {
                 optional: true
             }
         ]
+    }
+
+    loadMethods = {
+        async listWechatInstances(_: INodeData, options: ICommonObject = {}): Promise<INodeOptionsValue[]> {
+            const appDataSource = options.appDataSource as DataSource
+            const databaseEntities = options.databaseEntities as IDatabaseEntity
+            if (!appDataSource || !databaseEntities?.['ChannelInstance']) return []
+            // searchOptions restricts the query to the current workspace: other workspaces' instances are never listed
+            const instances = await appDataSource
+                .getRepository(databaseEntities['ChannelInstance'])
+                .findBy({ ...(options.searchOptions || {}), channel: 'wechat' })
+            return instances
+                .map(
+                    (i: any) =>
+                        ({ label: i.displayName || i.instanceKey, name: i.instanceKey, description: i.instanceKey } as INodeOptionsValue)
+                )
+                .sort((a: INodeOptionsValue, b: INodeOptionsValue) => a.label.localeCompare(b.label))
+        }
     }
 
     async run(nodeData: INodeData, input: string | Record<string, any>, options: ICommonObject): Promise<any> {
@@ -868,6 +1080,17 @@ class Start_Agentflow implements INode {
                 inputData.question = effectiveInput
                 outputData.question = effectiveInput
             }
+        }
+
+        if (startInputType === 'wechatEvent') {
+            // The channel layer puts the event (channel, instance, event name and the event's own fields) in the runtime
+            const wechat: ICommonObject = options.agentflowRuntime?.wechat ?? {}
+            inputData.wechat = wechat
+            outputData.wechat = wechat
+            // Message events behave like chat input for downstream Agent/LLM nodes; other events use the "no input" sentinel
+            const text = (typeof input === 'string' && input) || (typeof wechat.content === 'string' && wechat.content) || ' '
+            inputData.question = text
+            outputData.question = text
         }
 
         if (startEphemeralMemory) {

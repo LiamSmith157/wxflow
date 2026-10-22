@@ -1,0 +1,108 @@
+{
+    "_说明": "合成夹具，不是真实抓帧（U22 需要真实实例，尚未完成）：source 字段名与 <atuserlist> 结构按微信 4.x 消息表的 msgsource 推断，待真实帧验证。",
+    "atSelf": {
+        "op": "insert",
+        "table": "Msg_x",
+        "talker": "12345678@chatroom",
+        "sender": "wxid_member",
+        "direction": "in",
+        "row": {
+            "local_id": "10",
+            "server_id": "7123456789",
+            "local_type": "1",
+            "sort_seq": "100",
+            "message_content": {
+                "b64": "d3hpZF9tZW1iZXI6CkDmnLrlmajkurog5oiR6KaB57ut6LS5",
+                "enc": "raw",
+                "n": 9
+            },
+            "source": {
+                "b64": "PG1zZ3NvdXJjZT48YXR1c2VybGlzdD53eGlkX2JvdDwvYXR1c2VybGlzdD48L21zZ3NvdXJjZT4=",
+                "enc": "raw",
+                "n": 56
+            }
+        }
+    },
+    "atOther": {
+        "op": "insert",
+        "table": "Msg_x",
+        "talker": "12345678@chatroom",
+        "sender": "wxid_member",
+        "direction": "in",
+        "row": {
+            "local_id": "10",
+            "server_id": "7123456789",
+            "local_type": "1",
+            "sort_seq": "100",
+            "message_content": {
+                "b64": "d3hpZF9tZW1iZXI6CkDlsI/njosg55yL5LiA5LiL",
+                "enc": "raw",
+                "n": 7
+            },
+            "source": {
+                "b64": "PG1zZ3NvdXJjZT48YXR1c2VybGlzdD53eGlkX3hpYW93YW5nLHd4aWRfb3RoZXI8L2F0dXNlcmxpc3Q+PC9tc2dzb3VyY2U+",
+                "enc": "raw",
+                "n": 72
+            }
+        }
+    },
+    "noAt": {
+        "op": "insert",
+        "table": "Msg_x",
+        "talker": "12345678@chatroom",
+        "sender": "wxid_member",
+        "direction": "in",
+        "row": {
+            "local_id": "10",
+            "server_id": "7123456789",
+            "local_type": "1",
+            "sort_seq": "100",
+            "message_content": {
+                "b64": "d3hpZF9tZW1iZXI6CuiwgeefpemBk+aAjuS5iOe7rei0uQ==",
+                "enc": "raw",
+                "n": 7
+            },
+            "source": {
+                "b64": "PG1zZ3NvdXJjZT48c2lnbmF0dXJlPng8L3NpZ25hdHVyZT48L21zZ3NvdXJjZT4=",
+                "enc": "raw",
+                "n": 47
+            }
+        }
+    },
+    "dm": {
+        "op": "insert",
+        "table": "Msg_x",
+        "talker": "wxid_customer",
+        "sender": "wxid_customer",
+        "direction": "in",
+        "row": {
+            "local_id": "10",
+            "server_id": "7123456789",
+            "local_type": "1",
+            "sort_seq": "100",
+            "message_content": {
+                "b64": "d3hpZF9jdXN0b21lcjoK5L2g5aW9",
+                "enc": "raw",
+                "n": 2
+            }
+        }
+    },
+    "legacyNoSource": {
+        "op": "insert",
+        "table": "Msg_x",
+        "talker": "12345678@chatroom",
+        "sender": "wxid_member",
+        "direction": "in",
+        "row": {
+            "local_id": "10",
+            "server_id": "7123456789",
+            "local_type": "1",
+            "sort_seq": "100",
+            "message_content": {
+                "b64": "d3hpZF9tZW1iZXI6CuaXp+WkueWFt+ayoeaciSBzb3VyY2U=",
+                "enc": "raw",
+                "n": 12
+            }
+        }
+    }
+}

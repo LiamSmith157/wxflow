@@ -6,6 +6,9 @@ import { ChatFlow } from '../../database/entities/ChatFlow'
 import { INodeParams } from 'wxflow-components'
 import { resolveScheduleCron } from '../schedule'
 import { IComponentNodes, IReactFlowEdge, IReactFlowNode, IReactFlowObject } from '../../Interface'
+import { getChannelConfig } from '../../channels/config'
+import { findMediaWarnings, MediaWarning } from '../../channels/media/validate'
+import { getMediaResolver } from '../../channels/media/resolverInstance'
 
 export interface IValidationResult {
     id: string
@@ -338,6 +341,35 @@ const checkFlowValidation = async (flowId: string, workspaceId?: string): Promis
     }
 }
 
+/**
+ * Warnings about fixed media paths of WeChat send nodes that do not exist in the exchange directory. They are
+ * shown after a save and never block it.
+ */
+const checkMediaWarnings = async (flowId: string, workspaceId?: string): Promise<MediaWarning[]> => {
+    try {
+        const appServer = getRunningExpressApp()
+        const whereCondition: any = { id: flowId }
+        if (workspaceId) whereCondition.workspaceId = workspaceId
+        const flow = await appServer.AppDataSource.getRepository(ChatFlow).findOne({ where: whereCondition })
+        if (!flow) {
+            throw new InternalFlowiseError(StatusCodes.NOT_FOUND, `Error: validationService.checkMediaWarnings - flow not found!`)
+        }
+        const flowData: IReactFlowObject = JSON.parse(flow.flowData)
+        const config = getChannelConfig()
+        return findMediaWarnings(flowData.nodes ?? [], getMediaResolver(), {
+            exchange: config.exchange,
+            maxDownloadBytes: config.maxDownloadBytes
+        })
+    } catch (error) {
+        if (error instanceof InternalFlowiseError) throw error
+        throw new InternalFlowiseError(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            `Error: validationService.checkMediaWarnings - ${getErrorMessage(error)}`
+        )
+    }
+}
+
 export default {
-    checkFlowValidation
+    checkFlowValidation,
+    checkMediaWarnings
 }

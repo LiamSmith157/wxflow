@@ -45,6 +45,7 @@ import { Variable } from '../database/entities/Variable'
 import { DocumentStore } from '../database/entities/DocumentStore'
 import { DocumentStoreFileChunk } from '../database/entities/DocumentStoreFileChunk'
 import { CustomMcpServer } from '../database/entities/CustomMcpServer'
+import { ChannelInstance } from '../database/entities/ChannelInstance'
 import {
     CreateSecretCommand,
     GetSecretValueCommand,
@@ -89,7 +90,8 @@ export const databaseEntities: IDatabaseEntity = {
     Variable: Variable,
     DocumentStore: DocumentStore,
     DocumentStoreFileChunk: DocumentStoreFileChunk,
-    CustomMcpServer: CustomMcpServer
+    CustomMcpServer: CustomMcpServer,
+    ChannelInstance: ChannelInstance
 }
 
 /**
@@ -1232,9 +1234,7 @@ export const getAPIOverrideConfig = (chatflow: IChatFlow) => {
 }
 
 export const getUploadPath = (): string => {
-    return process.env.BLOB_STORAGE_PATH
-        ? path.join(process.env.BLOB_STORAGE_PATH, 'uploads')
-        : path.join(getDefaultDataDir(), 'uploads')
+    return process.env.BLOB_STORAGE_PATH ? path.join(process.env.BLOB_STORAGE_PATH, 'uploads') : path.join(getDefaultDataDir(), 'uploads')
 }
 
 export function generateId() {

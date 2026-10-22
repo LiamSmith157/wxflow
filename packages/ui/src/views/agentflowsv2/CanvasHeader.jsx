@@ -31,6 +31,7 @@ import { Available } from '@/ui-component/rbac/available'
 
 // API
 import chatflowsApi from '@/api/chatflows'
+import ChannelEnableSwitch from './ChannelEnableSwitch'
 
 // Hooks
 import useApi from '@/hooks/useApi'
@@ -495,6 +496,7 @@ const CanvasHeader = ({ chatflow, handleSaveFlow, handleDeleteFlow, handleLoadFl
                     </Box>
                 </Stack>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <ChannelEnableSwitch chatflow={chatflow} />
                     {chatflow?.id && isScheduleFlow && scheduleStatusLoaded && (
                         <Tooltip
                             title={

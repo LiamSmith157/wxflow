@@ -3,6 +3,7 @@ import validationController from '../../controllers/validation'
 const router = express.Router()
 
 // READ
+router.get('/:id/media-warnings', validationController.checkMediaWarnings)
 router.get('/:id', validationController.checkFlowValidation)
 
 export default router

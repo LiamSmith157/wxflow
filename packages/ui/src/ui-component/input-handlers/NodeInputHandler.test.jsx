@@ -38,7 +38,7 @@ const inputParam = {
     optional: true
 }
 
-const renderHandler = (param = inputParam) => {
+const renderHandler = (param = inputParam, nodeData = data) => {
     const store = createStore(
         (state = { customization: { isDarkMode: false, borderRadius: 4 }, canvas: { chatflow: null }, notifier: { notifications: [] } }) =>
             state
@@ -50,7 +50,7 @@ const renderHandler = (param = inputParam) => {
                     <MemoryRouter>
                         <ErrorProvider>
                             <flowContext.Provider value={{ reactFlowInstance: null, deleteEdge: () => {}, onNodeDataChange: () => {} }}>
-                                <NodeInputHandler inputParam={param} data={data} />
+                                <NodeInputHandler inputParam={param} data={nodeData} />
                             </flowContext.Provider>
                         </ErrorProvider>
                     </MemoryRouter>
@@ -112,5 +112,53 @@ describe('NodeInputHandler node catalog translation', () => {
         const field = screen.getByPlaceholderText('输入一个值')
         expect(field).toHaveValue('')
         expect(data.inputs).toEqual({ temperature: '0.5' })
+    })
+})
+
+describe('NodeInputHandler WeChat direction warning', () => {
+    const directionParam = {
+        id: 'startAgentflow_0-input-wechatDirection-options',
+        name: 'wechatDirection',
+        label: 'Direction',
+        type: 'options',
+        default: 'in',
+        options: [
+            { label: 'Inbound Only', name: 'in' },
+            { label: 'Outbound Only', name: 'out' },
+            { label: 'Inbound and Outbound', name: 'any' }
+        ]
+    }
+    const startData = (inputs) => ({ id: 'startAgentflow_0', name: 'startAgentflow', inputs, inputParams: [], selected: false })
+    const warning = /trigger itself again/
+
+    beforeEach(async () => {
+        if (!document.getElementById('portal')) {
+            const portal = document.createElement('div')
+            portal.id = 'portal'
+            document.body.appendChild(portal)
+        }
+        await act(async () => {
+            await i18n.changeLanguage('en')
+        })
+    })
+
+    it('shows no warning for inbound only (explicit or default)', () => {
+        renderHandler(directionParam, startData({ wechatDirection: 'in' }))
+        expect(screen.queryByText(warning)).not.toBeInTheDocument()
+    })
+
+    it('shows no warning while the direction is still unset (default is inbound)', () => {
+        renderHandler(directionParam, startData({}))
+        expect(screen.queryByText(warning)).not.toBeInTheDocument()
+    })
+
+    it.each(['out', 'any'])('warns about a reply loop when the direction is %s', (direction) => {
+        renderHandler(directionParam, startData({ wechatDirection: direction }))
+        expect(screen.getByText(warning)).toBeInTheDocument()
+    })
+
+    it('does not warn on other parameters', () => {
+        renderHandler(inputParam, startData({ wechatDirection: 'any' }))
+        expect(screen.queryByText(warning)).not.toBeInTheDocument()
     })
 })

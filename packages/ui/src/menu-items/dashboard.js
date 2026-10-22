@@ -20,7 +20,8 @@ import {
     IconLockCheck,
     IconFileDatabase,
     IconShieldLock,
-    IconListCheck
+    IconListCheck,
+    IconBrandWechat
 } from '@tabler/icons-react'
 
 // constant
@@ -45,7 +46,8 @@ const icons = {
     IconLockCheck,
     IconFileDatabase,
     IconShieldLock,
-    IconListCheck
+    IconListCheck,
+    IconBrandWechat
 }
 
 // Menu titles are i18n keys (namespace:key); they are translated where they are rendered
@@ -123,6 +125,15 @@ const dashboard = {
                     icon: icons.IconFiles,
                     breadcrumbs: true,
                     permission: 'documentStores:view'
+                },
+                {
+                    id: 'channel-instances',
+                    title: 'menu:channelInstances',
+                    type: 'item',
+                    url: '/channel-instances',
+                    icon: icons.IconBrandWechat,
+                    breadcrumbs: true,
+                    permission: 'channelInstances:view'
                 }
             ]
         },

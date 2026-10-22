@@ -20,6 +20,7 @@ describe('menu items', () => {
             ['variables', '/variables'],
             ['apikey', '/apikey'],
             ['document-stores', '/document-stores'],
+            ['channel-instances', '/channel-instances'],
             ['evaluations', undefined],
             ['datasets', '/datasets'],
             ['evaluators', '/evaluators'],
@@ -34,6 +35,14 @@ describe('menu items', () => {
             ['logs', '/logs'],
             ['account', '/account']
         ])
+    })
+
+    it('puts Channel Instances behind the channelInstances:view permission', () => {
+        const entry = flatten(dashboard).find((n) => n.id === 'channel-instances')
+        expect(entry.permission).toBe('channelInstances:view')
+        expect(entry.title).toBe('menu:channelInstances')
+        expect(en.channelInstances).toBe('Channel Instances')
+        expect(zhCN.channelInstances).toBe('渠道实例')
     })
 
     it('keeps the agent settings entries', () => {

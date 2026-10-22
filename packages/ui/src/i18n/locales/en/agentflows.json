@@ -52,5 +52,10 @@
     "overrideConfigSecurity": "For security reason, override config is disabled by default. You can change this by going into Chatflow Configuration -> Security tab, and enable the property you want to override. Refer <docLink>here</docLink> for more details",
     "streamingDocs": "Read <docLink>here</docLink> on how to stream response back to application",
     "toggleSnapping": "Toggle snapping",
-    "toggleBackground": "Toggle background"
+    "toggleBackground": "Toggle background",
+    "wechatFlowEnabledTooltip": "Listening to WeChat events — click to disable",
+    "wechatFlowDisabledTooltip": "Not listening to WeChat events — click to enable",
+    "wechatFlowEnabledSuccessfully": "Flow enabled: WeChat events now start it",
+    "wechatFlowDisabledSuccessfully": "Flow disabled: WeChat events no longer start it",
+    "wechatFlowToggleFailed": "Failed to change whether this flow listens to WeChat events"
 }

@@ -774,6 +774,8 @@ const getChatType = (chatType?: ChatType): string => {
             return 'Scheduled'
         case ChatType.WEBHOOK:
             return 'Webhook'
+        case ChatType.CHANNEL:
+            return 'Channel'
     }
 }
 

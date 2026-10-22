@@ -52,5 +52,10 @@
     "overrideConfigSecurity": "出于安全考虑,覆盖配置默认处于禁用状态。你可以在 Chatflow 配置 -> 安全 标签页中启用想要覆盖的属性。详情请参阅<docLink>此处</docLink>。",
     "streamingDocs": "关于如何把响应以流式返回给应用,请阅读<docLink>此处</docLink>。",
     "toggleSnapping": "切换对齐吸附",
-    "toggleBackground": "切换背景"
+    "toggleBackground": "切换背景",
+    "wechatFlowEnabledTooltip": "正在监听微信事件——点击停用",
+    "wechatFlowDisabledTooltip": "未监听微信事件——点击启用",
+    "wechatFlowEnabledSuccessfully": "流程已启用:微信事件现在会触发它",
+    "wechatFlowDisabledSuccessfully": "流程已停用:微信事件不再触发它",
+    "wechatFlowToggleFailed": "切换该流程是否监听微信事件失败"
 }

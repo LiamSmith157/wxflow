@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux'
 import { SET_DIRTY } from '@/store/actions'
 import { flowContext } from '@/store/context/ReactFlowContext'
 import { IconX } from '@tabler/icons-react'
+import { tn } from '@/i18n/nodes'
 
 function EdgeLabel({ transform, isHumanInput, label, color }) {
     return (
@@ -103,7 +104,7 @@ const AgentFlowEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition,
                     <EdgeLabel
                         isHumanInput={data?.isHumanInput}
                         color={data?.sourceColor || '#ae53ba'}
-                        label={data.edgeLabel}
+                        label={tn(data.edgeLabel)}
                         transform={`translate(-50%, 0%) translate(${sourceX}px,${sourceY}px)`}
                     />
                 </EdgeLabelRenderer>

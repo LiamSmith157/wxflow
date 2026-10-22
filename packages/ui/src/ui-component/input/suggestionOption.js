@@ -2,6 +2,7 @@ import { ReactRenderer } from '@tiptap/react'
 import tippy from 'tippy.js'
 import SuggestionList from './SuggestionList'
 import variablesApi from '@/api/variables'
+import { getWechatSuggestionItems } from './wechatSuggestions'
 
 /**
  * Workaround for the current typing incompatibility between Tippy.js and Tiptap
@@ -186,6 +187,8 @@ export const suggestionOptions = (
             }))
         }
 
+        const wechatItems = getWechatSuggestionItems(startInputType, startAgentflowNode?.data?.inputs?.wechatEventType)
+
         const nodeItems = (availableNodesForVariable || []).map((node) => {
             const selectedOutputAnchor = node.data.outputAnchors?.[0]?.options?.find((ancr) => ancr.name === node.data.outputs['output'])
 
@@ -203,6 +206,7 @@ export const suggestionOptions = (
             ...webhookQueryItems,
             ...webhookItems,
             ...webhookHeaderItems,
+            ...wechatItems,
             ...nodeItems,
             ...stateItems,
             ...variableItems

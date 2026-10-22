@@ -6,7 +6,9 @@ export const initialState = {
     chatflow: null,
     canvasDialogShow: false,
     componentNodes: [],
-    componentCredentials: []
+    componentCredentials: [],
+    // nodeId -> warnings about fixed media paths that do not exist (shown on the node after a save)
+    mediaWarnings: {}
 }
 
 // ==============================|| CANVAS REDUCER ||============================== //
@@ -26,7 +28,9 @@ const canvasReducer = (state = initialState, action) => {
         case actionTypes.SET_CHATFLOW:
             return {
                 ...state,
-                chatflow: action.chatflow
+                chatflow: action.chatflow,
+                // warnings belong to one flow: switching to another flow starts clean
+                mediaWarnings: state.chatflow?.id === action.chatflow?.id ? state.mediaWarnings : {}
             }
         case actionTypes.SHOW_CANVAS_DIALOG:
             return {
@@ -47,6 +51,11 @@ const canvasReducer = (state = initialState, action) => {
             return {
                 ...state,
                 componentCredentials: action.componentCredentials
+            }
+        case actionTypes.SET_MEDIA_WARNINGS:
+            return {
+                ...state,
+                mediaWarnings: action.mediaWarnings || {}
             }
         default:
             return state

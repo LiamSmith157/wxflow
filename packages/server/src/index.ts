@@ -9,6 +9,11 @@ import { DataSource } from 'typeorm'
 import { getEnv } from 'wxflow-components'
 import { AbortControllerPool } from './AbortControllerPool'
 import { CachePool } from './CachePool'
+import { getChannelHub } from './channels/ChannelHub'
+import { getChannelRegistry } from './channels/ChannelRegistry'
+import { initChannelServices } from './services/channel/bootstrap'
+import { initExchange, stopExchange } from './channels/media/startup'
+import { startWeChatGateway, stopWeChatGateway } from './channels/wechat/gatewayService'
 import { ChatFlow } from './database/entities/ChatFlow'
 import { getDataSource } from './DataSource'
 import { Organization } from './enterprise/database/entities/organization.entity'
@@ -165,6 +170,11 @@ export class App {
             // Init ScheduleBeat (works in both queue and non-queue mode)
             await ScheduleBeat.getInstance().init()
             logger.info('⏰ [server]: ScheduleBeat initialized successfully')
+
+            // WeChat gateway: a bind failure or queue mode only disables the channel, never the server
+            initChannelServices(getChannelHub(), logger)
+            await initExchange(logger)
+            await startWeChatGateway({ registry: getChannelRegistry(), sink: getChannelHub(), logger })
 
             logger.info('🎉 [server]: All initialization steps completed successfully!')
         } catch (error) {
@@ -385,6 +395,8 @@ export class App {
             this.sseStreamer.stopHeartbeat()
             const removePromises: any[] = []
             removePromises.push(this.telemetry.flush())
+            stopExchange()
+            removePromises.push(stopWeChatGateway(getChannelRegistry()))
             if (this.queueManager) {
                 removePromises.push(this.redisSubscriber.disconnect())
             }

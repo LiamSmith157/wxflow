@@ -62,6 +62,7 @@ import { AddPersonalWorkspace1734074497540 } from '../../../enterprise/database/
 import { RefactorEnterpriseDatabase1737076223692 } from '../../../enterprise/database/migrations/mysql/1737076223692-RefactorEnterpriseDatabase'
 import { ExecutionLinkWorkspaceId1746862866554 } from '../../../enterprise/database/migrations/mysql/1746862866554-ExecutionLinkWorkspaceId'
 import { DropAssistantAndCustomTemplate1790000000000 } from './1790000000000-DropAssistantAndCustomTemplate'
+import { AddChannelEntities1791000000000 } from './1791000000000-AddChannelEntities'
 
 export const mysqlMigrations = [
     Init1693840429259,
@@ -126,5 +127,6 @@ export const mysqlMigrations = [
     AddMcpServerConfigToChatFlow1767000000000,
     AddScheduleEntities1772000000000,
     AddSSOIdentityBinding1780000000000,
-    DropAssistantAndCustomTemplate1790000000000
+    DropAssistantAndCustomTemplate1790000000000,
+    AddChannelEntities1791000000000
 ]

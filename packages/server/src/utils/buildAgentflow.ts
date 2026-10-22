@@ -1,6 +1,8 @@
 import { DataSource } from 'typeorm'
 import { v4 as uuidv4 } from 'uuid'
 import { cloneDeep, get } from 'lodash'
+import { WECHAT_VAR_PREFIX, resolveWechatRef } from './channelVariables'
+import { createRunChannelRuntime } from '../channels/runtimeFactory'
 import TurndownService from 'turndown'
 import {
     AnalyticHandler,
@@ -99,6 +101,8 @@ interface IAgentFlowRuntime {
     chatHistory?: IMessage[]
     form?: Record<string, any>
     webhook?: Record<string, any>
+    /** Channel event that started the run (channel, instance, event name and the event's own fields) */
+    wechat?: Record<string, any>
 }
 
 /**
@@ -251,7 +255,8 @@ export const resolveVariables = async (
     agentFlowExecutedData?: IAgentflowExecutedData[],
     iterationContext?: ICommonObject,
     loopCounts?: Map<string, number>,
-    webhook?: Record<string, any>
+    webhook?: Record<string, any>,
+    wechat?: Record<string, any>
 ): Promise<INodeData> => {
     let flowNodeData = cloneDeep(reactFlowNodeData)
     const types = 'inputs'
@@ -321,6 +326,12 @@ export const resolveVariables = async (
                             : variableValue
                     resolvedValue = resolvedValue.replace(match, formattedValue)
                 }
+            }
+
+            if (variableFullPath.startsWith(WECHAT_VAR_PREFIX)) {
+                const formattedValue = resolveWechatRef(variableFullPath, wechat)
+                // function replacement: chat text containing "$&" or "$1" must be inserted literally
+                resolvedValue = resolvedValue.replace(match, () => formattedValue)
             }
 
             if (variableFullPath === FILE_ATTACHMENT_PREFIX) {
@@ -789,6 +800,21 @@ function hasReceivedRequiredInputs(waitingNode: IWaitingNode): boolean {
 }
 
 /**
+ * Nodes that choose a branch: they return output.conditions and only the children on branches whose condition is
+ * fulfilled run. Output handle N belongs to condition N.
+ */
+const DECISION_NODE_NAMES = new Set([
+    'conditionAgentflow',
+    'conditionAgentAgentflow',
+    'humanInputAgentflow',
+    'cooldownAgentflow',
+    'talkerFilterAgentflow',
+    'wechatMessageTypeRouterAgentflow',
+    'wechatFetchImageAgentflow',
+    'wechatFetchVoiceAgentflow'
+])
+
+/**
  * Determines which nodes should be ignored based on condition results
  * @param currentNode - The node being processed
  * @param result - The execution result from the node
@@ -805,10 +831,7 @@ async function determineNodesToIgnore(
     const ignoreNodeIds: string[] = []
 
     // Check if this is a decision node
-    const isDecisionNode =
-        currentNode.data.name === 'conditionAgentflow' ||
-        currentNode.data.name === 'conditionAgentAgentflow' ||
-        currentNode.data.name === 'humanInputAgentflow'
+    const isDecisionNode = DECISION_NODE_NAMES.has(currentNode.data.name)
 
     if (isDecisionNode && result.output?.conditions) {
         const outputConditions: ICondition[] = result.output.conditions
@@ -830,9 +853,10 @@ async function determineNodesToIgnore(
 
         // Find nodes to ignore based on unfulfilled conditions
         for (const index of unfulfilledIndexes) {
-            const ignoreEdge = edges.find((edge) => edge.source === nodeId && edge.sourceHandle === `${nodeId}-output-${index}`)
+            // a branch may feed several nodes: every one of them is skipped
+            const ignoreEdges = edges.filter((edge) => edge.source === nodeId && edge.sourceHandle === `${nodeId}-output-${index}`)
 
-            if (ignoreEdge) {
+            for (const ignoreEdge of ignoreEdges) {
                 ignoreNodeIds.push(ignoreEdge.target)
             }
         }
@@ -1166,6 +1190,12 @@ const executeNode = async ({
         } else if (isObjectNotEmpty(agentflowRuntime.webhook)) {
             webhookValue = agentflowRuntime.webhook as Record<string, any>
         }
+        let wechatValue: Record<string, any> = {}
+        if (isObjectNotEmpty(incomingInput.wechat)) {
+            wechatValue = incomingInput.wechat as Record<string, any>
+        } else if (isObjectNotEmpty(agentflowRuntime.wechat)) {
+            wechatValue = agentflowRuntime.wechat as Record<string, any>
+        }
         const reactFlowNodeData: INodeData = await resolveVariables(
             flowNodeData,
             incomingInput.question ?? '',
@@ -1179,7 +1209,8 @@ const executeNode = async ({
             agentFlowExecutedData,
             iterationContext,
             loopCounts,
-            webhookValue
+            webhookValue,
+            wechatValue
         )
 
         // Handle human input if present
@@ -1252,7 +1283,9 @@ const executeNode = async ({
             parentTraceIds,
             humanInputAction,
             iterationContext,
-            evaluationRunId
+            evaluationRunId,
+            // channel handle for the WeChat nodes: scoped to this workspace, carries the triggering event
+            channels: createRunChannelRuntime(workspaceId, wechatValue)
         }
 
         // Execute node
@@ -1608,6 +1641,12 @@ export const executeAgentFlow = async ({
                 `This flow is configured as a Webhook Trigger. Call ${configuredMethod} /api/v1/webhook/${chatflowid} instead of the prediction API.`
             )
         }
+        if (startInputType === 'wechatEvent' && chatType !== ChatType.CHANNEL) {
+            throw new InternalFlowiseError(
+                StatusCodes.BAD_REQUEST,
+                `This flow is configured as a WeChat Event trigger. It is started by WeChat events and cannot be invoked via the API. Change the Start node Input Type to Chat or Form to call it from the prediction API.`
+            )
+        }
         if (startInputType === 'scheduleInput' && chatType !== ChatType.SCHEDULED) {
             throw new InternalFlowiseError(
                 StatusCodes.BAD_REQUEST,
@@ -1656,7 +1695,8 @@ export const executeAgentFlow = async ({
         state: {},
         chatHistory: [],
         form: {},
-        webhook: {}
+        webhook: {},
+        wechat: {}
     }
 
     let previousExecution: Execution | undefined
@@ -1768,6 +1808,13 @@ export const executeAgentFlow = async ({
 
     if (incomingInput.webhook && Object.keys(incomingInput.webhook).length) {
         agentflowRuntime.webhook = incomingInput.webhook
+    }
+
+    // Channel event data is only trusted when the channel layer started the run (or on recursive sub-flow calls,
+    // which reuse an already validated input); a prediction API caller cannot inject $wechat.* data.
+    if (!isRecursive && chatType !== ChatType.CHANNEL) delete incomingInput.wechat
+    if (incomingInput.wechat && Object.keys(incomingInput.wechat).length) {
+        agentflowRuntime.wechat = incomingInput.wechat
     }
 
     // If it is human input, find the last checkpoint and resume

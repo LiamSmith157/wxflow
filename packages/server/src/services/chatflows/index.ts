@@ -18,6 +18,7 @@ import { getErrorMessage } from '../../errors/utils'
 import { ScheduleBeat } from '../../schedule/ScheduleBeat'
 import documentStoreService from '../../services/documentstore'
 import scheduleService from '../../services/schedule'
+import { channelSubscriptionService } from '../channel'
 import { decryptCredentialData, encryptCredentialData, getAppVersion, getTelemetryFlowObj } from '../../utils'
 import { containsBase64File, updateFlowDataWithFilePaths } from '../../utils/fileRepository'
 import { sanitizeAllowedUploadMimeTypesFromConfig } from '../../utils/fileValidation'
@@ -114,6 +115,8 @@ const deleteChatflow = async (
             if (existingRecord) {
                 await ScheduleBeat.getInstance().onScheduleChanged(existingRecord.id, 'delete')
             }
+            // a deleted flow must never be started by a channel event again
+            await channelSubscriptionService.deleteForChatflow(chatflow.id, workspaceId)
         }
 
         try {
@@ -381,6 +384,14 @@ const saveChatflow = async (
         }
     }
 
+    if (dbResponse.type === EnumChatflowType.AGENTFLOW) {
+        await channelSubscriptionService.syncForChatflow(
+            dbResponse.id,
+            dbResponse.workspaceId ?? newChatFlow.workspaceId,
+            dbResponse.flowData
+        )
+    }
+
     const productId = await appServer.identityManager.getProductIdFromSubscription(subscriptionId)
 
     await appServer.telemetry.sendTelemetry(
@@ -497,6 +508,10 @@ const updateChatflow = async (
                 await ScheduleBeat.getInstance().onScheduleChanged(existingRecord.id, 'delete')
             }
         }
+    }
+
+    if (dbResponse.type === EnumChatflowType.AGENTFLOW) {
+        await channelSubscriptionService.syncForChatflow(dbResponse.id, workspaceId, dbResponse.flowData)
     }
 
     return dbResponse

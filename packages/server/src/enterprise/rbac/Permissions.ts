@@ -40,6 +40,11 @@ export class Permissions {
         variablesCategory.addPermission(new Permission('variables:delete', 'Delete', true, true, true))
         this.categories.push(variablesCategory)
 
+        const channelInstancesCategory = new PermissionCategory('channelInstances')
+        channelInstancesCategory.addPermission(new Permission('channelInstances:view', 'View', true, true, true))
+        channelInstancesCategory.addPermission(new Permission('channelInstances:manage', 'Manage', true, true, true))
+        this.categories.push(channelInstancesCategory)
+
         const apikeysCategory = new PermissionCategory('apikeys')
         apikeysCategory.addPermission(new Permission('apikeys:view', 'View', true, true, true))
         apikeysCategory.addPermission(new Permission('apikeys:create', 'Create', true, true, true))

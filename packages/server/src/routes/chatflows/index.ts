@@ -27,6 +27,8 @@ router.get('/has-changed/:id/:lastUpdatedDateTime', checkAnyPermission('agentflo
 // SCHEDULE
 router.get('/:id/schedule/status', checkAnyPermission('agentflows:view,agentflows:update'), chatflowsController.getScheduleStatus)
 router.patch('/:id/schedule/enabled', checkAnyPermission('agentflows:update'), chatflowsController.toggleScheduleEnabled)
+router.get('/:id/channel/status', checkAnyPermission('agentflows:view,agentflows:update'), chatflowsController.getChannelStatus)
+router.patch('/:id/channel/enabled', checkAnyPermission('agentflows:update'), chatflowsController.toggleChannelEnabled)
 router.get(
     '/:id/schedule/trigger-logs',
     checkAnyPermission('agentflows:view,agentflows:update'),

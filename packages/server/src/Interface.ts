@@ -31,7 +31,8 @@ export enum ChatType {
     EVALUATION = 'EVALUATION',
     MCP = 'MCP',
     SCHEDULED = 'SCHEDULED',
-    WEBHOOK = 'WEBHOOK'
+    WEBHOOK = 'WEBHOOK',
+    CHANNEL = 'CHANNEL'
 }
 
 export enum ChatMessageRatingType {
@@ -177,7 +178,7 @@ export interface IExecution {
 
 export type ScheduleInputMode = 'text' | 'form' | 'none'
 
-export type StartInputType = 'chatInput' | 'formInput' | 'webhookTrigger' | 'scheduleInput'
+export type StartInputType = 'chatInput' | 'formInput' | 'webhookTrigger' | 'scheduleInput' | 'wechatEvent'
 
 export interface IScheduleRecord {
     id: string
@@ -364,6 +365,7 @@ export interface IncomingAgentflowInput extends Omit<IncomingInput, 'question'> 
     form?: Record<string, any>
     humanInput?: IHumanInput
     webhook?: Record<string, any>
+    wechat?: Record<string, any>
 }
 
 export interface IActiveChatflows {

@@ -284,5 +284,7 @@
     "addParam": "Add {{label}}",
     "nodeParameters": "{{label}} Parameters",
     "chooseFileToUpload": "Choose a file to upload",
-    "uploadFile": "Upload File"
+    "uploadFile": "Upload File",
+    "wechatDirectionLoopWarning": "Outbound messages include the replies this flow sends itself, so the flow can trigger itself again and keep replying in a loop. Keep \"Inbound Only\" unless you know what you are doing.",
+    "wechatChannel": "WeChat"
 }

@@ -4,6 +4,7 @@ import apikeyRouter from './apikey'
 import attachmentsRouter from './attachments'
 import chatFilesRouter from './chat-files'
 import chatMessageRouter from './chat-messages'
+import channelInstancesRouter from './channel-instances'
 import chatflowsRouter from './chatflows'
 import chatflowsStreamingRouter from './chatflows-streaming'
 import chatflowsUploadsRouter from './chatflows-uploads'
@@ -71,6 +72,7 @@ const router = express.Router()
 router.use('/ping', pingRouter)
 router.use('/apikey', apikeyRouter)
 router.use('/attachments', attachmentsRouter)
+router.use('/channel-instances', channelInstancesRouter)
 router.use('/chatflows', chatflowsRouter)
 router.use('/chatflows-streaming', chatflowsStreamingRouter)
 router.use('/chatmessage', chatMessageRouter)

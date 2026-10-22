@@ -24,5 +24,6 @@
     "duplicateAgents": "Duplicate Agents",
     "loadAgents": "Load Agents",
     "exportAgents": "Export Agents",
-    "deleteAgents": "Delete Agents"
+    "deleteAgents": "Delete Agents",
+    "channelInstances": "Channel Instances"
 }

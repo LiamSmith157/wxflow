@@ -40,13 +40,13 @@ import AgentflowGeneratorDialog from '@/ui-component/dialog/AgentflowGeneratorDi
 import { IconPlus, IconSearch, IconMinus, IconX, IconSparkles } from '@tabler/icons-react'
 
 // const
-import { baseURL, AGENTFLOW_ICONS } from '@/store/constant'
+import { baseURL, AGENTFLOW_ICONS, AGENTFLOW_PALETTE_CATEGORIES } from '@/store/constant'
 import { SET_COMPONENT_NODES } from '@/store/actions'
 import { tn, useNodeT } from '@/i18n/nodes'
 
 // ==============================|| ADD NODES||============================== //
-// The node palette of the agentflow canvas only offers the agentflow nodes
-const AGENTFLOW_CATEGORY = 'Agent Flows'
+// The node palette of the agentflow canvas only offers the groups listed in AGENTFLOW_PALETTE_CATEGORIES, in that order
+const inPalette = (nd) => AGENTFLOW_PALETTE_CATEGORIES.includes(nd.category)
 
 const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
     const { t } = useTranslation('agentflows')
@@ -175,16 +175,21 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
             .map((item) => item.node)
     }
 
-    const getSearchedNodes = (value) =>
-        scoreAndSortNodes(
-            nodesData.filter((nd) => nd.category === AGENTFLOW_CATEGORY),
-            value
-        )
+    const getSearchedNodes = (value) => scoreAndSortNodes(nodesData.filter(inPalette), value)
 
+    // One accordion per palette group; groups without a (matching) node are left out, so a search shows grouped results
     const groupByCategory = (nodes) => {
-        const agentflowNodes = nodes.filter((nd) => nd.category === AGENTFLOW_CATEGORY)
-        setNodes(agentflowNodes.length ? { [AGENTFLOW_CATEGORY]: agentflowNodes } : {})
-        setCategoryExpanded({ [AGENTFLOW_CATEGORY]: true })
+        const grouped = {}
+        const expanded = {}
+        for (const category of AGENTFLOW_PALETTE_CATEGORIES) {
+            const inCategory = nodes.filter((nd) => nd.category === category)
+            if (inCategory.length) {
+                grouped[category] = inCategory
+                expanded[category] = true
+            }
+        }
+        setNodes(grouped)
+        setCategoryExpanded(expanded)
     }
 
     const filterSearch = (value) => {
@@ -409,163 +414,157 @@ const AddNodes = ({ nodesData, node, onFlowGenerated }) => {
                                                     }
                                                 }}
                                             >
-                                                {Object.keys(nodes)
-                                                    .sort()
-                                                    .map((category) => (
-                                                        <Accordion
-                                                            expanded={categoryExpanded[category] || false}
-                                                            onChange={handleAccordionChange(category)}
-                                                            key={category}
-                                                            disableGutters
+                                                {AGENTFLOW_PALETTE_CATEGORIES.filter((category) => nodes[category]).map((category) => (
+                                                    <Accordion
+                                                        expanded={categoryExpanded[category] || false}
+                                                        onChange={handleAccordionChange(category)}
+                                                        key={category}
+                                                        disableGutters
+                                                    >
+                                                        <AccordionSummary
+                                                            expandIcon={<ExpandMoreIcon />}
+                                                            aria-controls={`nodes-accordian-${category}`}
+                                                            id={`nodes-accordian-header-${category}`}
                                                         >
-                                                            <AccordionSummary
-                                                                expandIcon={<ExpandMoreIcon />}
-                                                                aria-controls={`nodes-accordian-${category}`}
-                                                                id={`nodes-accordian-header-${category}`}
-                                                            >
-                                                                {category.split(';').length > 1 ? (
-                                                                    <div
-                                                                        style={{
-                                                                            display: 'flex',
-                                                                            flexDirection: 'row',
-                                                                            alignItems: 'center'
+                                                            {category.split(';').length > 1 ? (
+                                                                <div
+                                                                    style={{
+                                                                        display: 'flex',
+                                                                        flexDirection: 'row',
+                                                                        alignItems: 'center'
+                                                                    }}
+                                                                >
+                                                                    <Typography variant='h5'>{tNode(category.split(';')[0])}</Typography>
+                                                                    &nbsp;
+                                                                    <Chip
+                                                                        sx={{
+                                                                            width: 'max-content',
+                                                                            fontWeight: 700,
+                                                                            fontSize: '0.65rem',
+                                                                            background:
+                                                                                category.split(';')[1] === 'DEPRECATING'
+                                                                                    ? theme.palette.warning.main
+                                                                                    : theme.palette.teal.main,
+                                                                            color:
+                                                                                category.split(';')[1] !== 'DEPRECATING'
+                                                                                    ? 'white'
+                                                                                    : 'inherit'
+                                                                        }}
+                                                                        size='small'
+                                                                        label={category.split(';')[1]}
+                                                                    />
+                                                                </div>
+                                                            ) : (
+                                                                <Typography variant='h5'>{tNode(category)}</Typography>
+                                                            )}
+                                                        </AccordionSummary>
+                                                        <AccordionDetails>
+                                                            {nodes[category].map((node, index) => (
+                                                                <div
+                                                                    key={node.name}
+                                                                    onDragStart={(event) => onDragStart(event, node)}
+                                                                    draggable
+                                                                >
+                                                                    <ListItemButton
+                                                                        sx={{
+                                                                            p: 0,
+                                                                            borderRadius: `${customization.borderRadius}px`,
+                                                                            cursor: 'move'
                                                                         }}
                                                                     >
-                                                                        <Typography variant='h5'>
-                                                                            {tNode(category.split(';')[0])}
-                                                                        </Typography>
-                                                                        &nbsp;
-                                                                        <Chip
-                                                                            sx={{
-                                                                                width: 'max-content',
-                                                                                fontWeight: 700,
-                                                                                fontSize: '0.65rem',
-                                                                                background:
-                                                                                    category.split(';')[1] === 'DEPRECATING'
-                                                                                        ? theme.palette.warning.main
-                                                                                        : theme.palette.teal.main,
-                                                                                color:
-                                                                                    category.split(';')[1] !== 'DEPRECATING'
-                                                                                        ? 'white'
-                                                                                        : 'inherit'
-                                                                            }}
-                                                                            size='small'
-                                                                            label={category.split(';')[1]}
-                                                                        />
-                                                                    </div>
-                                                                ) : (
-                                                                    <Typography variant='h5'>{tNode(category)}</Typography>
-                                                                )}
-                                                            </AccordionSummary>
-                                                            <AccordionDetails>
-                                                                {nodes[category].map((node, index) => (
-                                                                    <div
-                                                                        key={node.name}
-                                                                        onDragStart={(event) => onDragStart(event, node)}
-                                                                        draggable
-                                                                    >
-                                                                        <ListItemButton
-                                                                            sx={{
-                                                                                p: 0,
-                                                                                borderRadius: `${customization.borderRadius}px`,
-                                                                                cursor: 'move'
-                                                                            }}
-                                                                        >
-                                                                            <ListItem alignItems='center'>
-                                                                                {node.color && !node.icon ? (
-                                                                                    <ListItemAvatar>
+                                                                        <ListItem alignItems='center'>
+                                                                            {node.color && !node.icon ? (
+                                                                                <ListItemAvatar>
+                                                                                    <div
+                                                                                        style={{
+                                                                                            width: 50,
+                                                                                            height: 'auto',
+                                                                                            display: 'flex',
+                                                                                            alignItems: 'center',
+                                                                                            justifyContent: 'center'
+                                                                                        }}
+                                                                                    >
+                                                                                        {renderIcon(node)}
+                                                                                    </div>
+                                                                                </ListItemAvatar>
+                                                                            ) : (
+                                                                                <ListItemAvatar>
+                                                                                    <div
+                                                                                        style={{
+                                                                                            width: 50,
+                                                                                            height: 50,
+                                                                                            borderRadius: '50%',
+                                                                                            backgroundColor: 'white'
+                                                                                        }}
+                                                                                    >
+                                                                                        <img
+                                                                                            style={{
+                                                                                                width: '100%',
+                                                                                                height: '100%',
+                                                                                                padding: 10,
+                                                                                                objectFit: 'contain'
+                                                                                            }}
+                                                                                            alt={node.name}
+                                                                                            src={`${baseURL}/api/v1/node-icon/${node.name}`}
+                                                                                        />
+                                                                                    </div>
+                                                                                </ListItemAvatar>
+                                                                            )}
+                                                                            <ListItemText
+                                                                                sx={{ ml: 1 }}
+                                                                                primary={
+                                                                                    <>
                                                                                         <div
                                                                                             style={{
-                                                                                                width: 50,
-                                                                                                height: 'auto',
                                                                                                 display: 'flex',
-                                                                                                alignItems: 'center',
-                                                                                                justifyContent: 'center'
+                                                                                                flexDirection: 'row',
+                                                                                                alignItems: 'center'
                                                                                             }}
                                                                                         >
-                                                                                            {renderIcon(node)}
+                                                                                            <span>{tNode(node.label)}</span>
+                                                                                            &nbsp;
+                                                                                            {node.badge && (
+                                                                                                <Chip
+                                                                                                    sx={{
+                                                                                                        width: 'max-content',
+                                                                                                        fontWeight: 700,
+                                                                                                        fontSize: '0.65rem',
+                                                                                                        background:
+                                                                                                            node.badge === 'DEPRECATING'
+                                                                                                                ? theme.palette.warning.main
+                                                                                                                : theme.palette.teal.main,
+                                                                                                        color:
+                                                                                                            node.badge !== 'DEPRECATING'
+                                                                                                                ? 'white'
+                                                                                                                : 'inherit'
+                                                                                                    }}
+                                                                                                    size='small'
+                                                                                                    label={node.badge}
+                                                                                                />
+                                                                                            )}
                                                                                         </div>
-                                                                                    </ListItemAvatar>
-                                                                                ) : (
-                                                                                    <ListItemAvatar>
-                                                                                        <div
-                                                                                            style={{
-                                                                                                width: 50,
-                                                                                                height: 50,
-                                                                                                borderRadius: '50%',
-                                                                                                backgroundColor: 'white'
-                                                                                            }}
-                                                                                        >
-                                                                                            <img
+                                                                                        {node.author && (
+                                                                                            <span
                                                                                                 style={{
-                                                                                                    width: '100%',
-                                                                                                    height: '100%',
-                                                                                                    padding: 10,
-                                                                                                    objectFit: 'contain'
-                                                                                                }}
-                                                                                                alt={node.name}
-                                                                                                src={`${baseURL}/api/v1/node-icon/${node.name}`}
-                                                                                            />
-                                                                                        </div>
-                                                                                    </ListItemAvatar>
-                                                                                )}
-                                                                                <ListItemText
-                                                                                    sx={{ ml: 1 }}
-                                                                                    primary={
-                                                                                        <>
-                                                                                            <div
-                                                                                                style={{
-                                                                                                    display: 'flex',
-                                                                                                    flexDirection: 'row',
-                                                                                                    alignItems: 'center'
+                                                                                                    fontSize: '0.65rem',
+                                                                                                    fontWeight: 700
                                                                                                 }}
                                                                                             >
-                                                                                                <span>{tNode(node.label)}</span>
-                                                                                                &nbsp;
-                                                                                                {node.badge && (
-                                                                                                    <Chip
-                                                                                                        sx={{
-                                                                                                            width: 'max-content',
-                                                                                                            fontWeight: 700,
-                                                                                                            fontSize: '0.65rem',
-                                                                                                            background:
-                                                                                                                node.badge === 'DEPRECATING'
-                                                                                                                    ? theme.palette.warning
-                                                                                                                          .main
-                                                                                                                    : theme.palette.teal
-                                                                                                                          .main,
-                                                                                                            color:
-                                                                                                                node.badge !== 'DEPRECATING'
-                                                                                                                    ? 'white'
-                                                                                                                    : 'inherit'
-                                                                                                        }}
-                                                                                                        size='small'
-                                                                                                        label={node.badge}
-                                                                                                    />
-                                                                                                )}
-                                                                                            </div>
-                                                                                            {node.author && (
-                                                                                                <span
-                                                                                                    style={{
-                                                                                                        fontSize: '0.65rem',
-                                                                                                        fontWeight: 700
-                                                                                                    }}
-                                                                                                >
-                                                                                                    By {node.author}
-                                                                                                </span>
-                                                                                            )}
-                                                                                        </>
-                                                                                    }
-                                                                                    secondary={tNode(node.description)}
-                                                                                />
-                                                                            </ListItem>
-                                                                        </ListItemButton>
-                                                                        {index === nodes[category].length - 1 ? null : <Divider />}
-                                                                    </div>
-                                                                ))}
-                                                            </AccordionDetails>
-                                                        </Accordion>
-                                                    ))}
+                                                                                                By {node.author}
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </>
+                                                                                }
+                                                                                secondary={tNode(node.description)}
+                                                                            />
+                                                                        </ListItem>
+                                                                    </ListItemButton>
+                                                                    {index === nodes[category].length - 1 ? null : <Divider />}
+                                                                </div>
+                                                            ))}
+                                                        </AccordionDetails>
+                                                    </Accordion>
+                                                ))}
                                             </List>
                                         </Box>
                                     </PerfectScrollbar>
