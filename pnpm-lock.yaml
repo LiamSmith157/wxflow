@@ -1133,7 +1133,7 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
       '@types/ws':
-        specifier: 8.5.10
+        specifier: ^8.5.10
         version: 8.5.10
       concurrently:
         specifier: ^7.1.0
