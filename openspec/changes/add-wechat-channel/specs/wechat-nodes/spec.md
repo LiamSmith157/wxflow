@@ -78,11 +78,11 @@
 
 ### Requirement: 发送图片、文件和视频
 
-系统 SHALL 提供 Send Image、Send File 和 Send Video 节点(参数:收件人、媒体;Send Video 另有可选的时长)。媒体参数 SHALL 按渠道媒体规则解析(相对路径、交换目录内的绝对路径或 URL)。
+系统 SHALL 提供 Send Image、Send File 和 Send Video 节点(参数:收件人、媒体;Send Video 另有可选的时长)。媒体参数 SHALL 按渠道媒体规则解析(URL 或本地绝对路径)。
 
-#### Scenario: 发送素材目录中的图片
+#### Scenario: 发送本地图片
 
--   **WHEN** Send Image 的媒体参数为 `海报/a.jpg`,文件存在于交换目录的 `assets/海报/` 下
+-   **WHEN** Send Image 的媒体参数为 `D:\素材\海报.jpg`,且该文件存在
 -   **THEN** 会话收到这张图片
 
 #### Scenario: 发送上游取到的图片
@@ -115,12 +115,12 @@
 
 ### Requirement: 获取图片
 
-系统 SHALL 提供 Fetch Image 节点(参数:svrid,默认为触发消息;形态:原图、高清或缩略图;等待秒数,默认 8,最大 60),把图片解密到交换目录并输出 wxflow 可读的文件路径。节点 SHALL 有成功和失败两个分支;找不到图片或等待超时时走失败分支。
+系统 SHALL 提供 Fetch Image 节点(参数:svrid,默认为触发消息;形态:原图、高清或缩略图;等待秒数,默认 8,最大 60),把图片解密到媒体工作目录并输出图片的本地路径。节点 SHALL 有成功和失败两个分支;找不到图片或等待超时时走失败分支。
 
 #### Scenario: 获取收到的图片
 
 -   **WHEN** 一条图片消息触发流程,Fetch Image 使用默认 svrid
--   **THEN** 流程走成功分支,输出交换目录内的图片路径
+-   **THEN** 流程走成功分支,输出的图片路径可以被下游节点直接读取
 
 #### Scenario: 非图片消息
 
@@ -129,7 +129,7 @@
 
 ### Requirement: 获取语音
 
-系统 SHALL 提供 Fetch Voice 节点(参数:svrid,默认为触发消息),把语音音频保存为交换目录中的 WAV 文件并输出路径。节点 SHALL 有成功和失败两个分支。
+系统 SHALL 提供 Fetch Voice 节点(参数:svrid,默认为触发消息),把语音音频保存为媒体工作目录中的 WAV 文件并输出其本地路径。节点 SHALL 有成功和失败两个分支。
 
 #### Scenario: 获取语音后识别
 

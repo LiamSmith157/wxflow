@@ -8,7 +8,7 @@
 -   **节点面板只显示一个分组。** `views/agentflowsv2/AddNodes.jsx` 只保留 `category === 'Agent Flows'` 的节点；画布图标来自 `store/constant.js` 的 `AGENTFLOW_ICONS`（Tabler 图标组件加颜色）。
 -   **多租户与多数据库。** 实体带 `workspaceId`，权限由 `enterprise/rbac` 控制；迁移分 sqlite、postgres、mysql、mariadb 四套。
 -   **部署有两种模式。** 默认在主进程内执行流程；`MODE=QUEUE` 时由 BullMQ worker 执行，可以多副本部署。
--   **部署方式。** wxflow 与微信在同一台 Windows 上：直接安装，或运行在 Docker Desktop（WSL2，Linux 容器）里。流程由运营人员配置。
+-   **部署方式。** wxflow 直接安装在微信所在的 Windows 上，不支持 Docker 部署（见决策 10）。流程由运营人员配置。
 -   **源项目 `wx_workflow`。** `server/src/engineapi.ts` 定义了引擎和网关之间的接口：`GatewayCalls`（`call` / `pool` / `trackJob` / `getVoiceWav`）和 `EngineSink`（`onEvent` / `onInstanceChange`）。网关为 `gateway.ts`（约 365 行）加 `msgdecode.ts`（zstd 解码），发送类方法为 `send.text|image|file|video|at|webcard|quote`，异步发送通过 `job.done` 事件回写终态。
 
 ## Goals / Non-Goals
@@ -25,6 +25,7 @@
 -   本 change 不支持在队列模式下使用微信节点（见决策 7）。
 -   不提供跨工作区共享实例。
 -   不支持 wxflow 与微信分别部署在两台机器上。
+-   不支持在 Docker 中运行微信渠道。
 
 ## Decisions
 
@@ -65,7 +66,7 @@ interface ChannelSink {
 
 `WeChatGateway` 实现 `ChannelAdapter`，由 `index.ts` 启动时创建，并注册到 `ChannelRegistry`。节点执行时从 `ChannelRegistry` 取适配器，节点代码不直接依赖 `ws` 或网关实现。这和源项目的设计 D2 一致：测试里用 mock 适配器替换。
 
-网关端口取自环境变量 `WECHAT_GATEWAY_PORT`，默认 `56233`；设置为 `0` 时不启动网关。监听地址取自 `WECHAT_GATEWAY_HOST`，默认 `127.0.0.1`；在 Docker 里设为 `0.0.0.0`（见决策 10）。
+网关端口取自环境变量 `WECHAT_GATEWAY_PORT`，默认 `56233`；设置为 `0` 时不启动网关。监听地址取自 `WECHAT_GATEWAY_HOST`，默认 `127.0.0.1`，一般不需要修改。
 
 ### 3. 实例归属工作区
 
@@ -135,8 +136,8 @@ wxflow 没有现成的按工作区存放配置的表，所以新增实体 `Chann
 | Send Link Card      | `action.sendWebcard`  | `IconLink`         | `send.webcard`                      | 收件人、标题、URL、描述（可选）                                                | 发送结果                                                  |
 | Quote Reply         | `action.sendQuote`    | `IconQuote`        | `send.quote`                        | 收件人、正文；固定引用触发消息                                                 | 发送结果；不是由消息事件触发时报错                        |
 | Search Contacts     | `action.contacts`     | `IconAddressBook`  | `contacts.avatar` / `contacts.list` | 模式（单个联系人 / 全部好友）、wxid（单个时必填）                              | 联系人信息或列表                                          |
-| Fetch Image         | `action.fetchImage`   | `IconPhotoDown`    | `image.get`                         | svrid（默认取触发消息）、形态（原图/高清/缩略图）、等待秒数（默认 8，最多 60） | 成功/失败两个分支；成功时输出交换目录内的文件路径         |
-| Fetch Voice         | `ai.asr` 的取音频部分 | `IconMicrophone`   | `voice.*` 两帧协议                  | svrid（默认取触发消息）                                                        | 成功/失败两个分支；成功时输出交换目录内的 WAV 路径        |
+| Fetch Image         | `action.fetchImage`   | `IconPhotoDown`    | `image.get`                         | svrid（默认取触发消息）、形态（原图/高清/缩略图）、等待秒数（默认 8，最多 60） | 成功/失败两个分支；成功时输出图片的本地路径               |
+| Fetch Voice         | `ai.asr` 的取音频部分 | `IconMicrophone`   | `voice.*` 两帧协议                  | svrid（默认取触发消息）                                                        | 成功/失败两个分支；成功时输出 WAV 的本地路径              |
 
 "发送结果"指 `state`（`ok` / `fail` / `pending` / `rate_limited` / `skipped`）、`jobId` 和错误信息，见决策 5、6；`skipped` 表示总闸关闭。
 
@@ -157,11 +158,13 @@ Start 节点的"WeChat 事件"输入类型不新增节点，只在参数区使�
 
 ### 9. 取语音代替 `ai.asr`
 
-源项目的 `ai.asr` 一个节点做两件事：通过 `voice.*` 两帧协议取到 WAV，再送去语音识别。在 wxflow 里拆开：WeChat 分组的 Fetch Voice 只负责取音频，写入交换目录并输出路径；识别交给下游的 LLM/Agent 或现有的语音转文字组件。取图片同理。
+源项目的 `ai.asr` 一个节点做两件事：通过 `voice.*` 两帧协议取到 WAV，再送去语音识别。在 wxflow 里拆开：WeChat 分组的 Fetch Voice 只负责取音频，写入媒体工作目录并输出路径；识别交给下游的 LLM/Agent 或现有的语音转文字组件。取图片同理。
 
 ### 10. 部署方式与媒体路径
 
-`send.image|file|video` 的参数是 DLL 在 Windows 上读取的文件路径。AIHelpLib 的 WS 协议只有 DLL 到服务器方向的二进制帧（`voice.*`），没有服务器向 DLL 推送文件的方法，而 DLL 不能改动。因此 wxflow 和 DLL 必须共享一个目录。
+`send.image|file|video` 的参数是 DLL 在 Windows 上读取的文件路径。AIHelpLib 的 WS 协议只有 DLL 到服务器方向的二进制帧（`voice.*`），没有服务器向 DLL 推送文件的方法，而 DLL 不能改动。因此 wxflow 和 DLL 必须看到同一个文件系统。
+
+wxflow 直接安装在同一台 Windows 上时，这一点天然成立：wxflow 能读写的任何本地路径，DLL 也能按同一个字符串读写，不需要路径转换。
 
 ```
  Windows 主机
@@ -169,49 +172,45 @@ Start 节点的"WeChat 事件"输入类型不新增节点，只在参数区使�
  |  微信 + AIHelpLib.dll                                          |
  |     | 拨号 ws://127.0.0.1:56233     （AIHelpLib.json dialPort） |
  |     v                                                         |
- |  Docker Desktop  -p 127.0.0.1:56233:56233                     |
- |  +---------------------------------------------------------+ |
- |  | wxflow 容器    WECHAT_GATEWAY_HOST=0.0.0.0               | |
- |  |   /exchange  <== 挂载 ==>  C:\wxflow\exchange            | |
- |  |      assets/     素材（运营人员在 Windows 上直接放文件）    | |
- |  |      tmp/        URL 下载的临时文件，发送后清理            | |
- |  |      images/     Fetch Image 时 DLL 解密到这里（outDir）   | |
- |  |      voice/      Fetch Voice 写入的 WAV                    | |
- |  |      resources/  预留给下一个 change 的资源库              | |
- |  +---------------------------------------------------------+ |
+ |  wxflow（直接安装）                                            |
+ |     ~/.wxflow/wechat/      媒体工作目录，内部使用，用户不需要配置 |
+ |        tmp/      URL 下载的临时文件，发送后清理                 |
+ |        images/   Fetch Image 时 DLL 解密到这里（outDir）        |
+ |        voice/    Fetch Voice 写入的 WAV                         |
  +---------------------------------------------------------------+
 ```
 
--   **网关监听地址。** 直接安装时监听 `127.0.0.1`。在容器里监听 `0.0.0.0`，端口只映射到主机的 `127.0.0.1`，所以仍然只有本机能连。
--   **路径映射。** `WECHAT_EXCHANGE_DIR` 是 wxflow 看到的交换目录（容器内为 `/exchange`），`WECHAT_EXCHANGE_DIR_HOST` 是同一目录在 Windows 上的路径（`C:\wxflow\exchange`）。发给 DLL 前，把交换目录内的路径换成 Windows 路径；DLL 返回的路径（如 `image.get` 的结果）反向转换。直接安装时两者相同，不设置 `WECHAT_EXCHANGE_DIR_HOST` 即可。
+-   **媒体工作目录。** 固定为 `~/.wxflow/wechat/`，不提供环境变量，渠道实例页也不显示。发给 DLL 的路径就是 wxflow 使用的路径本身。
 -   **媒体来源解析器。** 媒体参数按顺序识别：
 
     1. `http(s)://` 开头：用 `secureAxiosRequest` 下载到 `tmp/`，沿用现有的出站访问限制，大小上限可配置，默认 50MB；
-    2. 绝对路径：必须位于交换目录内，否则报错；
-    3. 其他：视为相对于 `assets/` 的路径。
+    2. 本地绝对路径：原样交给 DLL，不限制所在目录；
+    3. 其他：报错，说明媒体参数需要 URL 或绝对路径。
 
-    解析器提供注册接口，下一个 change 的资源库会注册 `res://` 来源，文件存放在 `resources/` 下。
+    解析器提供注册接口，下一个 change `add-resource-library` 会注册 `res://` 来源，由资源库管理长期素材。
 
--   **Fetch Image** 调用 `image.get` 时固定传 `outDir` 为 `images/` 对应的 Windows 路径，保证 wxflow 能读到解密结果。
+-   **Fetch Image** 调用 `image.get` 时固定传 `outDir` 为 `images/` 的绝对路径，保证 wxflow 能读到解密结果。
 
 备选：
 
--   MinIO 等对象存储：仍然要先下载到交换目录才能发送，解决的是素材管理问题而不是路径问题。素材管理交给下一个 change 的资源库。以后如果需要多机共享，可以再注册一个 `s3://` 来源。
--   本期就移植资源库：参数表单要新增"选择资源"控件，工作量大，会拖慢网关和发送主链路的验证，所以放到下一个 change。
+-   支持 Docker Desktop 部署：容器内路径（`/exchange`）和 Windows 路径（`C:\wxflow\exchange`）不同，需要两个环境变量、双向路径转换、挂载卷、"绝对路径必须在交换目录内"的限制和专门验证映射的自检。微信和 wxflow 本来就必须在同一台机器上，直接安装没有实际损失，所以不支持 Docker。
+-   约定一个 `assets/` 素材目录，媒体参数写相对路径：运营人员需要知道这个目录在哪，并且直接在文件系统里维护素材。长期素材改由资源库统一管理。
+-   MinIO 等对象存储：仍然要先下载到本地才能发送，解决的是素材管理问题而不是路径问题。以后如果需要，可以再注册一个 `s3://` 来源。
+-   本期就做资源库：参数表单要新增"选择资源"控件，工作量大，会拖慢网关和发送主链路的验证，所以放到下一个 change。
 
 ### 11. 面向运营人员的错误提示
 
 流程由运营人员配置，而资源库要到下一个 change 才有，所以本期要让路径错误尽早、清楚地暴露出来：
 
--   保存流程时，检查不含变量的媒体参数：文件在交换目录中不存在时，在画布上给出警告，但不阻止保存。
--   执行时的错误信息使用 Windows 路径，并说明该检查什么，例如"素材 `assets/海报/a.jpg` 不存在，请检查 `C:\wxflow\exchange\assets` 目录"。不向用户显示容器路径或堆栈。
+-   保存流程时，检查不含变量的本地路径媒体参数：文件不存在时，在画布上给出警告，但不阻止保存。
+-   执行时的错误信息给出用户填写的路径，并说明怎么处理，例如"文件 `D:\素材\海报.jpg` 不存在，请检查路径"。不向用户显示堆栈。
 
 ## Risks / Trade-offs
 
--   [端口 56233 被占用，或 Docker 没有映射端口] → 启动时如果绑定失败，只记录错误，不让整个服务器退出；"渠道实例"页显示网关状态、监听地址和端口。
--   [交换目录没挂载，或路径映射配错] → 启动时自检：交换目录可写，并按映射写入一个探测文件；结果显示在"渠道实例"页。映射是否正确只有 DLL 能验证，所以页面提供"发送测试图片"按钮，向指定会话发一张内置图片。
+-   [端口 56233 被占用] → 启动时如果绑定失败，只记录错误，不让整个服务器退出；"渠道实例"页显示网关状态、监听地址和端口。
+-   [媒体工作目录不可写] → 启动时自检，结果并入网关状态，只在异常时在"渠道实例"页提示原因。页面保留"发送测试图片"按钮，向指定会话发一张内置图片，用来确认发送媒体的整条链路可用。
 -   [临时文件堆积] → `tmp/` 中的文件在发送结束后删除；启动时和每小时清理一次超过 24 小时的文件。`images/` 和 `voice/` 中的文件保留 7 天，期限可配置。
--   [WSL2 挂载 Windows 目录读写较慢] → 图片和语音文件小，影响有限；大视频需要实测。必要时只把 `tmp/` 放在容器内部，复制后再交给 DLL。
+-   [有人用 Docker 部署 wxflow 并接入微信] → 文档写明微信渠道只支持直接安装；`docker/` 下不提供微信相关的端口映射和挂载示例。
 -   [DLL 的 `dialPort` 还是 56230，连到旧项目] → 文档和"渠道实例"页的空状态里写明要修改 `AIHelpLib.json`。
 -   [一条消息命中大量流程，造成发送风暴] → 每实例发送限速兜底；订阅匹配有日志，可以看出每个事件命中了几个流程。
 -   [事件到达速度超过流程执行速度] → `services/channel` 对每个实例维护一个有上限的队列，满了就丢弃最旧的事件并记录日志，不让内存无限增长。
@@ -222,8 +221,8 @@ Start 节点的"WeChat 事件"输入类型不新增节点，只在参数区使�
 ## Migration Plan
 
 1. 四种数据库各新增一个迁移，创建 `channel_instance`、`channel_subscription` 和 `channel_setting` 表；不修改已有表。
-2. 部署后网关默认监听 `127.0.0.1:56233`。Docker 部署时，在 compose 里加上 `127.0.0.1:56233:56233` 端口映射、`C:\wxflow\exchange:/exchange` 挂载卷，以及 `WECHAT_GATEWAY_HOST=0.0.0.0`、`WECHAT_EXCHANGE_DIR`、`WECHAT_EXCHANGE_DIR_HOST`。`docker/` 下的 compose 文件和 `.env.example` 要提供注释好的示例。
-3. 把 `AIHelpLib.json` 的 `dialPort` 改为 `56233`，然后在"渠道实例"页分配实例，并用"发送测试图片"确认路径映射正确。
+2. 在微信所在的 Windows 上直接安装 wxflow，网关默认监听 `127.0.0.1:56233`。不需要配置媒体目录。
+3. 把 `AIHelpLib.json` 的 `dialPort` 改为 `56233`，然后在"渠道实例"页分配实例，并用"发送测试图片"确认媒体发送可用。
 4. 回滚：设置 `WECHAT_GATEWAY_PORT=0` 关闭网关。新表不影响已有功能，可以保留；使用了 WeChat 事件 Start 的流程会停止触发，其他流程不受影响。
 
 ## Open Questions

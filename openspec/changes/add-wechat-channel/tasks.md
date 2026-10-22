@@ -66,16 +66,23 @@
 
 ## 11. 部署与文档
 
--   [ ] 11.1 在 `docker/docker-compose.yml` 中加入 `127.0.0.1:56233:56233` 端口映射、`C:\wxflow\exchange` 到 `/exchange` 的挂载卷和 `WECHAT_*` 环境变量的注释示例,并在 `docker/README.md` 说明;验证 `docker compose config` 能正确解析
-    -   BLOCKED: 本机未安装 docker,无法运行 `docker compose config`。改动已完成(端口映射、挂载卷、WECHAT\_\* 环境变量、docker/README.md),并用 YAML 解析器确认语法与默认值插值写法正确;需在装有 Docker 的机器上执行一次 `docker compose config` 后再勾选。
+-   [x] 11.1 ~~在 `docker/docker-compose.yml` 中加入微信端口映射、交换目录挂载卷和 `WECHAT_*` 环境变量~~ 已由 13.4 取代(微信渠道不再支持 Docker 部署),13.4 完成后一并勾选
 -   [x] 11.2 在 `README.md` 新增"接入微信"章节:两种部署方式、修改 `AIHelpLib.json` 的 `dialPort`、分配实例、`assets/` 素材目录、`{{ $wechat.* }}` 字段一览、安全阀说明、只支持非队列模式,以及常见问题(端口占用、实例页空白、路径映射错误);对照第 4 到 7 组的实际行为逐条核对
 
 ## 12. 集成验证
 
 -   [x] 12.1 用模拟 DLL 的 WS 客户端做端到端测试:实例上线、分配到工作区、启用一个"收到消息 → Cooldown → Send Text"流程,推送一条入站消息后,验证模拟客户端收到 `send.text`、执行记录生成;再推送同一会话的第二条消息,验证走冷却分支
--   [ ] 12.2 在一台装有微信与 `AIHelpLib.dll` 的 Windows 上,分别用直接安装和 Docker Desktop 部署,手动验证:实例上线、发送测试图片、文本自动回复、发送 `assets/` 中的图片、Fetch Image 后转发、Fetch Voice 后交给 LLM,并测量发送终态的实际延迟,用来确定 30 秒默认值是否合适
+-   [ ] 12.2 在一台装有微信与 `AIHelpLib.dll` 的 Windows 上直接安装 wxflow,手动验证:实例上线、发送测试图片、文本自动回复、发送本地绝对路径的图片、发送 URL 图片、Fetch Image 后转发、Fetch Voice 后交给 LLM,并测量发送终态的实际延迟,用来确定 30 秒默认值是否合适
+
+## 13. 简化媒体目录(去掉 Docker 支持)
+
+-   [x] 13.1 把 `channels/media/exchange.ts`(改名为 `workdir.ts`)改为固定的内部媒体工作目录 `~/.wxflow/wechat/`(子目录 `tmp/`、`images/`、`voice/`):删除 `WECHAT_EXCHANGE_DIR`、`WECHAT_EXCHANGE_DIR_HOST`、`hostDir`/`mapped`、`toHostPath`/`fromHostPath`、`isInsideExchange` 以及 win32/posix 双风格路径处理,`assets/` 和 `resources/` 子目录不再创建;更新 `workdir.test.ts`(原 `exchange.test.ts`)、`cleanup.test.ts`,验证目录位置和清理行为
+-   [x] 13.2 修改媒体来源解析器:只保留 URL 和本地绝对路径两种来源,绝对路径不再限制所在目录,其他值报"需要 URL 或绝对路径";`ResolvedMedia` 去掉 `hostPath`;删除 `outsideExchange`、`assetMissing`、`assetEscapes` 等错误,文件缺失的错误改为给出用户填写的路径;保留来源注册接口;更新 `resolver.test.ts`,覆盖 design 决策 10 的识别顺序和 channel-media 规格中的场景
+-   [x] 13.3 调整使用方:Fetch Image 的 `outDir` 直接传 `images/` 的绝对路径、`image.get` 返回路径不再反向转换;WeChat 节点共用模块和 Send Image/File/Video 不再处理主机路径;`services/validation` 的保存检查改为检查不含变量的本地绝对路径;启动自检只检查目录能否创建和写入,结果并入网关状态;更新相关测试(`mediaNodes.test.ts`、`fetchNodes.test.ts`、`gatewayService.test.ts`、`e2e.wechat.test.ts`、`validate.test.ts`)
+-   [x] 13.4 删除部署与配置中的交换目录内容:`packages/server/.env.example`、`docker/.env.example` 中的两个 `WECHAT_EXCHANGE_*` 变量,`docker/docker-compose.yml` 中的微信端口映射、挂载卷和 `WECHAT_*` 环境变量,`docker/README.md` 中的微信部署说明;`README.md` 的"接入微信"章节改为只介绍直接安装,删除 `assets/` 素材目录和路径映射相关的常见问题;验证仓库中搜索 `WECHAT_EXCHANGE` 和 `/exchange` 没有残留
+-   [x] 13.5 渠道实例页删除交换目录面板("As wxflow sees it"/"On Windows"),媒体目录异常时改在网关状态里提示原因;"发送测试图片"的说明改为确认媒体发送可用;删除 `locales/{en,zh-CN}/channels.json` 中不再使用的交换目录文案,修改 `nodes.json` 中媒体参数的说明和占位符(不再提 `assets/`);更新 `channelInstances/index.test.jsx`、`mediaWarnings.test.js`,并运行 `i18n/nodesCoverage.test.js`
 
 ## Workflow follow-up
 
 -   实现与验证完成后用 `/opsx:archive` 归档本 change。
--   下一个 change:资源库(资源页、`res://` 来源、参数表单中的资源选择控件,文件存放在交换目录的 `resources/` 下)。
+-   下一个 change:`add-resource-library`(通用资源库、资源页、`res://` 来源、Send Image/File/Video 的资源选择控件)。
