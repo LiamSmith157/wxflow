@@ -29,23 +29,13 @@ import {
     getDefaultDataDir,
     getEnv,
     ICommonObject,
-    IDatabaseEntity,
     IMessage,
     StorageProviderFactory
 } from 'wxflow-components'
 import { randomBytes } from 'crypto'
 import { AES, enc } from 'crypto-js'
 
-import { ChatFlow } from '../database/entities/ChatFlow'
-import { ChatMessage } from '../database/entities/ChatMessage'
 import { Credential } from '../database/entities/Credential'
-import { Tool } from '../database/entities/Tool'
-import { Lead } from '../database/entities/Lead'
-import { Variable } from '../database/entities/Variable'
-import { DocumentStore } from '../database/entities/DocumentStore'
-import { DocumentStoreFileChunk } from '../database/entities/DocumentStoreFileChunk'
-import { CustomMcpServer } from '../database/entities/CustomMcpServer'
-import { ChannelInstance } from '../database/entities/ChannelInstance'
 import {
     CreateSecretCommand,
     GetSecretValueCommand,
@@ -81,18 +71,7 @@ if (USE_AWS_SECRETS_MANAGER) {
     secretsManagerClient = new SecretsManagerClient(secretManagerConfig)
 }
 
-export const databaseEntities: IDatabaseEntity = {
-    ChatFlow: ChatFlow,
-    ChatMessage: ChatMessage,
-    Tool: Tool,
-    Credential: Credential,
-    Lead: Lead,
-    Variable: Variable,
-    DocumentStore: DocumentStore,
-    DocumentStoreFileChunk: DocumentStoreFileChunk,
-    CustomMcpServer: CustomMcpServer,
-    ChannelInstance: ChannelInstance
-}
+export { databaseEntities } from './databaseEntities'
 
 /**
  * Returns the home folder path of the user if

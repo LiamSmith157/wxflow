@@ -27,7 +27,7 @@
 
 -   [x] 5.1 先确认 `buildAgentflow` 会对 `asyncOptions` 参数值做变量替换（写一个测试，参数值为 `res://name/海报-{{ $wechat.city }}`）；如果不会，在 design 决策 4 中改用备选方案后再继续 5.2
 -   [x] 5.2 把 Send Image、Send File、Send Video 的媒体参数改为 `asyncOptions` 加 `freeSolo`，新增按类型过滤的 loadMethod（通过 `options.searchOptions` 限定工作区，按分组、名称排序，`name` 为 `res://id/<id>`，`label` 为资源名称，`description` 为分组），节点版本号加 1，参数说明里写上 URL、绝对路径和 `res://name/` 的示例；测试验证 loadMethod 的类型过滤和工作区隔离，以及旧流程中的字符串参数值不变
--   [ ] 5.3 在画布上手动确认：下拉显示资源名称、选择后保存为 `res://id/...`、可以直接输入 URL 和 `res://name/...`；补充 `locales/zh-CN/nodes.json` 中参数说明和占位符的中文，运行 `i18n/nodesCoverage.test.js`
+-   [x] 5.3 在画布上手动确认：下拉显示资源名称、选择后保存为 `res://id/...`、可以直接输入 URL 和 `res://name/...`；补充 `locales/zh-CN/nodes.json` 中参数说明和占位符的中文，运行 `i18n/nodesCoverage.test.js`
 
 ## 6. 资源页
 
