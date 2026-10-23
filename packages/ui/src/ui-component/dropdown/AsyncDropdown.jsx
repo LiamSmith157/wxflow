@@ -16,6 +16,7 @@ import { baseURL } from '@/store/constant'
 import { flowContext } from '@/store/context/ReactFlowContext'
 import { getAvailableNodesForVariable } from '@/utils/genericHelper'
 import { useNodeT, useNodeOptionProps } from '@/i18n/nodes'
+import ResourceThumb from '@/ui-component/resources/ResourceThumb'
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -258,7 +259,11 @@ export const AsyncDropdown = ({
                                 startAdornment: (
                                     <>
                                         {matchingOptions.map((option) =>
-                                            option?.imageSrc ? (
+                                            option?.resource ? (
+                                                <Box key={option.name} sx={{ mr: 0.5 }}>
+                                                    <ResourceThumb resource={{ ...option.resource, name: option.label }} size={24} />
+                                                </Box>
+                                            ) : option?.imageSrc ? (
                                                 <Box
                                                     key={option.name}
                                                     component='img'
@@ -302,6 +307,7 @@ export const AsyncDropdown = ({
                 }}
                 renderOption={(props, option) => (
                     <Box component='li' {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {option.resource && <ResourceThumb resource={{ ...option.resource, name: option.label }} size={32} />}
                         {option.imageSrc && (
                             <img
                                 src={option.imageSrc}

@@ -80,6 +80,14 @@ describe('resource options', () => {
         expect(all.slice(3).map((o) => o.description)).toEqual([undefined, undefined, undefined, undefined])
     })
 
+    it('tells the dropdown which resource each option is, for its thumbnail or format icon', async () => {
+        const updated = new Date('2026-10-22T09:27:11.000Z')
+        const [option] = await listImageResources({} as any, optionsFor([{ ...rows[0], updatedDate: updated } as any]))
+        expect(option.resource).toEqual({ id: 'i1', kind: 'image', ext: '.png', updatedDate: '2026-10-22T09:27:11.000Z' })
+        const [zip] = await listAllResources({} as any, optionsFor([rows[6]]))
+        expect(zip.resource).toEqual({ id: 'z1', kind: 'file', ext: '.zip', updatedDate: undefined })
+    })
+
     it('only lists the resources of the workspace in the search options', async () => {
         const options = await listImageResources({} as any, optionsFor(rows, { workspaceId: 'wsB' }))
         expect(labels(options)).toEqual(['别人的图'])

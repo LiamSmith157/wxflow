@@ -8,12 +8,14 @@ import { Provider } from 'react-redux'
 import { createStore } from 'redux'
 
 import i18n from '@/i18n'
+import resourcesApi from '@/api/resources'
 import { AsyncDropdown } from './AsyncDropdown'
 
 jest.mock('@/api/credentials', () => ({ __esModule: true, default: { getCredentialsByName: jest.fn() } }))
 // the real module reads import.meta, which jest cannot parse
 jest.mock('@/store/constant', () => ({ baseURL: 'http://localhost' }))
 jest.mock('@/utils/genericHelper', () => ({ getAvailableNodesForVariable: () => [] }))
+jest.mock('@/api/resources', () => ({ __esModule: true, default: { getResourceFile: jest.fn() } }))
 
 const resources = [
     { label: '海报-北京', name: 'res://id/id-bj', description: '海报', group: '海报' },
@@ -123,6 +125,41 @@ describe('AsyncDropdown with free text (freeSolo)', () => {
         })
         const stored = onSelect.mock.calls.map((c) => c[0])
         expect(stored.every((v) => v === 'res://id/id-bj')).toBe(true)
+    })
+})
+
+describe('AsyncDropdown with resource previews', () => {
+    const withPreviews = [
+        { label: '海报-北京', name: 'res://id/id-bj', group: '海报', resource: { id: 'id-bj', kind: 'image', ext: '.png' } },
+        { label: '素材包', name: 'res://id/id-zip', group: 'Ungrouped', resource: { id: 'id-zip', kind: 'file', ext: '.zip' } }
+    ]
+
+    beforeEach(async () => {
+        jest.spyOn(axios, 'post').mockResolvedValue({ data: withPreviews })
+        jest.spyOn(console, 'error').mockImplementation(() => {})
+        resourcesApi.getResourceFile.mockResolvedValue({ data: new Blob(['png']) })
+        URL.createObjectURL = jest.fn(() => 'blob:picture')
+        await act(async () => {
+            await i18n.changeLanguage('en')
+        })
+    })
+    afterEach(() => {
+        jest.restoreAllMocks()
+        delete URL.createObjectURL
+    })
+
+    it('shows the picture in front of an image and a format icon in front of a zip', async () => {
+        const { input } = await renderDropdown()
+        fireEvent.mouseDown(input)
+        const list = screen.getByRole('listbox')
+        const [image, zip] = within(list).getAllByRole('option')
+        await waitFor(() => expect(within(image).getByRole('img', { name: '海报-北京' })).toHaveAttribute('src', 'blob:picture'))
+        expect(within(zip).getByTestId('format-icon')).toBeInTheDocument()
+    })
+
+    it('shows the picture of the picked image in the field', async () => {
+        await renderDropdown({ value: 'res://id/id-bj' })
+        await waitFor(() => expect(screen.getByRole('img', { name: '海报-北京' })).toHaveAttribute('src', 'blob:picture'))
     })
 })
 

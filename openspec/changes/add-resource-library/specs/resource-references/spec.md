@@ -54,7 +54,7 @@ Send Image、Send File、Send Video 的媒体参数 SHALL 按以下顺序识别�
 
 ### Requirement: 媒体参数的资源选择控件
 
-Send Image、Send File、Send Video 的媒体参数 SHALL 提供下拉选择，只列出当前工作区中类型匹配的资源（Send File 列出全部类型），按分组排列，支持按名称搜索。选择资源后，参数值 SHALL 为该资源的 `res://id/` 引用，界面 SHALL 显示资源名称而不是 ID。该参数 SHALL 仍然允许直接输入 URL、本地绝对路径或 `res://name/` 引用。
+Send Image、Send File、Send Video 的媒体参数 SHALL 提供下拉选择，只列出当前工作区中类型匹配的资源（Send File 列出全部类型），按分组排列，支持按名称搜索。下拉中每个资源名称前 SHALL 显示预览：图片显示缩略图；视频、压缩包（zip、rar、7z 等）和其他文件按格式显示默认图标，未知格式显示通用文件图标。选中的资源在参数框中 SHALL 同样显示该预览。选择资源后，参数值 SHALL 为该资源的 `res://id/` 引用，界面 SHALL 显示资源名称而不是 ID。该参数 SHALL 仍然允许直接输入 URL、本地绝对路径或 `res://name/` 引用。
 
 #### Scenario: 从下拉选择图片
 
@@ -65,6 +65,11 @@ Send Image、Send File、Send Video 的媒体参数 SHALL 提供下拉选择，�
 
 -   **WHEN** 资源库中有图片和视频，用户打开 Send Video 媒体参数的下拉
 -   **THEN** 下拉只列出视频资源
+
+#### Scenario: 下拉显示缩略图和格式图标
+
+-   **WHEN** 资源库中有图片 `海报-北京` 和压缩包 `素材包.zip`，用户打开 Send File 媒体参数的下拉
+-   **THEN** `海报-北京` 前显示该图片的缩略图，`素材包` 前显示压缩包图标
 
 #### Scenario: 手动输入
 

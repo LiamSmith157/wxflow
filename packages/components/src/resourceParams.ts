@@ -35,7 +35,13 @@ const listResourcesWhere =
                 label: r.name,
                 name: `res://id/${r.id}`,
                 description: r.groupName || undefined,
-                group: r.groupName || UNGROUPED
+                group: r.groupName || UNGROUPED,
+                resource: {
+                    id: r.id,
+                    kind: r.kind,
+                    ext: r.ext,
+                    updatedDate: r.updatedDate ? new Date(r.updatedDate).toISOString() : undefined
+                }
             }))
             .sort((a: INodeOptionsValue, b: INodeOptionsValue) => {
                 // grouped resources first, in group order; the ungrouped ones last

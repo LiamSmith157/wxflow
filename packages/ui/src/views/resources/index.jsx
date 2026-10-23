@@ -35,7 +35,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { enqueueSnackbar as enqueueSnackbarAction } from '@/store/actions'
 import resourcesApi from '@/api/resources'
 import ResourceFormDialog from './ResourceFormDialog'
-import ResourceThumb from './ResourceThumb'
+import ResourceThumb from '@/ui-component/resources/ResourceThumb'
 import ResourceUsageDialog from './ResourceUsageDialog'
 
 const errorMessage = (error) => error?.response?.data?.message || error?.message || String(error)

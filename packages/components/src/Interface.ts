@@ -64,6 +64,8 @@ export interface INodeOptionsValue {
     /** Heading to list the option under (dropdowns that show groups) */
     group?: string
     imageSrc?: string
+    /** Set by the resource dropdowns: what the dropdown needs to show a thumbnail (images) or a format icon */
+    resource?: IResourceOptionInfo
     client?: Array<ClientType>
     show?: INodeDisplay
     hide?: INodeDisplay
@@ -475,6 +477,14 @@ export interface IChannelMedia {
 }
 
 export type ResourceKind = 'image' | 'video' | 'file'
+
+/** The resource behind a dropdown option; `updatedDate` changes when the file is replaced, so a cached thumbnail is reloaded */
+export interface IResourceOptionInfo {
+    id: string
+    kind: ResourceKind
+    ext: string
+    updatedDate?: string
+}
 
 /** A resource of the workspace library, with the local file nodes can read */
 export interface IResourceFile {
