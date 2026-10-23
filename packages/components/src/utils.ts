@@ -24,6 +24,9 @@ import { ICommonObject, IDatabaseEntity, IFileUpload, IMessage, INodeData, IVari
 import { getFileFromStorage } from './storageUtils'
 import { getDefaultDataDir, getEnv } from './wxflowEnv'
 
+// kept in flowState so that nodes that only need it do not load this whole module
+export { processTemplateVariables } from './flowState'
+
 export const numberOrExpressionRegex = '^(\\d+\\.?\\d*|{{.*}})$' //return true if string consists only numbers OR expression {{}}
 export const notEmptyRegex = '(.|\\s)*\\S(.|\\s)*' //return true if string is not empty or blank
 export const FLOWISE_CHATID = 'flowise_chatId'
@@ -1875,53 +1878,6 @@ export const createCodeExecutionSandbox = (
     sandbox['$flow'] = flow
 
     return sandbox
-}
-
-/**
- * Process template variables in state object, replacing {{ output }} and {{ output.property }} patterns
- * @param {ICommonObject} state - The state object to process
- * @param {any} finalOutput - The output value to substitute
- * @returns {ICommonObject} - The processed state object
- */
-export const processTemplateVariables = (state: ICommonObject, finalOutput: any): ICommonObject => {
-    if (!state || Object.keys(state).length === 0) {
-        return state
-    }
-
-    const newState = { ...state }
-
-    for (const key in newState) {
-        const stateValue = newState[key].toString()
-        if (stateValue.includes('{{ output') || stateValue.includes('{{output')) {
-            // Handle simple output replacement (with or without spaces)
-            if (stateValue === '{{ output }}' || stateValue === '{{output}}') {
-                newState[key] = finalOutput
-                continue
-            }
-
-            // Handle JSON path expressions like {{ output.updated }} or {{output.updated}}
-            // eslint-disable-next-line
-            const match = stateValue.match(/\{\{\s*output\.([\w\.]+)\s*\}\}/)
-            if (match) {
-                try {
-                    // Parse the response if it's JSON
-                    const jsonResponse = typeof finalOutput === 'string' ? JSON.parse(finalOutput) : finalOutput
-                    // Get the value using lodash get
-                    const path = match[1]
-                    const value = get(jsonResponse, path)
-                    newState[key] = value ?? stateValue // Fall back to original if path not found
-                } catch (e) {
-                    // If JSON parsing fails, keep original template
-                    newState[key] = stateValue
-                }
-            } else {
-                // Handle simple {{ output }} replacement for backward compatibility
-                newState[key] = newState[key].replaceAll('{{ output }}', finalOutput)
-            }
-        }
-    }
-
-    return newState
 }
 
 /**

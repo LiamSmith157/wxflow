@@ -132,6 +132,8 @@ export interface IChatMessage {
     content: MessageContent
     additional_kwargs?: IMessageAdditionalKwargs
     _isTemporaryImageMessage?: boolean
+    /** Resources attached to this call only (LLM and Agent nodes): never stored in memory or in the execution */
+    _isTemporaryResourceMessage?: boolean
     [key: string]: unknown
 }
 

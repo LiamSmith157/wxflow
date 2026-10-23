@@ -474,6 +474,33 @@ export interface IChannelMedia {
     temporary: boolean
 }
 
+export type ResourceKind = 'image' | 'video' | 'file'
+
+/** A resource of the workspace library, with the local file nodes can read */
+export interface IResourceFile {
+    id: string
+    name: string
+    groupName?: string | null
+    kind: ResourceKind
+    mimeType: string
+    ext: string
+    size: number
+    /** Local path of the stored file */
+    path: string
+    /** The `res://id/<id>` reference of the resource */
+    ref: string
+}
+
+/** Loads resources of the run's workspace for nodes that take their content (Load Resource, LLM and Agent attachments) */
+export interface IResourceRuntime {
+    workspaceId: string
+    /**
+     * Resolve a `res://id/` or `res://name/` reference. Anything else (a path, a URL) is refused, as are kinds not in
+     * `kinds`; the errors are written for the operator.
+     */
+    load(ref: string, options?: { kinds?: ResourceKind[] }): Promise<IResourceFile>
+}
+
 export interface IChannelRuntime {
     /** Workspace the flow runs in; nodes can only use instances of this workspace */
     workspaceId: string

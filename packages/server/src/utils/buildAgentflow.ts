@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { cloneDeep, get } from 'lodash'
 import { WECHAT_VAR_PREFIX, resolveWechatRef } from './channelVariables'
 import { createRunChannelRuntime } from '../channels/runtimeFactory'
+import { createRunResourceRuntime } from '../services/resources/runtimeFactory'
 import TurndownService from 'turndown'
 import {
     AnalyticHandler,
@@ -1285,7 +1286,9 @@ const executeNode = async ({
             iterationContext,
             evaluationRunId,
             // channel handle for the WeChat nodes: scoped to this workspace, carries the triggering event
-            channels: createRunChannelRuntime(workspaceId, wechatValue)
+            channels: createRunChannelRuntime(workspaceId, wechatValue),
+            // resource library handle for the nodes that load resources (Load Resource, LLM and Agent attachments)
+            resources: createRunResourceRuntime(workspaceId)
         }
 
         // Execute node

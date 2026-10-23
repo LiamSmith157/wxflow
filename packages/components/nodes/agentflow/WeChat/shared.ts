@@ -149,51 +149,8 @@ export const branch = (count: number, selected: number): Array<{ isFulfilled: bo
 
 // ─── Media send ──────────────────────────────────────────────────────────────
 
-type ResourceKind = 'image' | 'video' | 'file'
-
-/**
- * The media parameter: pick a resource of the library from the list, or type a URL, the full path of a local file
- * or `res://name/<resource name>` (free text). A pick is stored as `res://id/<id>`, so renaming the resource later
- * does not break the flow. `acceptVariable` keeps variables in the typed value working.
- */
-export const mediaParam = (label: string, description: string, loadMethod: string): INodeParams => ({
-    label,
-    name: 'wechatMedia',
-    type: 'asyncOptions',
-    loadMethod,
-    freeSolo: true,
-    description,
-    acceptVariable: true
-})
-
-const UNGROUPED = 'Ungrouped'
-
-/** Resources of the workspace in the search options (the server sets it from the signed-in user), listed by group */
-const listResources =
-    (kinds?: ResourceKind[]) =>
-    async (_: INodeData, options: ICommonObject = {}): Promise<INodeOptionsValue[]> => {
-        const appDataSource = options.appDataSource as DataSource
-        const databaseEntities = options.databaseEntities as IDatabaseEntity
-        if (!appDataSource || !databaseEntities?.['Resource']) return []
-        const resources = await appDataSource.getRepository(databaseEntities['Resource']).findBy({ ...(options.searchOptions || {}) })
-        return resources
-            .filter((r: any) => !kinds || kinds.includes(r.kind))
-            .map((r: any) => ({
-                label: r.name,
-                name: `res://id/${r.id}`,
-                description: r.groupName || undefined,
-                group: r.groupName || UNGROUPED
-            }))
-            .sort((a: INodeOptionsValue, b: INodeOptionsValue) => {
-                // grouped resources first, in group order; the ungrouped ones last
-                const rank = (o: INodeOptionsValue) => (o.group === UNGROUPED ? 1 : 0)
-                return rank(a) - rank(b) || (a.group ?? '').localeCompare(b.group ?? '') || a.label.localeCompare(b.label)
-            })
-    }
-
-export const listImageResources = listResources(['image'])
-export const listVideoResources = listResources(['video'])
-export const listAllResources = listResources()
+// the media parameter and the resource dropdowns live in src/resourceParams; the send nodes import them from here
+export { listAllResources, listImageResources, listVideoResources, mediaParam } from '../../../src/resourceParams'
 
 /**
  * Send a file-based message (image, file, video). The media parameter is a URL, the full path of a local file or a

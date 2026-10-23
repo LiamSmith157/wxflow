@@ -28,7 +28,8 @@ import {
     IconMicrophone,
     IconSnowflake,
     IconHourglass,
-    IconFilter
+    IconFilter,
+    IconFileImport
 } from '@tabler/icons-react'
 
 export const gridSpacing = 3
@@ -145,6 +146,12 @@ export const AGENTFLOW_ICONS = [
         name: 'talkerFilterAgentflow',
         icon: IconFilter,
         color: '#F28B82'
+    },
+    // loads a resource of the resource library (Agent Flows group)
+    {
+        name: 'loadResourceAgentflow',
+        icon: IconFileImport,
+        color: '#2BB8A8'
     },
     // WeChat group: all in WeChat green
     {

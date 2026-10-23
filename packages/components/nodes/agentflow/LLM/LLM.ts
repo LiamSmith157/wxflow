@@ -18,6 +18,13 @@ import {
 import { processTemplateVariables, configureStructuredOutput, extractResponseContent } from '../../../src/utils'
 import { getModelConfigByModelName, MODEL_TYPE } from '../../../src/modelLoader'
 import { flatten } from 'lodash'
+import { listAttachableResources } from '../../../src/resourceParams'
+import {
+    attachResourcesParam,
+    buildResourceAttachments,
+    insertResourceAttachments,
+    withoutResourceAttachments
+} from '../resourceAttachments'
 
 class LLM_Agentflow implements INode {
     label: string
@@ -36,7 +43,7 @@ class LLM_Agentflow implements INode {
     constructor() {
         this.label = 'LLM'
         this.name = 'llmAgentflow'
-        this.version = 1.1
+        this.version = 1.2
         this.type = 'LLM'
         this.category = 'Agent Flows'
         this.description = 'Large language models to analyze user-provided inputs and generate responses'
@@ -90,6 +97,7 @@ class LLM_Agentflow implements INode {
                     }
                 ]
             },
+            attachResourcesParam('Attach Resources', 'llmResources'),
             {
                 label: 'Enable Memory',
                 name: 'llmEnableMemory',
@@ -329,6 +337,7 @@ class LLM_Agentflow implements INode {
             }
             return returnOptions
         },
+        listAttachableResources,
         async listRuntimeStateKeys(_: INodeData, options: ICommonObject): Promise<INodeOptionsValue[]> {
             const previousNodes = options.previousNodes as ICommonObject[]
             const startAgentflowNode = previousNodes.find((node) => node.name === 'startAgentflow')
@@ -450,6 +459,10 @@ class LLM_Agentflow implements INode {
              * Only the inserted temporary messages contain base64 — other messages are untouched.
              */
             await addImageArtifactsToMessages(messages, options)
+
+            // Resources attached to this node: for this call only, so they are left out of what is stored and recorded
+            const resourceAttachments = await buildResourceAttachments(nodeData.inputs?.llmResources, options, modelConfig)
+            insertResourceAttachments(messages, resourceAttachments)
 
             // Configure structured output if specified
             const isStructuredOutput = _llmStructuredOutput && Array.isArray(_llmStructuredOutput) && _llmStructuredOutput.length > 0
@@ -618,7 +631,7 @@ class LLM_Agentflow implements INode {
              * Then revert all remaining tagged base64 image_url items back to stored-file format.
              * This is to avoid storing the actual base64 data into database
              */
-            const messagesToStore = messages.filter((msg: any) => !msg._isTemporaryImageMessage)
+            const messagesToStore = withoutResourceAttachments(messages.filter((msg: any) => !msg._isTemporaryImageMessage))
             const messagesWithFileReferences = revertBase64ImagesToFileRefs(messagesToStore)
 
             // Only add to runtime chat history if this is the first node
@@ -662,7 +675,8 @@ class LLM_Agentflow implements INode {
                 name: this.name,
                 input: {
                     messages: messagesWithFileReferences,
-                    ...nodeData.inputs
+                    ...nodeData.inputs,
+                    ...(resourceAttachments && { resources: resourceAttachments.resources })
                 },
                 output,
                 state: newState,

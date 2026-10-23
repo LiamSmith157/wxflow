@@ -19,6 +19,13 @@ import { ILLMMessage, IResponseMetadata } from '../Interface.Agentflow'
 import { Tool } from '@langchain/core/tools'
 import { ARTIFACTS_PREFIX, SOURCE_DOCUMENTS_PREFIX, TOOL_ARGS_PREFIX } from '../../../src/agents'
 import { flatten } from 'lodash'
+import { listAttachableResources } from '../../../src/resourceParams'
+import {
+    attachResourcesParam,
+    buildResourceAttachments,
+    insertResourceAttachments,
+    withoutResourceAttachments
+} from '../resourceAttachments'
 import { toolSchemaToJsonSchema, type ToolJsonSchema } from '../../../src/utils'
 import { getErrorMessage } from '../../../src/error'
 import { DataSource } from 'typeorm'
@@ -113,7 +120,7 @@ class Agent_Agentflow implements INode {
     constructor() {
         this.label = 'Agent'
         this.name = 'agentAgentflow'
-        this.version = 3.2
+        this.version = 3.3
         this.type = 'Agent'
         this.category = 'Agent Flows'
         this.description = 'Dynamically choose and utilize tools during runtime, enabling multi-step reasoning'
@@ -167,6 +174,7 @@ class Agent_Agentflow implements INode {
                     }
                 ]
             },
+            attachResourcesParam('Attach Resources', 'agentResources'),
             {
                 label: 'OpenAI Built-in Tools',
                 name: 'agentToolsBuiltInOpenAI',
@@ -631,6 +639,7 @@ class Agent_Agentflow implements INode {
             }
             return returnOptions
         },
+        listAttachableResources,
         async listRuntimeStateKeys(_: INodeData, options: ICommonObject): Promise<INodeOptionsValue[]> {
             const previousNodes = options.previousNodes as ICommonObject[]
             const startAgentflowNode = previousNodes.find((node) => node.name === 'startAgentflow')
@@ -1065,6 +1074,11 @@ class Agent_Agentflow implements INode {
             }
             delete nodeData.inputs?.agentMessages
 
+            // Resources attached to this node: for this call only, so they are left out of what is stored and recorded. Added before
+            // the messages are counted for the tool calls below, which tell their own messages apart by that count
+            const resourceAttachments = await buildResourceAttachments(nodeData.inputs?.agentResources, options, modelConfig)
+            insertResourceAttachments(messages, resourceAttachments)
+
             // Initialize response and determine if streaming is possible
             let response: AIMessageChunk = new AIMessageChunk('')
             const isLastNode = options.isLastNode as boolean
@@ -1462,7 +1476,7 @@ class Agent_Agentflow implements INode {
              * Then revert all remaining tagged base64 image_url items back to stored-file format.
              * This is to avoid storing the actual base64 data into database
              */
-            const messagesToStore = messages.filter((msg: any) => !msg._isTemporaryImageMessage)
+            const messagesToStore = withoutResourceAttachments(messages.filter((msg: any) => !msg._isTemporaryImageMessage))
             const normalizedMessagesToStore = normalizeMessagesForStorage(messagesToStore)
             const messagesWithFileReferences = revertBase64ImagesToFileRefs(normalizedMessagesToStore)
 
@@ -1508,7 +1522,8 @@ class Agent_Agentflow implements INode {
                 name: this.name,
                 input: {
                     messages: messagesWithFileReferences,
-                    ...nodeData.inputs
+                    ...nodeData.inputs,
+                    ...(resourceAttachments && { resources: resourceAttachments.resources })
                 },
                 output,
                 state: newState,

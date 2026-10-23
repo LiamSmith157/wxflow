@@ -22,6 +22,9 @@ export interface ResourceRecord {
     name: string
     kind: string
     ext: string
+    groupName?: string | null
+    mimeType?: string
+    size?: number
 }
 
 /** What this source needs from the resource library; the resource service provides it */
@@ -31,31 +34,42 @@ export interface ResourceLookup {
     pathOf(resource: ResourceRecord): string
 }
 
+/** The resource a `res://` reference points at in the workspace, checked against the accepted kinds */
+export const findResource = async (
+    lookup: ResourceLookup,
+    value: string,
+    workspaceId: string | undefined,
+    kinds?: Array<'image' | 'video' | 'file'>,
+    usage?: string
+): Promise<ResourceRecord> => {
+    if (!workspaceId) throw resourceNoWorkspace()
+    let resource: ResourceRecord | null
+    if (value.startsWith(RESOURCE_ID_PREFIX)) {
+        const id = value.slice(RESOURCE_ID_PREFIX.length).trim()
+        resource = id ? await lookup.findById(workspaceId, id) : null
+        if (!resource) throw resourceByIdMissing(id)
+    } else if (value.startsWith(RESOURCE_NAME_PREFIX)) {
+        const name = value.slice(RESOURCE_NAME_PREFIX.length).trim()
+        if (!name) throw resourceRefInvalid(value)
+        resource = await lookup.findByNameKey(workspaceId, toNameKey(name))
+        if (!resource) throw resourceByNameMissing(name)
+    } else {
+        throw resourceRefInvalid(value)
+    }
+
+    if (kinds && !kinds.includes(resource.kind as never)) {
+        throw resourceWrongKind(resource.name, resource.kind, kinds, usage)
+    }
+    if (!fs.existsSync(lookup.pathOf(resource))) throw resourceFileMissing(resource.name)
+    return resource
+}
+
 export const createResourceSource = (lookup: ResourceLookup): MediaSource => ({
     name: 'resource',
     matches: (value) => value.startsWith('res://'),
     async resolve(value, ctx) {
-        if (!ctx.workspaceId) throw resourceNoWorkspace()
-        let resource: ResourceRecord | null
-        if (value.startsWith(RESOURCE_ID_PREFIX)) {
-            const id = value.slice(RESOURCE_ID_PREFIX.length).trim()
-            resource = id ? await lookup.findById(ctx.workspaceId, id) : null
-            if (!resource) throw resourceByIdMissing(id)
-        } else if (value.startsWith(RESOURCE_NAME_PREFIX)) {
-            const name = value.slice(RESOURCE_NAME_PREFIX.length).trim()
-            if (!name) throw resourceRefInvalid(value)
-            resource = await lookup.findByNameKey(ctx.workspaceId, toNameKey(name))
-            if (!resource) throw resourceByNameMissing(name)
-        } else {
-            throw resourceRefInvalid(value)
-        }
-
-        if (ctx.resourceKinds && !ctx.resourceKinds.includes(resource.kind as never)) {
-            throw resourceWrongKind(resource.name, resource.kind, ctx.resourceKinds)
-        }
-        const file = lookup.pathOf(resource)
-        if (!fs.existsSync(file)) throw resourceFileMissing(resource.name)
-        return { path: file, temporary: false }
+        const resource = await findResource(lookup, value, ctx.workspaceId, ctx.resourceKinds, ctx.resourceUsage)
+        return { path: lookup.pathOf(resource), temporary: false }
     }
 })
 

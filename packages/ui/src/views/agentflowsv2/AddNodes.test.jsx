@@ -22,7 +22,8 @@ jest.mock('@/store/constant', () => {
         AGENTFLOW_ICONS: [
             { name: 'wechatSendTextAgentflow', icon: icon('wechatSendTextAgentflow'), color: '#07C160' },
             { name: 'wechatSendImageAgentflow', icon: icon('wechatSendImageAgentflow'), color: '#07C160' },
-            { name: 'cooldownAgentflow', icon: icon('cooldownAgentflow'), color: '#5BB7E5' }
+            { name: 'cooldownAgentflow', icon: icon('cooldownAgentflow'), color: '#5BB7E5' },
+            { name: 'loadResourceAgentflow', icon: icon('loadResourceAgentflow'), color: '#2BB8A8' }
         ]
     }
 })
@@ -171,6 +172,21 @@ describe('AddNodes palette groups', () => {
         expect(labelsIn('WeChat')).toEqual(['Send Text', 'Send Image'])
         expect(labelsIn('Agent Flows')).toEqual(['Cooldown', 'Agent', 'LLM', 'Start'])
         expect(screen.queryByText('ChatOpenAI')).not.toBeInTheDocument()
+    })
+
+    it('lists Load Resource in the Agent Flows group with its icon', () => {
+        const loadResource = {
+            name: 'loadResourceAgentflow',
+            label: 'Load Resource',
+            description: 'Load a resource of the resource library',
+            category: 'Agent Flows',
+            color: '#2BB8A8'
+        }
+        renderPalette([...nodesData, loadResource])
+        openPalette()
+        expect(headers()).toEqual(['Agent Flows'])
+        expect(labelsIn('Agent Flows')).toContain('Load Resource')
+        expect(screen.getByTestId('icon-loadResourceAgentflow')).toBeInTheDocument()
     })
 
     it('shows only the Agent Flows group when there are no WeChat nodes', () => {

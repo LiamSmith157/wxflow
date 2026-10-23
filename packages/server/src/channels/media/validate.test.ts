@@ -6,7 +6,10 @@ import { findMediaWarnings } from './validate'
 import { MediaResolver } from './resolver'
 import { ResourceLookup, ResourceRecord, registerResourceSource } from './resourceSource'
 
-jest.mock('wxflow-components', () => ({ secureAxiosRequest: jest.fn() }))
+jest.mock('wxflow-components', () => ({
+    secureAxiosRequest: jest.fn(),
+    canExtractText: (ext: string) => ['.pdf', '.docx', '.xlsx', '.xls', '.pptx', '.txt'].includes((ext ?? '').toLowerCase())
+}))
 
 let root: string
 let poster: string
@@ -142,5 +145,111 @@ describe('findMediaWarnings: library resources', () => {
             workspaceId: 'wsB'
         })
         expect(warnings).toHaveLength(1)
+    })
+})
+
+describe('findMediaWarnings: nodes that load or attach resources', () => {
+    const records: ResourceRecord[] = [
+        { id: 'r1', workspaceId: 'wsA', name: '海报-北京', kind: 'image', ext: '.png' },
+        { id: 'r2', workspaceId: 'wsA', name: '开业视频', kind: 'video', ext: '.mp4' },
+        { id: 'r3', workspaceId: 'wsA', name: '产品手册', kind: 'file', ext: '.pdf' },
+        { id: 'r4', workspaceId: 'wsA', name: '素材包', kind: 'file', ext: '.zip' },
+        { id: 'r5', workspaceId: 'wsA', name: '合同模板', kind: 'file', ext: '.doc' }
+    ]
+    const lookup: ResourceLookup = {
+        findById: async (ws, id) => records.find((r) => r.workspaceId === ws && r.id === id) ?? null,
+        findByNameKey: async (ws, key) => records.find((r) => r.workspaceId === ws && r.name.toLowerCase() === key) ?? null,
+        pathOf: (r) => path.join(root, `${r.id}${r.ext}`)
+    }
+    const withResources = () => {
+        for (const r of records) fs.writeFileSync(lookup.pathOf(r), 'x')
+        const resolver = new MediaResolver()
+        registerResourceSource(resolver, lookup)
+        return resolver
+    }
+    const wsCtx = () => ({ ...ctx(), workspaceId: 'wsA' })
+    const nodeWith = (id: string, name: string, inputs: Record<string, unknown>): IReactFlowNode =>
+        ({ id, data: { name, label: name, inputs } } as unknown as IReactFlowNode)
+    const load = (ref: unknown) => nodeWith('load', 'loadResourceAgentflow', { loadResourceRef: ref })
+    const llm = (...refs: unknown[]) => nodeWith('llm', 'llmAgentflow', { llmResources: refs.map((resource) => ({ resource })) })
+    const agent = (...refs: unknown[]) => nodeWith('agent', 'agentAgentflow', { agentResources: refs.map((resource) => ({ resource })) })
+    const issues = async (node: IReactFlowNode) => (await findMediaWarnings([node], withResources(), wsCtx())).flatMap((w) => w.issues)
+
+    describe('Load Resource', () => {
+        it('does not warn about any kind of resource that exists', async () => {
+            for (const ref of ['res://id/r1', 'res://id/r2', 'res://name/产品手册', 'res://id/r4'])
+                expect(await issues(load(ref))).toEqual([])
+        })
+
+        it('warns about a resource that was deleted', async () => {
+            expect(await issues(load('res://id/gone'))).toEqual(['资源不存在,可能已被删除(`res://id/gone`)'])
+            expect(await issues(load('res://name/海报-拉萨'))).toEqual(['资源 `海报-拉萨` 不存在'])
+        })
+
+        it('warns about a local path or a URL: only library resources can be loaded', async () => {
+            for (const value of ['C:dataa.pdf', '/etc/passwd', 'https://example.com/a.pdf']) {
+                const [issue] = await issues(load(value))
+                expect(issue).toContain(value)
+                expect(issue).toContain('只能使用资源库中的资源')
+            }
+        })
+
+        it('does not check a reference with a variable, an empty one, or a value that is not text', async () => {
+            expect(await issues(load('res://name/价目表-{{ $flow.state.city }}'))).toEqual([])
+            expect(await issues(load('{{ $flow.state.ref }}'))).toEqual([])
+            expect(await issues(load(''))).toEqual([])
+            expect(await issues(load(undefined))).toEqual([])
+        })
+    })
+
+    describe.each([
+        ['LLM', llm],
+        ['Agent', agent]
+    ])('%s attachments', (_label, attach) => {
+        it('does not warn about images and documents that can be read', async () => {
+            expect(await issues(attach('res://id/r1', 'res://name/产品手册'))).toEqual([])
+        })
+
+        it('warns about a video, in terms of using it and not of sending it', async () => {
+            expect(await issues(attach('res://id/r2'))).toEqual(['资源 `开业视频` 是视频,不能作为图片或文件使用'])
+        })
+
+        it('warns about documents without text that can be extracted', async () => {
+            expect(await issues(attach('res://id/r4'))).toEqual([
+                '资源 `res://id/r4` 的格式 .zip 不支持提取文本,只能附加图片和 pdf、docx、xlsx、xls、pptx、txt 文档'
+            ])
+            expect((await issues(attach('res://id/r5')))[0]).toContain('.doc')
+        })
+
+        it('warns about a resource that was deleted, and about a path or a URL', async () => {
+            expect(await issues(attach('res://name/海报-拉萨'))).toEqual(['资源 `海报-拉萨` 不存在'])
+            const [issue] = await issues(attach('D:素材手册.pdf'))
+            expect(issue).toContain('只能使用资源库中的资源')
+            expect((await issues(attach('https://example.com/a.pdf')))[0]).toContain('只能使用资源库中的资源')
+        })
+
+        it('does not check references with variables, and ignores empty rows', async () => {
+            expect(await issues(attach('res://name/手册-{{ $wechat.city }}', '', '  ', undefined))).toEqual([])
+        })
+
+        it('puts the problems of all rows into one warning for the node', async () => {
+            const warnings = await findMediaWarnings([attach('res://id/r2', 'res://id/r1', 'res://id/gone')], withResources(), wsCtx())
+            expect(warnings).toHaveLength(1)
+            expect(warnings[0].issues).toHaveLength(2)
+        })
+
+        it('looks in the workspace of the flow only', async () => {
+            const warnings = await findMediaWarnings([attach('res://id/r1')], withResources(), { ...ctx(), workspaceId: 'wsB' })
+            expect(warnings).toHaveLength(1)
+        })
+    })
+
+    it('treats a model node without attachments, or saved before the parameter existed, as fine', async () => {
+        const nodes = [
+            nodeWith('a', 'llmAgentflow', {}),
+            nodeWith('b', 'agentAgentflow', { agentResources: [] }),
+            nodeWith('c', 'llmAgentflow', { llmResources: 'x' })
+        ]
+        expect(await findMediaWarnings(nodes, withResources(), wsCtx())).toEqual([])
     })
 })

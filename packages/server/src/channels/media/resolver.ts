@@ -22,6 +22,8 @@ export interface MediaContext {
     workspaceId?: string
     /** Kinds of resource the caller accepts (any when absent), e.g. only images for Send Image */
     resourceKinds?: Array<'image' | 'video' | 'file'>
+    /** What the caller does with the resource, for the message about a wrong kind ("发送" when absent) */
+    resourceUsage?: string
 }
 
 export interface MediaSource {

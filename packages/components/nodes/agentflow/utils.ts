@@ -5,7 +5,6 @@ import { addSingleFileToStorage, getFileFromStorage } from '../../src/storageUti
 import { ICommonObject, IFileUpload, INodeData } from '../../src/Interface'
 import { BaseMessageLike } from '@langchain/core/messages'
 import {
-    IFlowState,
     IImageFileRef,
     IArtifact,
     IFileAnnotation,
@@ -797,14 +796,8 @@ export const addImageArtifactsToMessages = async (messages: BaseMessageLike[], o
 
 // ─── Flow state management ───────────────────────────────────────────────────
 
-/** Merges new key-value pairs into the flow state. */
-export const updateFlowState = (state: ICommonObject, updateState: IFlowState[]): ICommonObject => {
-    const newFlowState: Record<string, string> = {}
-    for (const s of updateState) {
-        newFlowState[s.key] = s.value
-    }
-    return { ...state, ...newFlowState }
-}
+/** Merges new key-value pairs into the flow state (see src/flowState). */
+export { updateFlowState } from '../../src/flowState'
 
 // ─── Private: converting uploads to base64 image content ─────────────────────
 

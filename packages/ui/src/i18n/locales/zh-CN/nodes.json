@@ -2205,5 +2205,16 @@
     "The mp4 video to send: pick one from the resource library, or enter the full path of a file on this machine, an http(s) URL, or res://name/<resource name> (the name may contain variables)": "要发送的 mp4 视频:从资源库中选择,或输入本机文件的完整路径、http(s) 网址,或 res://name/<资源名称>(名称中可以使用变量)",
     "Ungrouped": "未分组",
     "Duration (seconds)": "时长(秒)",
-    "Length of the video (optional)": "视频时长(可选)"
+    "Length of the video (optional)": "视频时长(可选)",
+    "Load Resource": "载入资源",
+    "Load a resource of the resource library: its text, its local path or its details": "载入资源库中的资源:文本内容、本地路径或资源信息",
+    "Resource": "资源",
+    "Pick a resource from the resource library, or enter res://name/<resource name> (the name may contain variables, for example res://name/Price list-{{ $flow.state.city }}). Only resources of the library can be loaded, not file paths or URLs": "从资源库中选择资源,或输入 res://name/<资源名称>(名称中可以使用变量,例如 res://name/价目表-{{ $flow.state.city }})。只能载入资源库中的资源,不能填写文件路径或网址",
+    "Return": "返回内容",
+    "Text: the text of a document (pdf, docx, xlsx, xls, pptx, txt). Path: the local path of the file. Details: the name, group, type, size and path as JSON": "文本:文档的文本内容(pdf、docx、xlsx、xls、pptx、txt)。路径:文件的本地路径。详情:名称、分组、类型、大小和路径,格式为 JSON",
+    "Local Path": "本地路径",
+    "Details (JSON)": "详情(JSON)",
+    "Attach Resources": "附加资源",
+    "Resources of the resource library to take along in this call: images are shown to the model (the model needs image input turned on), documents (pdf, docx, xlsx, xls, pptx, txt) are given as text. A big document is cut at the character limit; use a Document Store to search big documents instead": "本次调用随附的资源库资源:图片会展示给模型(模型需要开启图片输入),文档(pdf、docx、xlsx、xls、pptx、txt)以文本形式提供。过长的文档会按字符上限截断,需要检索大文档时请使用 Document Store",
+    "Pick a resource from the resource library, or enter res://name/<resource name> (the name may contain variables). Only resources of the library can be attached, not file paths or URLs": "从资源库中选择资源,或输入 res://name/<资源名称>(名称中可以使用变量)。只能附加资源库中的资源,不能填写文件路径或网址"
 }
